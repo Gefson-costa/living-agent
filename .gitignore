@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.env
+.env.*
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+benchmarks/results/
+.claude/
+examples/
+
+# Business & personal docs (not for public repo)
+business.md
+pitch-deck.md
+plan.md
+future.md
+LAUNCH_POSTS.md
+LAUNCH_CHECKLIST.md
+evolution.md
+# Local history archive
+history/

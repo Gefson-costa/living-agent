@@ -1,0 +1,13 @@
+src/
+tests/
+benchmarks/
+.claude/
+.env
+.env.*
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+tsconfig.json
+vitest.config.*
+pitch-deck.md
+SKILL.md
