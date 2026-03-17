@@ -21,7 +21,7 @@ export const TASK_TYPES: TaskType[] = [
 
 // ── Interaction ────────────────────────────────────────────────
 
-import type { EngagementMetrics } from '../core/types.js';
+import type { EngagementMetrics, SafetyConfig } from '../core/types.js';
 
 export interface Interaction {
   id: string;
@@ -61,6 +61,7 @@ export interface LivingAgentConfig {
   noReplyTimeoutMs: number;          // timeout for no-reply auto-finalization (default 300000 = 5min)
 
   sqlitePath?: string;               // path for persistent storage
+  safety?: SafetyConfig;             // safety rails configuration (Escada 2.5)
 }
 
 export const DEFAULT_LIVING_AGENT_CONFIG: LivingAgentConfig = {

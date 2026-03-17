@@ -3,11 +3,13 @@
 //
 //  Parses Vitest JSON output and compares with baseline.
 //  Acceptance: build passes AND tests pass AND passed >= baseline.
+//  Safety: rejects patches that touch protected files.
 // ================================================================
 
 import { exec as execCb } from 'node:child_process';
 import { promisify } from 'node:util';
 import type { TestResults, ValidationResult } from './types.js';
+import { validatePatchPaths } from '../safety/protected-files.js';
 
 const exec = promisify(execCb);
 
@@ -55,7 +57,25 @@ export class Validator {
   }
 
   /** Full validation: build + test + compare with baseline */
-  async validate(baseline: TestResults): Promise<ValidationResult> {
+  async validate(
+    baseline: TestResults,
+    patchFiles?: Array<{ path: string }>,
+    extraProtectedPaths?: readonly string[],
+  ): Promise<ValidationResult> {
+    // Safety: reject patches that touch protected files
+    if (patchFiles && patchFiles.length > 0) {
+      const { valid, violations } = validatePatchPaths(patchFiles, extraProtectedPaths);
+      if (!valid) {
+        return {
+          testsPass: false,
+          buildPass: false,
+          testResults: { total: 0, passed: 0, failed: 0, duration: 0 },
+          baseline,
+          protectedViolations: violations,
+        };
+      }
+    }
+
     const buildPass = await this.runBuild();
     const testResults = await this.runTests();
     const testsPass = testResults.failed === 0 && testResults.passed >= baseline.passed;

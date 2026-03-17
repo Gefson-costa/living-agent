@@ -70,6 +70,7 @@ export interface ValidationResult {
   buildPass: boolean;
   testResults: TestResults;
   baseline: TestResults;
+  protectedViolations?: string[];
 }
 
 export interface PatchResult {

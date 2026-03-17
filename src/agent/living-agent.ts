@@ -45,6 +45,11 @@ import { DEFAULT_LIVING_AGENT_CONFIG } from './interaction.js';
 import type { StrategyGenome } from '../core/types.js';
 import type { PatchResult } from '../self-coding/types.js';
 
+// Safety (Escada 2.5)
+import { BudgetTracker } from '../safety/budget-cap.js';
+import { AuditLog } from '../safety/audit-log.js';
+import { PopulationRollback } from '../safety/rollback.js';
+
 export class LivingAgent {
   private config: LivingAgentConfig;
   private agentConfig: AgentConfig;
@@ -71,6 +76,11 @@ export class LivingAgent {
   private pendingFeedback: Interaction | null = null;
   private sessionTurnCount = 0;
   private noReplyTimer: ReturnType<typeof setTimeout> | null = null;
+
+  // Safety (Escada 2.5)
+  private budgetTracker: BudgetTracker;
+  private auditLog: AuditLog;
+  private rollback: PopulationRollback;
 
   constructor(
     llm: LLMAdapter,
@@ -103,6 +113,11 @@ export class LivingAgent {
       toolNames: this.config.toolNames,
       systemPromptTemplate: this.config.systemPromptTemplate,
     };
+
+    // Safety (Escada 2.5)
+    this.budgetTracker = new BudgetTracker(this.config.safety?.budget);
+    this.auditLog = new AuditLog();
+    this.rollback = new PopulationRollback(this.config.safety?.snapshotRetention ?? 20);
   }
 
   /** Initialize the strategy population. Must call before chat(). */
@@ -187,8 +202,25 @@ export class LivingAgent {
       llmConfig.messages = [...this.conversationHistory];
     }
 
+    // 4.5. Budget check — block if exceeded
+    const budgetCheck = this.budgetTracker.check();
+    if (!budgetCheck.allowed) {
+      this.auditLog.log(AuditLog.createEntry('budget-exceeded', budgetCheck.reason ?? 'Budget exceeded', {
+        strategyId: strategy.genome.id,
+      }));
+      throw new Error(`Budget exceeded: ${budgetCheck.reason}`);
+    }
+    if (budgetCheck.warning) {
+      this.auditLog.log(AuditLog.createEntry('budget-warning', budgetCheck.reason ?? 'Budget warning', {
+        strategyId: strategy.genome.id,
+      }));
+    }
+
     // 5. Execute LLM
     const llmResponse = await this.llm.execute(userMessage, llmConfig);
+
+    // 5.5. Record token usage in budget tracker
+    this.budgetTracker.record(llmResponse.tokensUsed);
 
     // Record conversation turn
     this.conversationHistory.push(
@@ -466,6 +498,21 @@ export class LivingAgent {
     return this.skillLibrary.getAllSkills();
   }
 
+  /** Get the audit log (for inspection) */
+  getAuditLog(): AuditLog {
+    return this.auditLog;
+  }
+
+  /** Get the budget tracker (for inspection) */
+  getBudgetTracker(): BudgetTracker {
+    return this.budgetTracker;
+  }
+
+  /** Get the rollback manager (for inspection) */
+  getRollback(): PopulationRollback {
+    return this.rollback;
+  }
+
   /** Get interaction history */
   getInteractions(): Interaction[] {
     return this.interactions;
@@ -495,6 +542,9 @@ export class LivingAgent {
 
   /** Manually trigger consolidation */
   async runConsolidation(): Promise<void> {
+    // Safety: snapshot population before consolidation
+    this.rollback.snapshot(this.strategies, `consolidation_${this.consolidationCount}`);
+
     // Fitness decay — force strategies to prove value continuously
     applyFitnessDecay(this.strategies);
 
@@ -517,6 +567,26 @@ export class LivingAgent {
 
     // Check population health — rescue if too many strategies are struggling
     this.checkPopulationHealth();
+
+    // Safety: check for fitness degradation after consolidation
+    const avgFitness = this.strategies.length > 0
+      ? this.strategies.reduce((sum, s) => sum + s.fitness, 0) / this.strategies.length
+      : 0;
+    if (this.rollback.checkDegradation(avgFitness)) {
+      const latest = this.rollback.getLatestSnapshot();
+      if (latest) {
+        const restored = this.rollback.restore(latest.id);
+        if (restored) {
+          this.strategies = restored;
+          this.rollback.resetDegradation();
+          this.auditLog.log(AuditLog.createEntry('rollback', `Auto-rollback: fitness degraded >20% for 3 cycles. Restored snapshot ${latest.id}`, {
+            fitnessBefore: avgFitness,
+            fitnessAfter: latest.avgFitness,
+            rollbackId: latest.id,
+          }));
+        }
+      }
+    }
   }
 
   /** Rescue the population if too many strategies are below cullThreshold */

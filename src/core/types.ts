@@ -248,3 +248,32 @@ export interface StorageAdapter {
   loadMetadata(key: string): Promise<string | null>;
   close?(): void | Promise<void>;
 }
+
+// ── Safety Types (Escada 2.5) ────────────────────────────────────
+
+export interface BudgetConfig {
+  maxTokensPerDay: number;      // hard limit, default 1_000_000
+  maxCostPerDay: number;        // USD, default 10.0
+  warningThreshold: number;     // 0.8 = warn at 80%
+  action: 'pause' | 'kill';
+}
+
+export interface AuditEntry {
+  timestamp: number;
+  type: 'mutation' | 'self-code-patch' | 'tool-synthesis' | 'arch-proposal'
+      | 'rollback' | 'budget-warning' | 'budget-exceeded' | 'protected-file-violation';
+  strategyId: string;
+  description: string;
+  fitnessBefore: number;
+  fitnessAfter: number | null;
+  tokensUsed: number;
+  approved: boolean;
+  rollbackId: string | null;
+}
+
+export interface SafetyConfig {
+  budget?: BudgetConfig;
+  protectedPaths?: string[];
+  enableAudit?: boolean;
+  snapshotRetention?: number;   // max snapshots to keep (default 20)
+}

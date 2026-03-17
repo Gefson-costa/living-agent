@@ -165,3 +165,12 @@ export type {
   OptimizedConfig,
   PrincipleInfo,
 } from './integrations/openclaw/plugin.js';
+
+// Safety (Escada 2.5)
+export { BudgetTracker } from './safety/budget-cap.js';
+export type { BudgetUsage, BudgetCheckResult } from './safety/budget-cap.js';
+export { AuditLog } from './safety/audit-log.js';
+export type { AuditFilter } from './safety/audit-log.js';
+export { PROTECTED_PATHS, isProtectedPath, validatePatchPaths } from './safety/protected-files.js';
+export { PopulationRollback, resetSnapshotCounter } from './safety/rollback.js';
+export type { PopulationSnapshot } from './safety/rollback.js';
