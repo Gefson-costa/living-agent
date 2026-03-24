@@ -19,6 +19,7 @@ import { PatchGenerator } from './patch-generator.js';
 import { GitSandbox } from './sandbox.js';
 import { Validator } from './validator.js';
 import { SelfCodingArchive } from './archive.js';
+import { AuditLog } from '../safety/audit-log.js';
 
 export class SelfCodingLoop {
   private config: SelfCodingConfig;
@@ -27,8 +28,9 @@ export class SelfCodingLoop {
   private sandbox: GitSandbox;
   private validator: Validator;
   private archive: SelfCodingArchive;
+  private auditLog: AuditLog | null;
 
-  constructor(config: Partial<SelfCodingConfig> & { projectRoot: string; llm: SelfCodingConfig['llm'] }, store: StorageAdapter) {
+  constructor(config: Partial<SelfCodingConfig> & { projectRoot: string; llm: SelfCodingConfig['llm'] }, store: StorageAdapter, auditLog?: AuditLog) {
     this.config = { ...DEFAULT_SELF_CODING_CONFIG, ...config } as SelfCodingConfig;
     this.validator = new Validator(
       this.config.projectRoot,
@@ -39,6 +41,7 @@ export class SelfCodingLoop {
     this.patchGen = new PatchGenerator(this.config.llm, this.config.projectRoot, this.config.genome);
     this.sandbox = new GitSandbox(this.config.projectRoot, this.config.branchPrefix);
     this.archive = new SelfCodingArchive(store);
+    this.auditLog = auditLog ?? null;
   }
 
   /** Initialize — load archive history */
@@ -79,20 +82,20 @@ export class SelfCodingLoop {
     // 5. Read relevant files for context
     const contextFiles = await this.readContextFiles(issue);
 
-    // 6. Generate patch
-    const patch = await this.patchGen.generatePatch(issue, contextFiles);
+    // 6. Generate patch candidates (Tree Search)
+    const patches = await this.patchGen.generatePatchCandidates(issue, contextFiles, 3);
 
-    if (patch.files.length === 0) {
+    if (patches.length === 0) {
       const attempt: CodingAttempt = {
-        id: patch.id,
+        id: `failed_${Date.now()}`,
         issue,
-        patch,
+        patch: null,
         result: null,
         timestamp: Date.now(),
       };
       await this.archive.record(attempt);
       return {
-        patchId: patch.id,
+        patchId: 'none',
         success: false,
         testsPass: false,
         buildPass: false,
@@ -105,73 +108,113 @@ export class SelfCodingLoop {
     // 7. Get baseline test results
     const baseline = await this.validator.runTests();
 
-    // 8. Create branch and apply patch
-    const branchName = await this.sandbox.createBranch(patch.id);
+    let bestResult: PatchResult | null = null;
+    let bestPatch = patches[0];
 
-    let result: PatchResult;
-    try {
-      await this.sandbox.applyPatch(patch);
+    // Evaluate candidates
+    for (const patch of patches) {
+      // 8. Create branch and apply patch
+      const branchName = await this.sandbox.createBranch(patch.id);
 
-      // 9. Validate
-      const validation = await this.validator.validate(baseline);
+      let result: PatchResult;
+      try {
+        await this.sandbox.applyPatch(patch);
 
-      const success = validation.buildPass && validation.testsPass;
-      const fitnessGain = success
-        ? (validation.testResults.passed - baseline.passed) / Math.max(1, baseline.total)
-        : 0;
+        // 9. Validate (checks protected files + build + tests)
+        const validation = await this.validator.validate(baseline, patch.files, this.config.excludePatterns);
 
-      // 10. Merge or leave for review
-      let merged = false;
-      if (success && !this.config.requireHumanReview) {
-        await this.sandbox.merge(branchName);
-        merged = true;
-      } else if (!success) {
-        await this.sandbox.rollback(branchName);
+        const success = validation.buildPass && validation.testsPass;
+        const fitnessGain = success
+          ? (validation.testResults.passed - baseline.passed) / Math.max(1, baseline.total)
+          : 0;
+
+        result = {
+          patchId: patch.id,
+          success,
+          testsPass: validation.testsPass,
+          buildPass: validation.buildPass,
+          fitnessGain,
+          branchName,
+          merged: false,
+        };
+      } catch (err) {
+        result = {
+          patchId: patch.id,
+          success: false,
+          testsPass: false,
+          buildPass: false,
+          fitnessGain: 0,
+          branchName,
+          merged: false,
+        };
       }
-      // If requireHumanReview && success: leave branch for review
 
-      result = {
-        patchId: patch.id,
-        success,
-        testsPass: validation.testsPass,
-        buildPass: validation.buildPass,
-        fitnessGain,
-        branchName: merged ? '' : branchName,
-        merged,
-      };
-    } catch (err) {
-      // Rollback on any exception
+      // Rollback to clean state for next candidate evaluation
       try {
         await this.sandbox.rollback(branchName);
       } catch {
-        // Best effort rollback
+        // Best effort
       }
 
-      result = {
-        patchId: patch.id,
-        success: false,
-        testsPass: false,
-        buildPass: false,
-        fitnessGain: 0,
-        branchName: '',
-        merged: false,
-      };
+      // Update best candidate
+      if (
+        !bestResult ||
+        result.fitnessGain > bestResult.fitnessGain ||
+        (result.success && !bestResult.success)
+      ) {
+        bestResult = result;
+        bestPatch = patch;
+      }
     }
 
-    // 11. Record attempt
+    // 10. Re-apply the best patch if it was successful and handle merge/review
+    if (bestResult && bestResult.success) {
+      const finalBranch = await this.sandbox.createBranch(bestPatch.id);
+      try {
+        await this.sandbox.applyPatch(bestPatch);
+        bestResult.branchName = finalBranch;
+
+        if (!this.config.requireHumanReview) {
+          await this.sandbox.merge(finalBranch);
+          bestResult.merged = true;
+          bestResult.branchName = '';
+        }
+      } catch (err) {
+        bestResult.success = false;
+        try { await this.sandbox.rollback(finalBranch); } catch {}
+      }
+    } else {
+      bestResult!.branchName = '';
+    }
+
+    // 11. Record attempt and audit
     const attempt: CodingAttempt = {
-      id: patch.id,
+      id: bestPatch.id,
       issue,
-      patch,
-      result,
+      patch: bestPatch,
+      result: bestResult,
       timestamp: Date.now(),
     };
     await this.archive.record(attempt);
 
-    // 12. Report result to evolution system (if connected)
-    this.config.onPatchResult?.(result);
+    if (this.auditLog && bestResult) {
+      this.auditLog.log(AuditLog.createEntry(
+        'self-code-patch',
+        `Patch ${bestPatch.id}: ${bestResult.success ? 'applied' : 'rejected'} — ${bestPatch.description} (${patches.length} candidates evaluated)`,
+        {
+          strategyId: this.config.genome?.id ?? 'system',
+          fitnessBefore: 0,
+          fitnessAfter: bestResult.fitnessGain,
+        },
+      ));
+    }
 
-    return result;
+    // 12. Report result to evolution system (if connected)
+    if (bestResult) {
+      this.config.onPatchResult?.(bestResult);
+    }
+
+    return bestResult!;
   }
 
   /** Run multiple improvement cycles */

@@ -62,6 +62,11 @@ export interface LivingAgentConfig {
 
   sqlitePath?: string;               // path for persistent storage
   safety?: SafetyConfig;             // safety rails configuration (Escada 2.5)
+
+  selfCoding?: {                     // Escada 3 features
+    enabled: boolean;
+    projectRoot: string;
+  };
 }
 
 export const DEFAULT_LIVING_AGENT_CONFIG: LivingAgentConfig = {

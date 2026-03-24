@@ -1,14 +1,34 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { PatchGenerator, resetPatchCounter } from '../../src/self-coding/patch-generator.js';
-import { MockAdapter } from '../../src/llm/adapter.js';
-import type { CodeIssue } from '../../src/self-coding/types.js';
+import type { CodeIssue, CodePatch } from '../../src/self-coding/types.js';
+import type { LLMAdapter, LLMConfig, LLMResponse } from '../../src/core/types.js';
+
+class JSONMockAdapter implements LLMAdapter {
+  async execute(prompt: string, config: LLMConfig): Promise<LLMResponse> {
+    if (prompt.includes('no-json')) {
+      return { content: 'This is just text, no JSON here.', tokensUsed: 10, latencyMs: 50 };
+    }
+
+    const response = {
+      description: 'Mock fix applied',
+      files: [
+        {
+          path: 'src/test.ts',
+          original: 'const x = 1;',
+          modified: `const x = 1;\n// fixed at temp ${config.temperature.toFixed(2)}`
+        }
+      ]
+    };
+    return { content: JSON.stringify(response), tokensUsed: 100, latencyMs: 100 };
+  }
+}
 
 describe('PatchGenerator', () => {
   let generator: PatchGenerator;
 
   beforeEach(() => {
     resetPatchCounter();
-    generator = new PatchGenerator(new MockAdapter(), process.cwd());
+    generator = new PatchGenerator(new JSONMockAdapter(), process.cwd());
   });
 
   it('generates a patch with an ID', async () => {
@@ -19,13 +39,14 @@ describe('PatchGenerator', () => {
       description: 'Variable is undefined',
     };
 
-    const patch = await generator.generatePatch(issue, [
+    const patches = await generator.generatePatchCandidates(issue, [
       { path: 'src/test.ts', content: 'const x = 1;' },
-    ]);
+    ], 1);
 
-    expect(patch.id).toMatch(/^patch_1_/);
-    expect(patch.issue).toBe(issue);
-    expect(patch.description).toBeDefined();
+    expect(patches.length).toBe(1);
+    expect(patches[0].id).toMatch(/^patch_1_/);
+    expect(patches[0].issue).toBe(issue);
+    expect(patches[0].files[0].modified).toContain('fixed');
   });
 
   it('includes issue context in the patch description', async () => {
@@ -38,11 +59,9 @@ describe('PatchGenerator', () => {
       suggestedFix: 'Remove the function',
     };
 
-    const patch = await generator.generatePatch(issue, []);
-
-    // Patch should have a description even if mock can't generate proper patches
-    expect(typeof patch.description).toBe('string');
-    expect(patch.description.length).toBeGreaterThan(0);
+    const patches = await generator.generatePatchCandidates(issue, [], 1);
+    expect(patches.length).toBe(1);
+    expect(patches[0].description).toBe('Mock fix applied');
   });
 
   it('handles mock LLM that does not return JSON gracefully', async () => {
@@ -50,17 +69,17 @@ describe('PatchGenerator', () => {
       type: 'bug',
       severity: 'medium',
       file: 'src/test.ts',
-      description: 'Issue',
+      description: 'no-json please',
     };
 
-    // MockAdapter returns numeric content, not JSON
-    const patch = await generator.generatePatch(issue, []);
+    // The JSONMockAdapter returns raw string if 'no-json' is in prompt
+    const patches = await generator.generatePatchCandidates(issue, [], 1);
 
-    // Should not crash, may return empty files
-    expect(Array.isArray(patch.files)).toBe(true);
+    // Should gracefully return empty array because no files were parsed
+    expect(patches.length).toBe(0);
   });
 
-  it('increments patch counter for unique IDs', async () => {
+  it('generates multiple unique candidates', async () => {
     const issue: CodeIssue = {
       type: 'bug',
       severity: 'high',
@@ -68,9 +87,14 @@ describe('PatchGenerator', () => {
       description: 'Issue',
     };
 
-    const p1 = await generator.generatePatch(issue, []);
-    const p2 = await generator.generatePatch(issue, []);
-
-    expect(p1.id).not.toBe(p2.id);
+    // Tree search count = 3
+    const patches = await generator.generatePatchCandidates(issue, [], 3);
+    
+    // Each call gets a slightly higher temperature, which our mock incorporates into the modified code
+    expect(patches.length).toBe(3);
+    
+    // Ensure IDs are unique
+    const ids = new Set(patches.map(p => p.id));
+    expect(ids.size).toBe(3);
   });
 });

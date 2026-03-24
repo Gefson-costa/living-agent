@@ -26,13 +26,12 @@ export class PatchGenerator {
     this.genome = genome;
   }
 
-  /** Generate a patch for a given issue with surrounding file context */
-  async generatePatch(
+  /** Generate multiple patch candidates for a given issue (Tree Search) */
+  async generatePatchCandidates(
     issue: CodeIssue,
     contextFiles: Array<{ path: string; content: string }>,
-  ): Promise<CodePatch> {
-    const patchId = `patch_${++patchCounter}_${Date.now()}`;
-
+    count: number = 3,
+  ): Promise<CodePatch[]> {
     const fileContext = contextFiles
       .map(f => `--- ${f.path} ---\n${f.content}`)
       .join('\n\n');
@@ -67,7 +66,7 @@ IMPORTANT:
 - Do not modify files in src/self-coding/`;
 
     // Use evolved genome parameters when available
-    const temperature = this.genome
+    const baseTemperature = this.genome
       ? Math.min(0.4, this.genome.temperature * 0.4)  // constrain for code: max 0.4
       : 0.1;
 
@@ -76,21 +75,47 @@ IMPORTANT:
       systemPrompt += '\nThink step-by-step about the root cause before generating the fix.';
     }
 
-    const response = await this.llm.execute(prompt, {
-      temperature,
-      maxTokens: 4000,
-      systemPrompt,
-      toolNames: [],
+    const promises = Array.from({ length: count }).map((_, index) => {
+      // Jitter temperature slightly to encourage diverse candidates
+      const temperature = Math.min(1.0, baseTemperature + (index * 0.15));
+      return this.llm.execute(prompt, {
+        temperature,
+        maxTokens: 4000,
+        systemPrompt,
+        toolNames: [],
+      });
     });
 
-    const patchFiles = this.parsePatchResponse(response.content, contextFiles);
+    const responses = await Promise.all(promises);
+    const validPatches: CodePatch[] = [];
 
-    return {
-      id: patchId,
-      issue,
-      files: patchFiles,
-      description: this.extractDescription(response.content) ?? `Fix: ${issue.description}`,
-    };
+    for (const response of responses) {
+      const patchFiles = this.parsePatchResponse(response.content, contextFiles);
+      if (patchFiles.length > 0) {
+        const patchId = `patch_${++patchCounter}_${Date.now()}`;
+        validPatches.push({
+          id: patchId,
+          issue,
+          files: patchFiles,
+          description: this.extractDescription(response.content) ?? `Fix: ${issue.description}`,
+        });
+      }
+    }
+
+    // Deduplicate identical patches based on modified file contents
+    const uniquePatches: CodePatch[] = [];
+    const seenContents = new Set<string>();
+
+    for (const patch of validPatches) {
+      // Hash based on file paths and modified contents
+      const hash = patch.files.map(f => `${f.path}:${f.modified}`).join('|');
+      if (!seenContents.has(hash)) {
+        seenContents.add(hash);
+        uniquePatches.push(patch);
+      }
+    }
+
+    return uniquePatches;
   }
 
   /** Read a file from the project */

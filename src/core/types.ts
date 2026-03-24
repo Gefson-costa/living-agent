@@ -269,6 +269,21 @@ export interface AuditEntry {
   tokensUsed: number;
   approved: boolean;
   rollbackId: string | null;
+  updates?: Record<string, any>;
+}
+
+// ── Escada 3: Self-Modification ────────────────────────────────
+
+export interface ArchitectureProposal {
+  id: string;
+  description: string;
+  expectedImpact: string;
+  configUpdates: Record<string, number>;
+  fitnessBeforeApply: number;
+  fitnessAfterApply: number | null;
+  status: 'proposed' | 'testing' | 'accepted' | 'rejected' | 'rolled-back';
+  timestamp: number;
+  testCyclesRemaining: number;
 }
 
 export interface SafetyConfig {

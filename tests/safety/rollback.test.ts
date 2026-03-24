@@ -72,15 +72,16 @@ describe('PopulationRollback', () => {
 
     const restored = rollback.restore(id);
     expect(restored).not.toBeNull();
-    expect(restored!.length).toBe(2);
-    expect(restored![0].fitness).toBeCloseTo(0.7, 5);
-    expect(restored![1].fitness).toBeCloseTo(0.3, 5);
+    const { strategies: restoredStrats } = restored!;
+    expect(restoredStrats.length).toBe(2);
+    expect(restoredStrats[0].fitness).toBeCloseTo(0.7, 5);
+    expect(restoredStrats[1].fitness).toBeCloseTo(0.3, 5);
   });
 
   it('restored strategies have correct genome types', () => {
     const strategies = [createTestStrategy()];
     const id = rollback.snapshot(strategies, 'test');
-    const restored = rollback.restore(id)!;
+    const { strategies: restored } = rollback.restore(id)!;
 
     expect(restored[0].genome.promptStyle).toBeInstanceOf(Float32Array);
     expect(restored[0].genome.toolPreferences).toBeInstanceOf(Float32Array);
@@ -89,7 +90,7 @@ describe('PopulationRollback', () => {
   it('restored strategies preserve taskTypeMemory', () => {
     const strategies = [createTestStrategy()];
     const id = rollback.snapshot(strategies, 'test');
-    const restored = rollback.restore(id)!;
+    const { strategies: restored } = rollback.restore(id)!;
 
     expect(restored[0].taskTypeMemory).toBeInstanceOf(Map);
     expect(restored[0].taskTypeMemory.get('coding')).toBeCloseTo(0.7, 5);

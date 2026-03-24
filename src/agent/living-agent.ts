@@ -45,10 +45,13 @@ import { DEFAULT_LIVING_AGENT_CONFIG } from './interaction.js';
 import type { StrategyGenome } from '../core/types.js';
 import type { PatchResult } from '../self-coding/types.js';
 
-// Safety (Escada 2.5)
 import { BudgetTracker } from '../safety/budget-cap.js';
 import { AuditLog } from '../safety/audit-log.js';
 import { PopulationRollback } from '../safety/rollback.js';
+
+// Escada 3: Self-Modification
+import { ToolSynthesizer } from '../self-coding/tool-synthesis.js';
+import { ArchitectureEvolution } from '../self-coding/arch-evolution.js';
 
 export class LivingAgent {
   private config: LivingAgentConfig;
@@ -81,6 +84,11 @@ export class LivingAgent {
   private budgetTracker: BudgetTracker;
   private auditLog: AuditLog;
   private rollback: PopulationRollback;
+
+  // Escada 3: Self-Modification
+  private toolSynthesizer?: ToolSynthesizer;
+  private toolsSynthesized = new Set<string>();
+  private archEvolution?: ArchitectureEvolution;
 
   constructor(
     llm: LLMAdapter,
@@ -118,6 +126,12 @@ export class LivingAgent {
     this.budgetTracker = new BudgetTracker(this.config.safety?.budget);
     this.auditLog = new AuditLog();
     this.rollback = new PopulationRollback(this.config.safety?.snapshotRetention ?? 20);
+
+    // Escada 3: Self-Modification
+    if (this.config.selfCoding?.enabled) {
+      this.toolSynthesizer = new ToolSynthesizer(this.llm, this.config.selfCoding.projectRoot);
+      this.archEvolution = new ArchitectureEvolution(this.llm);
+    }
   }
 
   /** Initialize the strategy population. Must call before chat(). */
@@ -313,6 +327,25 @@ export class LivingAgent {
         if (strategy.genome.skillRefs.length > 10) {
           strategy.genome.skillRefs = strategy.genome.skillRefs.slice(-10);
         }
+      }
+    }
+
+    // Try tool synthesis if enabled and struggling (Escada 3)
+    if (this.toolSynthesizer && hybridFitness < 0.3) {
+      const memoryScore = strategy.taskTypeMemory.get(taskType) ?? 1.0;
+      if (memoryScore < 0.4 && !this.toolsSynthesized.has(taskType)) {
+        this.toolsSynthesized.add(taskType);
+        // Fire and forget synthesis to not block interaction
+        this.toolSynthesizer.synthesizeTool(taskType, userMessage, strategy.genome.id).then(tool => {
+          if (tool) {
+            this.config.toolNames.push(tool.name);
+            this.auditLog.log(AuditLog.createEntry('tool-synthesis', `Synthesized tool: ${tool.name} for task type '${taskType}' (by ${tool.createdBy})`, {
+              strategyId: strategy.genome.id,
+              fitnessBefore: memoryScore,
+              fitnessAfter: null,
+            }));
+          }
+        }).catch(() => { /* ignore synthesis errors */ });
       }
     }
 
@@ -543,7 +576,13 @@ export class LivingAgent {
   /** Manually trigger consolidation */
   async runConsolidation(): Promise<void> {
     // Safety: snapshot population before consolidation
-    this.rollback.snapshot(this.strategies, `consolidation_${this.consolidationCount}`);
+    const configState = {
+      mutationRate: this.agentConfig.mutationRate,
+      epsilon: this.config.epsilon,
+      skillExtractionThreshold: this.config.skillExtractionThreshold,
+      cullThreshold: this.agentConfig.cullThreshold,
+    };
+    this.rollback.snapshot(this.strategies, `consolidation_${this.consolidationCount}`, configState);
 
     // Fitness decay — force strategies to prove value continuously
     applyFitnessDecay(this.strategies);
@@ -562,6 +601,59 @@ export class LivingAgent {
       await this.principleDistiller.distill(taskType);
     }
 
+    // Compute avg fitness for use by arch evolution and rollback
+    const avgFitnessForArch = this.strategies.length > 0
+      ? this.strategies.reduce((sum, s) => sum + s.fitness, 0) / this.strategies.length
+      : 0;
+
+    // Architecture Evolution — A/B test flow (Escada 3)
+    if (this.archEvolution) {
+      const activeProposal = this.archEvolution.getActiveProposal();
+
+      if (activeProposal?.status === 'testing') {
+        // Evaluate ongoing A/B test
+        const verdict = this.archEvolution.evaluateCycle(avgFitnessForArch);
+        if (verdict === 'reject') {
+          // Rollback config to pre-proposal state
+          this.restoreConfigFromSnapshot();
+          this.auditLog.log(AuditLog.createEntry('arch-proposal', `Rejected proposal: ${activeProposal.description} (fitness ${activeProposal.fitnessAfterApply?.toFixed(3)} vs baseline ${activeProposal.fitnessBeforeApply.toFixed(3)})`, {
+            strategyId: 'system',
+            updates: activeProposal.configUpdates,
+          }));
+        } else if (verdict === 'accept') {
+          this.auditLog.log(AuditLog.createEntry('arch-proposal', `Accepted proposal: ${activeProposal.description} (fitness improved)`, {
+            strategyId: 'system',
+            updates: activeProposal.configUpdates,
+          }));
+        }
+      } else if (this.consolidationCount % 5 === 0) {
+        // Propose new changes every 5 cycles when no active test
+        const currentConfig = {
+          mutationRate: this.agentConfig.mutationRate,
+          epsilon: this.config.epsilon ?? 0,
+          skillExtractionThreshold: this.config.skillExtractionThreshold ?? 0,
+          cullThreshold: this.agentConfig.cullThreshold,
+          noveltyWeight: this.agentConfig.noveltyWeight,
+          elitismRate: this.agentConfig.elitismRate,
+        };
+        const stats = this.getStatus();
+        const metrics = `Avg Fitness: ${stats.avgFitness.toFixed(2)}\nHealth: ${stats.populationHealth}\nTask Distribution: ${JSON.stringify(stats.taskTypeDistribution)}\nCurrent Config: ${JSON.stringify(currentConfig)}`;
+
+        const proposal = await this.archEvolution.proposeChanges(metrics, currentConfig);
+        if (proposal) {
+          const updates = this.archEvolution.startTesting(proposal, avgFitnessForArch);
+          for (const [key, value] of Object.entries(updates)) {
+            if (key in this.config) (this.config as any)[key] = value;
+            if (key in this.agentConfig) (this.agentConfig as any)[key] = value;
+          }
+          this.auditLog.log(AuditLog.createEntry('arch-proposal', `Started A/B test: ${proposal.description}`, {
+            strategyId: 'system',
+            updates: proposal.configUpdates,
+          }));
+        }
+      }
+    }
+
     // Calibrate fitness weights based on self-eval vs user feedback correlation
     this.fitnessWeights = await calibrateWeights(this.store);
 
@@ -569,23 +661,39 @@ export class LivingAgent {
     this.checkPopulationHealth();
 
     // Safety: check for fitness degradation after consolidation
-    const avgFitness = this.strategies.length > 0
-      ? this.strategies.reduce((sum, s) => sum + s.fitness, 0) / this.strategies.length
-      : 0;
-    if (this.rollback.checkDegradation(avgFitness)) {
+    if (this.rollback.checkDegradation(avgFitnessForArch)) {
       const latest = this.rollback.getLatestSnapshot();
       if (latest) {
         const restored = this.rollback.restore(latest.id);
         if (restored) {
-          this.strategies = restored;
+          this.strategies = restored.strategies;
+          if (restored.configState) {
+            if (restored.configState.mutationRate !== undefined) this.agentConfig.mutationRate = restored.configState.mutationRate;
+            if (restored.configState.epsilon !== undefined) this.config.epsilon = restored.configState.epsilon;
+            if (restored.configState.skillExtractionThreshold !== undefined) this.config.skillExtractionThreshold = restored.configState.skillExtractionThreshold;
+            if (restored.configState.cullThreshold !== undefined) this.agentConfig.cullThreshold = restored.configState.cullThreshold;
+          }
           this.rollback.resetDegradation();
           this.auditLog.log(AuditLog.createEntry('rollback', `Auto-rollback: fitness degraded >20% for 3 cycles. Restored snapshot ${latest.id}`, {
-            fitnessBefore: avgFitness,
+            fitnessBefore: avgFitnessForArch,
             fitnessAfter: latest.avgFitness,
             rollbackId: latest.id,
           }));
         }
       }
+    }
+  }
+
+  /** Restore config from the latest snapshot (used when arch proposal is rejected). */
+  private restoreConfigFromSnapshot(): void {
+    const latest = this.rollback.getLatestSnapshot();
+    if (!latest) return;
+    const restored = this.rollback.restore(latest.id);
+    if (restored?.configState) {
+      if (restored.configState.mutationRate !== undefined) this.agentConfig.mutationRate = restored.configState.mutationRate;
+      if (restored.configState.epsilon !== undefined) this.config.epsilon = restored.configState.epsilon;
+      if (restored.configState.skillExtractionThreshold !== undefined) this.config.skillExtractionThreshold = restored.configState.skillExtractionThreshold;
+      if (restored.configState.cullThreshold !== undefined) this.agentConfig.cullThreshold = restored.configState.cullThreshold;
     }
   }
 

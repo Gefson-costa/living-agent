@@ -14,6 +14,14 @@ export interface PopulationSnapshot {
   timestamp: number;
   avgFitness: number;
   strategies: SerializedStrategy[];
+  configState?: SerializedConfigState;
+}
+
+export interface SerializedConfigState {
+  mutationRate?: number;
+  epsilon?: number;
+  skillExtractionThreshold?: number;
+  cullThreshold?: number;
 }
 
 interface SerializedStrategy {
@@ -49,8 +57,8 @@ export class PopulationRollback {
     this.maxSnapshots = maxSnapshots;
   }
 
-  /** Take a snapshot of the current population. Returns snapshot ID. */
-  snapshot(strategies: Strategy[], label = 'consolidation'): string {
+  /** Take a snapshot of the current population and active configuration. Returns snapshot ID. */
+  snapshot(strategies: Strategy[], label = 'consolidation', configState?: SerializedConfigState): string {
     const id = `snap_${++snapshotCounter}_${Date.now()}`;
     const avgFitness = strategies.length > 0
       ? strategies.reduce((sum, s) => sum + s.fitness, 0) / strategies.length
@@ -62,6 +70,7 @@ export class PopulationRollback {
       timestamp: Date.now(),
       avgFitness,
       strategies: strategies.map(s => serializeStrategy(s)),
+      configState,
     };
 
     this.snapshots.set(id, snap);
@@ -71,11 +80,14 @@ export class PopulationRollback {
     return id;
   }
 
-  /** Restore strategies from a snapshot. Returns new Strategy array. */
-  restore(snapshotId: string): Strategy[] | null {
+  /** Restore strategies and config state from a snapshot. */
+  restore(snapshotId: string): { strategies: Strategy[], configState?: SerializedConfigState } | null {
     const snap = this.snapshots.get(snapshotId);
     if (!snap) return null;
-    return snap.strategies.map(s => deserializeStrategy(s));
+    return {
+      strategies: snap.strategies.map(s => deserializeStrategy(s)),
+      configState: snap.configState,
+    };
   }
 
   /** Get the most recent snapshot */
