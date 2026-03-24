@@ -107,10 +107,16 @@ Response format MUST be a strict JSON object:
 
     try {
       const jsonMatch = response.content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) return null;
+      if (!jsonMatch) {
+        console.warn('ArchEvolution: no JSON found in LLM response');
+        return null;
+      }
 
       const data = JSON.parse(jsonMatch[0]);
-      if (!data.proposal || !data.proposal.configUpdates) return null;
+      if (!data.proposal || !data.proposal.configUpdates) {
+        console.warn('ArchEvolution: proposal missing configUpdates', JSON.stringify(data).slice(0, 200));
+        return null;
+      }
 
       const rawUpdates = data.proposal.configUpdates as Record<string, number>;
       if (Object.keys(rawUpdates).length === 0) return null;
@@ -132,7 +138,8 @@ Response format MUST be a strict JSON object:
       };
 
       return proposal;
-    } catch {
+    } catch (err) {
+      console.warn('ArchEvolution: failed to parse proposal', err instanceof Error ? err.message : String(err));
       return null;
     }
   }

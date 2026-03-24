@@ -337,7 +337,7 @@ export class LivingAgent {
         this.toolsSynthesized.add(taskType);
         // Fire and forget synthesis to not block interaction
         this.toolSynthesizer.synthesizeTool(taskType, userMessage, strategy.genome.id).then(tool => {
-          if (tool) {
+          if (tool && !this.config.toolNames.includes(tool.name)) {
             this.config.toolNames.push(tool.name);
             this.auditLog.log(AuditLog.createEntry('tool-synthesis', `Synthesized tool: ${tool.name} for task type '${taskType}' (by ${tool.createdBy})`, {
               strategyId: strategy.genome.id,
@@ -345,7 +345,9 @@ export class LivingAgent {
               fitnessAfter: null,
             }));
           }
-        }).catch(() => { /* ignore synthesis errors */ });
+        }).catch((err) => {
+          console.warn('ToolSynthesis failed for', taskType, err instanceof Error ? err.message : String(err));
+        });
       }
     }
 

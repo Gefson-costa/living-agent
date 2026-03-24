@@ -23,6 +23,11 @@ Response: ${response}
 
 Reply with ONLY a single number from 0 to 10.`;
 
+  // Empty or error responses should score 0, not neutral
+  if (!response || !response.trim() || response.startsWith('Error:')) {
+    return 0;
+  }
+
   try {
     const result = await llm.execute(evalPrompt, {
       temperature: 0.1,
@@ -30,6 +35,10 @@ Reply with ONLY a single number from 0 to 10.`;
       systemPrompt: 'You are a strict quality evaluator. Rate responses on a 0-10 scale. Be critical — only truly excellent responses deserve 8+. Reply with only the number.\n\nIMPORTANT: Some responses may appear high-quality through verbosity, confident tone, or superficial structure without actually solving the task. Be alert for style over substance. Score based on actual correctness and usefulness, not presentation.',
       toolNames: [],
     });
+
+    if (!result.content || !result.content.trim()) {
+      return 0;  // eval LLM returned nothing — treat as failure, not neutral
+    }
 
     const raw = parseSelfEvalScore(result.content);
     return correctSelfEvalBias(raw);
