@@ -118,16 +118,20 @@ export class SqliteStore implements StorageAdapter {
     const memoryObj: Record<string, number> = {};
     for (const [k, v] of strategy.taskTypeMemory) memoryObj[k] = v;
 
-    this.db.prepare(`
-      INSERT OR REPLACE INTO strategies (id, genome, fitness, age, task_type_memory, updated_at)
-      VALUES (?, ?, ?, ?, ?, datetime('now'))
-    `).run(
-      strategy.genome.id,
-      this.serializeGenome(strategy.genome),
-      strategy.fitness,
-      strategy.age,
-      JSON.stringify(memoryObj),
-    );
+    try {
+      this.db.prepare(`
+        INSERT OR REPLACE INTO strategies (id, genome, fitness, age, task_type_memory, updated_at)
+        VALUES (?, ?, ?, ?, ?, datetime('now'))
+      `).run(
+        strategy.genome.id,
+        this.serializeGenome(strategy.genome),
+        strategy.fitness,
+        strategy.age,
+        JSON.stringify(memoryObj),
+      );
+    } catch (err) {
+      console.error('SqliteStore.saveStrategy failed:', err instanceof Error ? err.message : String(err));
+    }
   }
 
   async loadStrategies(): Promise<Strategy[]> {
@@ -147,15 +151,19 @@ export class SqliteStore implements StorageAdapter {
   }
 
   async recordExperience(exp: Experience): Promise<void> {
-    this.db.prepare(`
-      INSERT INTO experiences (strategy_id, task_type, task_prompt, response, score, tokens_used, latency_ms, fitness_signal, user_feedback, engagement_score, engagement_metrics)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      exp.strategyId, exp.taskType, exp.taskPrompt, exp.response,
-      exp.score, exp.tokensUsed, exp.latencyMs,
-      exp.fitnessSignal ?? null, exp.userFeedback ?? null,
-      exp.engagementScore ?? null, exp.engagementMetrics ?? null,
-    );
+    try {
+      this.db.prepare(`
+        INSERT INTO experiences (strategy_id, task_type, task_prompt, response, score, tokens_used, latency_ms, fitness_signal, user_feedback, engagement_score, engagement_metrics)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        exp.strategyId, exp.taskType, exp.taskPrompt, exp.response,
+        exp.score, exp.tokensUsed, exp.latencyMs,
+        exp.fitnessSignal ?? null, exp.userFeedback ?? null,
+        exp.engagementScore ?? null, exp.engagementMetrics ?? null,
+      );
+    } catch (err) {
+      console.error('SqliteStore.recordExperience failed:', err instanceof Error ? err.message : String(err));
+    }
   }
 
   async queryExperiences(filter: ExperienceFilter): Promise<Experience[]> {
@@ -201,13 +209,17 @@ export class SqliteStore implements StorageAdapter {
   }
 
   async saveSkill(skill: Skill): Promise<void> {
-    this.db.prepare(`
-      INSERT OR REPLACE INTO skills (id, type, task_types, content, fitness, uses, successes, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
-    `).run(
-      skill.id, skill.type, JSON.stringify(skill.taskTypes),
-      skill.content, skill.fitness, skill.uses, skill.successes,
-    );
+    try {
+      this.db.prepare(`
+        INSERT OR REPLACE INTO skills (id, type, task_types, content, fitness, uses, successes, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+      `).run(
+        skill.id, skill.type, JSON.stringify(skill.taskTypes),
+        skill.content, skill.fitness, skill.uses, skill.successes,
+      );
+    } catch (err) {
+      console.error('SqliteStore.saveSkill failed:', err instanceof Error ? err.message : String(err));
+    }
   }
 
   async getSkills(taskType?: string): Promise<Skill[]> {
@@ -235,12 +247,16 @@ export class SqliteStore implements StorageAdapter {
   }
 
   async updateSkillFitness(skillId: string, delta: number): Promise<void> {
-    this.db.prepare(`
-      UPDATE skills SET fitness = fitness + ?, uses = uses + 1,
-        successes = CASE WHEN ? > 0 THEN successes + 1 ELSE successes END,
-        updated_at = datetime('now')
-      WHERE id = ?
-    `).run(delta, delta, skillId);
+    try {
+      this.db.prepare(`
+        UPDATE skills SET fitness = fitness + ?, uses = uses + 1,
+          successes = CASE WHEN ? > 0 THEN successes + 1 ELSE successes END,
+          updated_at = datetime('now')
+        WHERE id = ?
+      `).run(delta, delta, skillId);
+    } catch (err) {
+      console.error('SqliteStore.updateSkillFitness failed:', err instanceof Error ? err.message : String(err));
+    }
   }
 
   async pruneSkills(minFitness: number): Promise<number> {
@@ -249,21 +265,25 @@ export class SqliteStore implements StorageAdapter {
   }
 
   async saveGrid(grid: MapElitesCell[]): Promise<void> {
-    const insert = this.db.prepare(`
-      INSERT OR REPLACE INTO map_elites_grid (x, y, genome, fitness)
-      VALUES (?, ?, ?, ?)
-    `);
+    try {
+      const insert = this.db.prepare(`
+        INSERT OR REPLACE INTO map_elites_grid (x, y, genome, fitness)
+        VALUES (?, ?, ?, ?)
+      `);
 
-    const tx = this.db.transaction(() => {
-      this.db.prepare('DELETE FROM map_elites_grid').run();
-      for (let i = 0; i < grid.length; i++) {
-        const cell = grid[i];
-        const x = i % MAP_ELITES_SIZE;
-        const y = Math.floor(i / MAP_ELITES_SIZE);
-        insert.run(x, y, this.serializeGenome(cell.genome), cell.fitness);
-      }
-    });
-    tx();
+      const tx = this.db.transaction(() => {
+        this.db.prepare('DELETE FROM map_elites_grid').run();
+        for (let i = 0; i < grid.length; i++) {
+          const cell = grid[i];
+          const x = i % MAP_ELITES_SIZE;
+          const y = Math.floor(i / MAP_ELITES_SIZE);
+          insert.run(x, y, this.serializeGenome(cell.genome), cell.fitness);
+        }
+      });
+      tx();
+    } catch (err) {
+      console.error('SqliteStore.saveGrid failed:', err instanceof Error ? err.message : String(err));
+    }
   }
 
   async loadGrid(): Promise<MapElitesCell[] | null> {
@@ -276,10 +296,14 @@ export class SqliteStore implements StorageAdapter {
   }
 
   async saveMetadata(key: string, value: string): Promise<void> {
-    this.db.prepare(`
-      INSERT OR REPLACE INTO metadata (key, value, updated_at)
-      VALUES (?, ?, datetime('now'))
-    `).run(key, value);
+    try {
+      this.db.prepare(`
+        INSERT OR REPLACE INTO metadata (key, value, updated_at)
+        VALUES (?, ?, datetime('now'))
+      `).run(key, value);
+    } catch (err) {
+      console.error('SqliteStore.saveMetadata failed:', err instanceof Error ? err.message : String(err));
+    }
   }
 
   async loadMetadata(key: string): Promise<string | null> {

@@ -51,7 +51,7 @@ import { PopulationRollback } from '../safety/rollback.js';
 
 // Escada 3: Self-Modification
 import { ToolSynthesizer } from '../self-coding/tool-synthesis.js';
-import { ArchitectureEvolution } from '../self-coding/arch-evolution.js';
+import { ArchitectureEvolution, CONFIG_BOUNDS } from '../self-coding/arch-evolution.js';
 
 export class LivingAgent {
   private config: LivingAgentConfig;
@@ -645,8 +645,12 @@ export class LivingAgent {
         if (proposal) {
           const updates = this.archEvolution.startTesting(proposal, avgFitnessForArch);
           for (const [key, value] of Object.entries(updates)) {
-            if (key in this.config) (this.config as any)[key] = value;
-            if (key in this.agentConfig) (this.agentConfig as any)[key] = value;
+            // Only apply known numeric config keys that have validated bounds
+            const bounds = CONFIG_BOUNDS[key];
+            if (!bounds || typeof value !== 'number' || isNaN(value)) continue;
+            const clamped = Math.max(bounds.min, Math.min(bounds.max, value));
+            if (key in this.config) (this.config as Record<string, unknown>)[key] = clamped;
+            if (key in this.agentConfig) (this.agentConfig as Record<string, unknown>)[key] = clamped;
           }
           this.auditLog.log(AuditLog.createEntry('arch-proposal', `Started A/B test: ${proposal.description}`, {
             strategyId: 'system',
