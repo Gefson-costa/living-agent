@@ -101,7 +101,7 @@ export class NoveltyArchive {
       samples.push(this.novelty(this.archive[idx]));
     }
     samples.sort((a, b) => a - b);
-    return samples[10];
+    return samples[Math.floor(samples.length / 2)];
   }
 
   get size(): number {

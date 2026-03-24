@@ -25,11 +25,15 @@ export function applyFitnessDecay(strategies: Strategy[], rate = 0.95): void {
 /**
  * Pick two distinct parents at random from `topStrategies`.
  * If the random draw picks the same strategy twice, shift to the next one.
- * Throws if fewer than 2 candidates.
+ * With a single strategy, breeds with itself (self-crossover).
+ * Throws only if the pool is completely empty.
  */
 export function selectParents(topStrategies: Strategy[]): { parent1: Strategy; parent2: Strategy } {
-  if (topStrategies.length < 2) {
-    throw new Error('selectParents requires at least 2 strategies');
+  if (topStrategies.length === 0) {
+    throw new Error('selectParents requires at least 1 strategy');
+  }
+  if (topStrategies.length === 1) {
+    return { parent1: topStrategies[0], parent2: topStrategies[0] };
   }
   const parent1 = topStrategies[Math.floor(Math.random() * topStrategies.length)];
   let parent2 = topStrategies[Math.floor(Math.random() * topStrategies.length)];

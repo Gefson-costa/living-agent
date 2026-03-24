@@ -51,7 +51,7 @@ export function consolidate(
 ): ConsolidationResult {
   const cfg = { ...DEFAULT_CONFIG, ...config };
   const n = strategies.length;
-  if (n === 0) return { eliteCount: 0, adaptedCount: 0, replacedCount: 0, totalLearningDelta: 0 };
+  if (n <= 1) return { eliteCount: n, adaptedCount: 0, replacedCount: 0, totalLearningDelta: 0 };
 
   // Sort by fitness (descending), using Elo as tiebreaker
   strategies.sort((a, b) => {

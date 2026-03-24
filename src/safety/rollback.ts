@@ -114,12 +114,17 @@ export class PopulationRollback {
     const latest = this.getLatestSnapshot();
     if (!latest) return false;
 
-    // If baseline fitness is 0 or negative, skip check (can't compute meaningful ratio)
-    if (latest.avgFitness <= 0) return false;
+    let degraded: boolean;
+    if (latest.avgFitness <= 0) {
+      // Baseline is zero/negative — use absolute drop instead of ratio.
+      // Trigger if current fitness fell below baseline by more than threshold (as absolute).
+      degraded = (latest.avgFitness - currentAvgFitness) > threshold;
+    } else {
+      const drop = (latest.avgFitness - currentAvgFitness) / latest.avgFitness;
+      degraded = drop > threshold;
+    }
 
-    const drop = (latest.avgFitness - currentAvgFitness) / Math.abs(latest.avgFitness);
-
-    if (drop > threshold) {
+    if (degraded) {
       this.degradationCounter++;
     } else {
       this.degradationCounter = 0;

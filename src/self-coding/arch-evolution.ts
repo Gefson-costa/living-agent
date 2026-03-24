@@ -161,7 +161,10 @@ Response format MUST be a strict JSON object:
 
     // Early rejection: fitness dropped >20%
     const baseline = this.activeProposal.fitnessBeforeApply;
-    if (baseline > 0 && currentAvgFitness < baseline * 0.8) {
+    const earlyReject = baseline > 0
+      ? currentAvgFitness < baseline * 0.8
+      : currentAvgFitness < baseline - 0.2;  // absolute drop when baseline <= 0
+    if (earlyReject) {
       this.activeProposal.status = 'rolled-back';
       this.history.push(this.activeProposal);
       this.activeProposal = null;
@@ -176,7 +179,10 @@ Response format MUST be a strict JSON object:
       .some(key => CONFIG_BOUNDS[key]?.critical ?? false);
     const requiredMargin = hasCritical ? CRITICAL_MARGIN : STANDARD_MARGIN;
 
-    if (baseline > 0 && currentAvgFitness >= baseline * (1 + requiredMargin)) {
+    const accepted = baseline > 0
+      ? currentAvgFitness >= baseline * (1 + requiredMargin)
+      : currentAvgFitness >= baseline + requiredMargin;  // absolute when baseline <= 0
+    if (accepted) {
       this.activeProposal.status = 'accepted';
       this.history.push(this.activeProposal);
       this.activeProposal = null;

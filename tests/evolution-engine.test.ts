@@ -74,9 +74,15 @@ describe('selectParents', () => {
     expect(parent1).not.toBe(parent2);
   });
 
-  it('throws if fewer than 2 strategies', () => {
-    expect(() => selectParents([makeStrategy(1)])).toThrow('at least 2');
-    expect(() => selectParents([])).toThrow('at least 2');
+  it('returns same strategy for both parents when pool has 1', () => {
+    const only = makeStrategy(1);
+    const { parent1, parent2 } = selectParents([only]);
+    expect(parent1).toBe(only);
+    expect(parent2).toBe(only);
+  });
+
+  it('throws on empty pool', () => {
+    expect(() => selectParents([])).toThrow('at least 1');
   });
 });
 
