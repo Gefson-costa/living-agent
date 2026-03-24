@@ -262,7 +262,7 @@ src/                          ~7,200 lines TypeScript
 ## Testing
 
 ```bash
-npm test              # 421 tests across 35 test files
+npm test              # 495 tests across 41 test files
 npm run build         # TypeScript type check
 npm run bench         # Run benchmarks (mock adapter)
 npm run bench:real    # Run benchmarks (real API calls)
@@ -302,7 +302,7 @@ Every feature came from a research-driven cycle: *Why does fitness stagnate?* �
 
 ## License
 
-[MIT License](LICENSE) — free for everyone. Use it, modify it, build with it commercially, no restrictions.
+[BSL-1.1](LICENSE) — free for non-production and non-competitive use. Converts to Apache 2.0 on 2030-03-24. For commercial licensing, contact the author.
 
 ## Support
 

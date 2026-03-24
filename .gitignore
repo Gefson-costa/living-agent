@@ -9,7 +9,14 @@ benchmarks/results/
 .claude/
 examples/
 
-# Business & personal docs (not for public repo)
+# Binaries & installers
+*.exe
+*.msi
+*.dmg
+*.AppImage
+
+# Documents (not for public repo)
+*.docx
 business.md
 pitch-deck.md
 plan.md
@@ -17,5 +24,6 @@ future.md
 LAUNCH_POSTS.md
 LAUNCH_CHECKLIST.md
 evolution.md
+
 # Local history archive
 history/
