@@ -649,8 +649,8 @@ export class LivingAgent {
             const bounds = CONFIG_BOUNDS[key];
             if (!bounds || typeof value !== 'number' || isNaN(value)) continue;
             const clamped = Math.max(bounds.min, Math.min(bounds.max, value));
-            if (key in this.config) (this.config as Record<string, unknown>)[key] = clamped;
-            if (key in this.agentConfig) (this.agentConfig as Record<string, unknown>)[key] = clamped;
+            if (key in this.config) (this.config as unknown as Record<string, unknown>)[key] = clamped;
+            if (key in this.agentConfig) (this.agentConfig as unknown as Record<string, unknown>)[key] = clamped;
           }
           this.auditLog.log(AuditLog.createEntry('arch-proposal', `Started A/B test: ${proposal.description}`, {
             strategyId: 'system',
