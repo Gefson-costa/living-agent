@@ -7,7 +7,7 @@ dist/
 *.sqlite-wal
 benchmarks/results/
 .claude/
-examples/
+examples/node_modules/
 
 # Binaries & installers
 *.exe

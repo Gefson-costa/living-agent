@@ -1,5 +1,8 @@
 # Living Agent
 
+[![CI](https://github.com/Gefson-costa/living-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/Gefson-costa/living-agent/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@kanano/living-agent)](https://www.npmjs.com/package/@kanano/living-agent)
+
 An AI agent with an internal ecology of competing strategies that **evolve at runtime**. Instead of a static prompt and fixed parameters, Living Agent maintains a population of strategy genomes that mutate, crossover, specialize, and improve — with every interaction, on any LLM.
 
 No fine-tuning. No training data. No offline optimization. Pure evolutionary pressure at inference time.
@@ -83,11 +86,11 @@ Strategies develop distinct specializations without explicit pressure — differ
 ## Quick Start
 
 ```bash
-npm install living-agent
+npm install @kanano/living-agent
 ```
 
 ```typescript
-import { LivingAgent, AnthropicAdapter, SqliteStore } from 'living-agent';
+import { LivingAgent, AnthropicAdapter, SqliteStore } from '@kanano/living-agent';
 
 const agent = new LivingAgent(
   new AnthropicAdapter(),
@@ -111,16 +114,16 @@ await agent.applyFeedback(8);
 
 ```bash
 # Mock adapter (no API key needed)
-npx living-agent --mock
+npx @kanano/living-agent --mock
 
 # With Anthropic Claude
-ANTHROPIC_API_KEY=sk-ant-... npx living-agent
+ANTHROPIC_API_KEY=sk-ant-... npx @kanano/living-agent
 
 # With DeepSeek
-DEEPSEEK_API_KEY=sk-... npx living-agent
+DEEPSEEK_API_KEY=sk-... npx @kanano/living-agent
 
 # In-memory (no persistence)
-npx living-agent --mock --memory
+npx @kanano/living-agent --mock --memory
 ```
 
 | Command | Description |
@@ -191,7 +194,7 @@ Every N interactions, the population evolves:
 Drop evolutionary optimization into any existing agent framework:
 
 ```typescript
-import { createLivingAgentPlugin } from 'living-agent/integrations/openclaw';
+import { createLivingAgentPlugin } from '@kanano/living-agent/integrations/openclaw';
 
 const plugin = createLivingAgentPlugin(llm, store, { strategyCount: 8 });
 await plugin.init();
