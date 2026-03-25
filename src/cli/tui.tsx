@@ -212,7 +212,7 @@ function ChatArea({ messages }: { messages: ChatMsg[] }) {
   const recent = messages.slice(-10);
 
   return (
-    <Box flexDirection="column" flexGrow={1}>
+    <Box flexDirection="column" flexGrow={1} overflow="hidden">
       {past.length > 0 && (
         <Static items={past}>
           {(msg) => (
