@@ -29,8 +29,30 @@ async function preflight(adapter: LLMAdapter): Promise<boolean> {
   }
 }
 
+/** Parse --ollama and --model= from CLI args for benchmarks. */
+function getOllamaOverride(): { model: string } | null {
+  const args = process.argv.slice(2);
+  if (!args.includes('--ollama')) return null;
+  const modelArg = args.find(a => a.startsWith('--model='));
+  return { model: modelArg?.slice(8) ?? 'llama3' };
+}
+
 /** Create the best available adapter, with preflight verification. */
 export async function createBenchmarkAdapter(): Promise<AdapterInfo | null> {
+  // Ollama override: --ollama --model=qwen3:8b
+  const ollama = getOllamaOverride();
+  if (ollama) {
+    const adapter = new OpenAICompatibleAdapter({ provider: 'ollama', model: ollama.model });
+    console.log(`  [Adapter] Trying Ollama (${ollama.model})...`);
+    const ok = await preflight(adapter);
+    if (ok) {
+      console.log(`  [Adapter] Ollama — OK`);
+      return { adapter, name: 'Ollama', model: ollama.model };
+    }
+    console.log(`  [Adapter] Ollama — failed preflight. Is Ollama running?`);
+    return null;
+  }
+
   const candidates: Array<{ create: () => LLMAdapter; name: string; model: string; envKey: string }> = [
     {
       envKey: 'ANTHROPIC_API_KEY',
@@ -85,6 +107,7 @@ export async function createBenchmarkAdapter(): Promise<AdapterInfo | null> {
 
 export function hasAnyApiKey(): boolean {
   return !!(
+    process.argv.includes('--ollama') ||
     process.env.ANTHROPIC_API_KEY ||
     process.env.DEEPSEEK_API_KEY ||
     process.env.OPENROUTER_API_KEY ||
