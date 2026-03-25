@@ -1,5 +1,5 @@
 {
-  "name": "living-agent",
+  "name": "@kanano/living-agent",
   "version": "0.1.0",
   "description": "AI agent with an internal ecology of strategies that compete and evolve based on real task performance",
   "type": "module",
@@ -24,6 +24,7 @@
     "LICENSE"
   ],
   "scripts": {
+    "start": "node dist/cli/tui.js",
     "build": "tsc",
     "prepublishOnly": "npm run build",
     "test": "vitest run",

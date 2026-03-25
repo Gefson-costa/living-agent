@@ -113,17 +113,25 @@ await agent.applyFeedback(8);
 ### CLI
 
 ```bash
-# Mock adapter (no API key needed)
+# Local AI (Ollama) — no API key, no cost
+npx @kanano/living-agent --ollama --model=qwen3:8b
+
+# Mock adapter (no API key, deterministic — great for testing)
 npx @kanano/living-agent --mock
 
-# With Anthropic Claude
+# Anthropic Claude
 ANTHROPIC_API_KEY=sk-ant-... npx @kanano/living-agent
 
-# With DeepSeek
-DEEPSEEK_API_KEY=sk-... npx @kanano/living-agent
+# DeepSeek
+DEEPSEEK_API_KEY=sk-... npx @kanano/living-agent --deepseek
+```
 
-# In-memory (no persistence)
-npx @kanano/living-agent --mock --memory
+If you cloned the repo, you can also use:
+
+```bash
+npm start                                      # default (Anthropic or mock)
+npm start -- --ollama --model=qwen3:8b         # local AI
+npm start -- --mock                            # mock adapter
 ```
 
 | Command | Description |
