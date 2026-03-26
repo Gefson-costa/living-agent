@@ -105,7 +105,7 @@ export class LivingAgent {
     this.config = { ...DEFAULT_LIVING_AGENT_CONFIG, ...config };
     this.llm = llm;
     this.store = store;
-    this.skillLibrary = new SkillLibrary(store);
+    this.skillLibrary = new SkillLibrary(store);  // embedder set in init()
     this.skillExtractor = new SkillExtractor(this.skillLibrary, llm, {
       scoreThreshold: this.config.skillExtractionThreshold,
     });
@@ -149,6 +149,10 @@ export class LivingAgent {
     // is Claude/DeepSeek/etc via API.
     const embedder = await createEmbedder(this.config.embeddingOllama);
     this.responseHistory = new ResponseHistory(embedder);
+
+    // Vector Memory: give the skill library the same embedder for semantic retrieval
+    this.skillLibrary.setEmbedder(embedder);
+    await this.skillLibrary.initEmbeddings();
 
     // Try to load persisted strategies
     const loaded = await this.store.loadStrategies();
@@ -206,12 +210,16 @@ export class LivingAgent {
       epsilon: this.config.epsilon,
     }, this.noveltyArchive);
 
-    // 3. Get relevant skills (merge task-type skills + genome skillRefs)
-    const taskSkills = await this.skillLibrary.getSkillsForTask(taskType);
+    // 3. Get relevant skills — semantic retrieval when embedder available,
+    //    falls back to task-type matching. Merge with genome skillRefs.
+    const taskEmbedding = await this.responseHistory.getEmbedder().embed(userMessage);
+    const semanticSkills = this.skillLibrary.hasEmbedder()
+      ? await this.skillLibrary.getSkillsBySimilarity(taskEmbedding)
+      : await this.skillLibrary.getSkillsForTask(taskType);
     const refSkills = await this.skillLibrary.getSkillsByIds(strategy.genome.skillRefs);
     const seen = new Set<string>();
     const skills: Skill[] = [];
-    for (const s of [...taskSkills, ...refSkills]) {
+    for (const s of [...semanticSkills, ...refSkills]) {
       if (!seen.has(s.id)) {
         seen.add(s.id);
         skills.push(s);
