@@ -169,7 +169,7 @@ export async function createLangfuseObserver(): Promise<LangfuseObserver> {
     const client = new Langfuse({ publicKey, secretKey }) as LangfuseClient;
     return new RealLangfuseObserver(client);
   } catch {
-    console.warn('[living-agent] langfuse package not installed — observability disabled');
+    // langfuse not installed — observability silently disabled
     return new NoopObserver();
   }
 }

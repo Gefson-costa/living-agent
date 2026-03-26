@@ -6,6 +6,7 @@
 // ================================================================
 
 import type { Strategy, AgentConfig } from '../core/types.js';
+import { MAP_ELITES_RESCUE_CHANCE, NOVELTY_SEED_CONSOLIDATION, ELO_DRAW_THRESHOLD } from '../core/constants.js';
 import { MapElites } from '../evolution/map-elites.js';
 import { NoveltyArchive } from '../evolution/novelty.js';
 import type { EloTracker } from '../evolution/elo-tracker.js';
@@ -56,7 +57,7 @@ export function consolidate(
   // Sort by fitness (descending), using Elo as tiebreaker
   strategies.sort((a, b) => {
     const diff = b.fitness - a.fitness;
-    if (Math.abs(diff) > 0.01 || !eloTracker) return diff;
+    if (Math.abs(diff) > ELO_DRAW_THRESHOLD || !eloTracker) return diff;
     return eloTracker.getRating(b.genome.id) - eloTracker.getRating(a.genome.id);
   });
 
@@ -100,11 +101,11 @@ export function consolidate(
     lamarckianTransfer(parent1, childGenome);
 
     // Try to inject a MAP-Elites champion instead (50% chance)
-    const useChampion = Math.random() < 0.5;
+    const useChampion = Math.random() < MAP_ELITES_RESCUE_CHANCE;
     if (useChampion) {
       const rescued = rescueFromElites({
         mapElites, mutationRate: agentConfig.mutationRate, config: agentConfig,
-        noveltyArchive, noveltyWeight: agentConfig.noveltyWeight, noveltyMultiplier: 0.3,
+        noveltyArchive, noveltyWeight: agentConfig.noveltyWeight, noveltyMultiplier: NOVELTY_SEED_CONSOLIDATION,
       });
       if (rescued) {
         strategies[i] = rescued;
@@ -112,7 +113,7 @@ export function consolidate(
       }
     }
 
-    const noveltySeed = computeNoveltySeed(childGenome, noveltyArchive, agentConfig.noveltyWeight, 0.3);
+    const noveltySeed = computeNoveltySeed(childGenome, noveltyArchive, agentConfig.noveltyWeight, NOVELTY_SEED_CONSOLIDATION);
     strategies[i] = createOffspringStrategy({ genome: childGenome, noveltySeed });
   }
 

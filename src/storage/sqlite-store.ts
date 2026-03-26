@@ -8,6 +8,7 @@ import type {
   Skill, MapElitesCell, StrategyGenome,
 } from '../core/types.js';
 import { MAP_ELITES_SIZE } from '../core/types.js';
+import { errorMessage } from '../core/utils.js';
 
 const require = createRequire(import.meta.url);
 
@@ -130,7 +131,7 @@ export class SqliteStore implements StorageAdapter {
         JSON.stringify(memoryObj),
       );
     } catch (err) {
-      console.error('SqliteStore.saveStrategy failed:', err instanceof Error ? err.message : String(err));
+      console.error('SqliteStore.saveStrategy failed:', errorMessage(err));
     }
   }
 
@@ -162,7 +163,7 @@ export class SqliteStore implements StorageAdapter {
         exp.engagementScore ?? null, exp.engagementMetrics ?? null,
       );
     } catch (err) {
-      console.error('SqliteStore.recordExperience failed:', err instanceof Error ? err.message : String(err));
+      console.error('SqliteStore.recordExperience failed:', errorMessage(err));
     }
   }
 
@@ -218,7 +219,7 @@ export class SqliteStore implements StorageAdapter {
         skill.content, skill.fitness, skill.uses, skill.successes,
       );
     } catch (err) {
-      console.error('SqliteStore.saveSkill failed:', err instanceof Error ? err.message : String(err));
+      console.error('SqliteStore.saveSkill failed:', errorMessage(err));
     }
   }
 
@@ -255,7 +256,7 @@ export class SqliteStore implements StorageAdapter {
         WHERE id = ?
       `).run(delta, delta, skillId);
     } catch (err) {
-      console.error('SqliteStore.updateSkillFitness failed:', err instanceof Error ? err.message : String(err));
+      console.error('SqliteStore.updateSkillFitness failed:', errorMessage(err));
     }
   }
 
@@ -282,7 +283,7 @@ export class SqliteStore implements StorageAdapter {
       });
       tx();
     } catch (err) {
-      console.error('SqliteStore.saveGrid failed:', err instanceof Error ? err.message : String(err));
+      console.error('SqliteStore.saveGrid failed:', errorMessage(err));
     }
   }
 
@@ -302,7 +303,7 @@ export class SqliteStore implements StorageAdapter {
         VALUES (?, ?, datetime('now'))
       `).run(key, value);
     } catch (err) {
-      console.error('SqliteStore.saveMetadata failed:', err instanceof Error ? err.message : String(err));
+      console.error('SqliteStore.saveMetadata failed:', errorMessage(err));
     }
   }
 

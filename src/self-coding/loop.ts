@@ -20,6 +20,7 @@ import { GitSandbox } from './sandbox.js';
 import { Validator } from './validator.js';
 import { SelfCodingArchive } from './archive.js';
 import { AuditLog } from '../safety/audit-log.js';
+import { errorMessage } from '../core/utils.js';
 
 export class SelfCodingLoop {
   private config: SelfCodingConfig;
@@ -185,7 +186,7 @@ export class SelfCodingLoop {
           await this.sandbox.rollback(finalBranch);
         } catch (rollbackErr) {
           this.auditLog?.log(AuditLog.createEntry('rollback',
-            `Rollback of branch ${finalBranch} failed: ${rollbackErr instanceof Error ? rollbackErr.message : String(rollbackErr)}`,
+            `Rollback of branch ${finalBranch} failed: ${errorMessage(rollbackErr)}`,
             { strategyId: this.config.genome?.id ?? 'system' }));
         }
       }

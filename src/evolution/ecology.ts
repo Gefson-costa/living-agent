@@ -26,6 +26,14 @@ import { buildSystemPrompt } from '../llm/adapter.js';
 import { updateTaskTypeMemory } from '../learning/task-memory.js';
 import { rewardModulatedUpdate, decayTowardBirth, lamarckianTransfer } from '../learning/reward-learning.js';
 import { hashString } from '../core/utils.js';
+import {
+  HASH_NORMALIZER, BASE_REWARD_CENTER, BASE_REWARD_SCALE,
+  TOKEN_COST_NORMALIZER, TOKEN_COST_WEIGHT,
+  HABITAT_MATCH_THRESHOLD, HABITAT_BONUS, EXPERTISE_BONUS_WEIGHT,
+  BREED_TOP_FRACTION, BIRTH_TARGET_FRACTION, MAP_ELITES_CHAMPION_CHANCE,
+  NOVELTY_SEED_ECOLOGY, MIN_CULL_AGE, MAX_RESCUE_COUNT, MIN_RESCUE_CELLS,
+  ELO_DRAW_THRESHOLD,
+} from '../core/constants.js';
 import { EloTracker } from './elo-tracker.js';
 
 export class Ecology {
@@ -82,12 +90,12 @@ export class Ecology {
 
       for (let i = 0; i < availableTasks.length; i++) {
         const task = availableTasks[i];
-        const taskHash = hashString(task.type) / 0xFFFFFFFF;
+        const taskHash = hashString(task.type) / HASH_NORMALIZER;
         const match = 1 - Math.abs(strategy.genome.habitatPref - taskHash);
 
         // Task-type expertise bonus
         const expertise = strategy.taskTypeMemory.get(task.type) ?? 0;
-        const expertiseBonus = expertise * 0.2;
+        const expertiseBonus = expertise * EXPERTISE_BONUS_WEIGHT;
 
         if (match + expertiseBonus > bestMatch) {
           bestMatch = match + expertiseBonus;
@@ -139,15 +147,15 @@ export class Ecology {
     const prevFitness = strategy.fitness;
 
     // Base reward: task score centered around zero
-    const baseReward = (result.score - 0.35) * 4;
+    const baseReward = (result.score - BASE_REWARD_CENTER) * BASE_REWARD_SCALE;
 
     // Token efficiency: expensive configs pay more
-    const tokenCost = strategy.genome.maxTokenBudget / 4000 * 0.5;
+    const tokenCost = strategy.genome.maxTokenBudget / TOKEN_COST_NORMALIZER * TOKEN_COST_WEIGHT;
 
     // Habitat bonus: specialists get rewarded in their niche
-    const taskHash = hashString(result.taskType) / 0xFFFFFFFF;
+    const taskHash = hashString(result.taskType) / HASH_NORMALIZER;
     const habitatMatch = 1 - Math.abs(strategy.genome.habitatPref - taskHash);
-    const habitatBonus = habitatMatch > 0.6 ? 0.3 : 0;
+    const habitatBonus = habitatMatch > HABITAT_MATCH_THRESHOLD ? HABITAT_BONUS : 0;
 
     strategy.fitness += baseReward + habitatBonus - tokenCost;
 
@@ -184,7 +192,7 @@ export class Ecology {
 
     // Top strategies produce offspring
     const eliteCount = Math.max(1, Math.floor(ranked.length * this.config.elitismRate));
-    const topStrategies = ranked.slice(0, Math.max(2, Math.ceil(ranked.length * 0.5)));
+    const topStrategies = ranked.slice(0, Math.max(2, Math.ceil(ranked.length * BREED_TOP_FRACTION)));
 
     // Decay non-elite strategies toward birth weights (prevents runaway drift)
     for (let i = eliteCount; i < ranked.length; i++) {
@@ -193,14 +201,14 @@ export class Ecology {
 
     // Target: maintain strategy count near config.strategyCount
     const needed = Math.max(0, this.config.strategyCount - this.strategies.length);
-    const birthTarget = Math.max(1, Math.min(needed + 2, Math.floor(this.config.strategyCount * 0.3)));
+    const birthTarget = Math.max(1, Math.min(needed + 2, Math.floor(this.config.strategyCount * BIRTH_TARGET_FRACTION)));
 
     for (let b = 0; b < birthTarget && topStrategies.length >= 2; b++) {
       const { parent1, parent2 } = selectParents(topStrategies);
 
       // Active MAP-Elites: 20% chance to use a champion as second parent
       let parent2Genome = parent2.genome;
-      if (Math.random() < 0.2 && this.mapElites.filledCells >= 2) {
+      if (Math.random() < MAP_ELITES_CHAMPION_CHANCE && this.mapElites.filledCells >= 2) {
         const champion = this.mapElites.getRandomChampion();
         if (champion) parent2Genome = champion;
       }
@@ -214,7 +222,7 @@ export class Ecology {
 
       // Novelty bonus — seed from child genome (not parent)
       const noveltyWeight = this.config.enableNoveltyBonus !== false ? this.config.noveltyWeight : 0;
-      const noveltySeed = computeNoveltySeed(childGenome, this.noveltyArchive, noveltyWeight, 0.5);
+      const noveltySeed = computeNoveltySeed(childGenome, this.noveltyArchive, noveltyWeight, NOVELTY_SEED_ECOLOGY);
 
       const child = createOffspringStrategy({ genome: childGenome, noveltySeed });
       this.noveltyArchive.add(NoveltyArchive.describe(child));
@@ -238,7 +246,7 @@ export class Ecology {
     }
 
     this.strategies = this.strategies.filter(s => {
-      if (s.fitness <= this.config.cullThreshold && s.age > 2) {
+      if (s.fitness <= this.config.cullThreshold && s.age > MIN_CULL_AGE) {
         this.totalDeaths++;
         this.eloTracker.remove(s.genome.id);
         this.callbacks.onDeath?.(s);
@@ -254,9 +262,9 @@ export class Ecology {
     if (this.config.enableMapElites === false) return;
     const minPop = this.config.strategyCount * this.config.rescueThreshold;
     if (this.strategies.length >= minPop) return;
-    if (this.mapElites.filledCells < 3) return;
+    if (this.mapElites.filledCells < MIN_RESCUE_CELLS) return;
 
-    const rescueCount = Math.min(6, Math.max(1, ((minPop - this.strategies.length) / 2) | 0));
+    const rescueCount = Math.min(MAX_RESCUE_COUNT, Math.max(1, ((minPop - this.strategies.length) / 2) | 0));
     for (let r = 0; r < rescueCount; r++) {
       const strategy = rescueFromElites({
         mapElites: this.mapElites,
@@ -315,7 +323,7 @@ export class Ecology {
           for (let j = i + 1; j < group.length; j++) {
             const a = group[i], b = group[j];
             const diff = Math.abs(a.result.score - b.result.score);
-            if (diff < 0.01) {
+            if (diff < ELO_DRAW_THRESHOLD) {
               this.eloTracker.recordMatch(a.strategy.genome.id, b.strategy.genome.id, true);
             } else if (a.result.score > b.result.score) {
               this.eloTracker.recordMatch(a.strategy.genome.id, b.strategy.genome.id);

@@ -6,6 +6,7 @@
 // ================================================================
 
 import type { FitnessSignal, FitnessWeights, StorageAdapter } from '../core/types.js';
+import { DISCORDANCE_STDEV_THRESHOLD, MIN_CALIBRATION_SAMPLES } from '../core/constants.js';
 
 const DEFAULT_WEIGHTS: FitnessWeights = {
   completionWeight: 0.5,
@@ -60,8 +61,8 @@ export function computeHybridFitness(
     const mean = values.reduce((a, b) => a + b, 0) / values.length;
     const variance = values.reduce((a, v) => a + (v - mean) ** 2, 0) / values.length;
     const stdev = Math.sqrt(variance);
-    if (stdev > 0.3) {
-      score *= 1 - (stdev - 0.3);
+    if (stdev > DISCORDANCE_STDEV_THRESHOLD) {
+      score *= 1 - (stdev - DISCORDANCE_STDEV_THRESHOLD);
     }
   }
 
@@ -83,7 +84,7 @@ export async function calibrateWeights(
     e.userFeedback !== undefined && e.userFeedback !== null,
   );
 
-  if (paired.length < 10) {
+  if (paired.length < MIN_CALIBRATION_SAMPLES) {
     return { ...DEFAULT_WEIGHTS };
   }
 

@@ -401,8 +401,8 @@ export class LivingAgent {
               fitnessAfter: null,
             }));
           }
-        }).catch((err) => {
-          console.warn('ToolSynthesis failed for', taskType, err instanceof Error ? err.message : String(err));
+        }).catch(() => {
+          // Tool synthesis is best-effort — failure is logged via audit log in ToolSynthesizer
         });
       }
     }

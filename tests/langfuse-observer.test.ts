@@ -245,21 +245,16 @@ describe('createLangfuseObserver', () => {
     Object.assign(process.env, prev);
   });
 
-  it('returns NoopObserver with warning when langfuse not installed', async () => {
+  it('returns NoopObserver silently when langfuse not installed', async () => {
     const prev = { ...process.env };
     process.env.LANGFUSE_PUBLIC_KEY = 'pk-test';
     process.env.LANGFUSE_SECRET_KEY = 'sk-test';
 
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const observer = await createLangfuseObserver();
 
     // langfuse is not installed in devDependencies, so it will fall back to noop
     expect(observer.enabled).toBe(false);
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('langfuse package not installed'),
-    );
 
-    warnSpy.mockRestore();
     delete process.env.LANGFUSE_PUBLIC_KEY;
     delete process.env.LANGFUSE_SECRET_KEY;
     Object.assign(process.env, prev);

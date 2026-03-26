@@ -9,6 +9,10 @@
 // ================================================================
 
 import type { Strategy, StrategyGenome } from '../core/types.js';
+import {
+  LOSS_AVERSION, REWARD_DELTA_SCALE, REWARD_CLAMP_MIN, REWARD_CLAMP_MAX,
+  BIRTH_DECAY_FRACTION, SCORE_REINFORCE_THRESHOLD,
+} from '../core/constants.js';
 
 function clamp(v: number, lo: number, hi: number): number {
   return v < lo ? lo : v > hi ? hi : v;
@@ -30,8 +34,8 @@ export function snapshotBirthWeights(strategy: Strategy): void {
  *  Negative deltas are weighted 1.5x (Kahneman-Tversky loss aversion). */
 export function computeRewardSignal(currentFitness: number, prevFitness: number): number {
   const delta = currentFitness - prevFitness;
-  const asymmetricDelta = delta < 0 ? delta * 1.5 : delta;
-  return 1 + clamp(asymmetricDelta * 8, -0.8, 3.0);
+  const asymmetricDelta = delta < 0 ? delta * LOSS_AVERSION : delta;
+  return 1 + clamp(asymmetricDelta * REWARD_DELTA_SCALE, REWARD_CLAMP_MIN, REWARD_CLAMP_MAX);
 }
 
 // ── Reward-Modulated Update ────────────────────────────────────
@@ -51,14 +55,14 @@ export function rewardModulatedUpdate(strategy: Strategy, prevFitness: number): 
   // Nudge promptStyle: high score reinforces current direction, low score dampens
   const style = strategy.genome.promptStyle;
   for (let i = 0; i < style.length; i++) {
-    const direction = score > 0.5 ? style[i] : -style[i] * 0.5;
+    const direction = score > SCORE_REINFORCE_THRESHOLD ? style[i] : -style[i] * 0.5;
     style[i] = clamp(style[i] + direction * effectiveRate, -1, 1);
   }
 
   // Nudge toolPreferences: boost tools on success, dampen on failure
   const tools = strategy.genome.toolPreferences;
   for (let i = 0; i < tools.length; i++) {
-    const nudge = score > 0.5 ? (1 - tools[i]) * effectiveRate : -tools[i] * effectiveRate * 0.5;
+    const nudge = score > SCORE_REINFORCE_THRESHOLD ? (1 - tools[i]) * effectiveRate : -tools[i] * effectiveRate * 0.5;
     tools[i] = clamp(tools[i] + nudge, 0, 1);
   }
 }
@@ -69,7 +73,7 @@ export function rewardModulatedUpdate(strategy: Strategy, prevFitness: number): 
 export function decayTowardBirth(strategy: Strategy): void {
   if (!strategy.birthWeights) return;
 
-  const rate = strategy.genome.learningRate * 0.2;
+  const rate = strategy.genome.learningRate * BIRTH_DECAY_FRACTION;
   if (rate <= 0) return;
 
   const style = strategy.genome.promptStyle;

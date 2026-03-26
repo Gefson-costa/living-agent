@@ -22,6 +22,7 @@ import { MemoryStore } from '../storage/memory-store.js';
 import { SqliteStore } from '../storage/sqlite-store.js';
 import { SelfCodingLoop } from '../self-coding/loop.js';
 import type { LLMAdapter, StorageAdapter } from '../core/types.js';
+import { errorMessage } from '../core/utils.js';
 import type { AgentStatus } from '../agent/interaction.js';
 
 // ── Parse arguments ───────────────────────────────────────────
@@ -298,7 +299,7 @@ async function main(): Promise<void> {
       const response = await agent.chat(input);
       console.log(`\nagent> ${response}\n`);
     } catch (err) {
-      console.error(`[error] ${err instanceof Error ? err.message : String(err)}\n`);
+      console.error(`[error] ${errorMessage(err)}\n`);
     }
 
     rl.prompt();

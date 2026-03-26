@@ -5,6 +5,8 @@
 //  performance. Complements fitness as a relative ranking signal.
 // ================================================================
 
+import { ELO_SPREAD } from '../core/constants.js';
+
 const DEFAULT_RATING = 1500;
 const K = 32;
 
@@ -26,7 +28,7 @@ export class EloTracker {
     const rW = this.getRating(winnerId);
     const rL = this.getRating(loserId);
 
-    const expectedW = 1 / (1 + 10 ** ((rL - rW) / 400));
+    const expectedW = 1 / (1 + 10 ** ((rL - rW) / ELO_SPREAD));
     const expectedL = 1 - expectedW;
 
     const scoreW = isDraw ? 0.5 : 1;

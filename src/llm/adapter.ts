@@ -168,7 +168,7 @@ export class AnthropicAdapter implements LLMAdapter {
       // OpenRouter fallback key
       this.fallbackClient = process.env.OPENROUTER_API_KEY ?? null;
     } catch {
-      console.warn('AnthropicAdapter: @anthropic-ai/sdk not available, falling back to MockAdapter behavior');
+      // @anthropic-ai/sdk not available — will fall back to MockAdapter
       this.client = null;
     }
   }
@@ -261,10 +261,8 @@ export class AnthropicAdapter implements LLMAdapter {
       if (this.client) {
         return await this.callAnthropic(prompt, config);
       }
-    } catch (err) {
-      console.warn('AnthropicAdapter: Anthropic call failed%s',
-        this.fallbackClient ? ', trying OpenRouter fallback' : '',
-        err instanceof Error ? err.message : String(err));
+    } catch {
+      // Anthropic call failed — try OpenRouter fallback if available
     }
 
     try {
@@ -273,7 +271,7 @@ export class AnthropicAdapter implements LLMAdapter {
       }
     } catch (err) {
       return {
-        content: `Error: ${err instanceof Error ? err.message : String(err)}`,
+        content: `Error: ${errorMessage(err)}`,
         tokensUsed: 0,
         latencyMs: Date.now() - start,
       };
@@ -382,7 +380,7 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
       };
     } catch (err) {
       return {
-        content: `Error: ${err instanceof Error ? err.message : String(err)}`,
+        content: `Error: ${errorMessage(err)}`,
         tokensUsed: 0,
         latencyMs: Date.now() - start,
       };
@@ -392,7 +390,7 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
 
 // ── Utility ─────────────────────────────────────────────────────
 
-import { hashString as hashStr } from '../core/utils.js';
+import { hashString as hashStr, errorMessage } from '../core/utils.js';
 
 function floatBits(f: number): number {
   return (f * 1e6) | 0;

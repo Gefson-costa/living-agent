@@ -14,6 +14,7 @@
 
 import 'dotenv/config';
 import type { LLMAdapter, StorageAdapter, Strategy } from '../core/types.js';
+import { errorMessage } from '../core/utils.js';
 import type { AgentStatus } from '../agent/interaction.js';
 
 // ── Classic mode fallback ────────────────────────────────────
@@ -548,7 +549,7 @@ function App({ agent, store, modeName }: {
       addMessage('agent', response);
       setHasPendingInteraction(true);
     } catch (err) {
-      addMessage('system', `Error: ${err instanceof Error ? err.message : String(err)}`);
+      addMessage('system', `Error: ${errorMessage(err)}`);
     }
     setLoading(false);
     await refreshStatus();

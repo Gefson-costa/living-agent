@@ -33,7 +33,7 @@ export class RedisStore implements StorageAdapter {
       this.client = new Redis(url, { lazyConnect: true, maxRetriesPerRequest: 1 });
       await this.client.connect();
     } catch {
-      console.warn('RedisStore: ioredis not available or connection failed, using in-memory fallback');
+      // ioredis not available or connection failed — silent fallback to in-memory
       this.client = null;
     }
   }

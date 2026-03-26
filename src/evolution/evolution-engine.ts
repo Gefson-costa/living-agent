@@ -6,6 +6,7 @@
 // ================================================================
 
 import type { Strategy, StrategyGenome, AgentConfig } from '../core/types.js';
+import { FITNESS_DECAY_RATE, NOVELTY_SEED_ECOLOGY, RESCUE_MUTATION_MULTIPLIER } from '../core/constants.js';
 import { mutateGenome, crossoverGenomes } from './genome.js';
 import { NoveltyArchive } from './novelty.js';
 import { MapElites } from './map-elites.js';
@@ -14,7 +15,7 @@ import { decayTaskTypeMemory } from '../learning/task-memory.js';
 // ── Fitness Decay ───────────────────────────────────────────────
 
 /** Multiply every strategy's fitness by `rate` (default 0.95). */
-export function applyFitnessDecay(strategies: Strategy[], rate = 0.95): void {
+export function applyFitnessDecay(strategies: Strategy[], rate = FITNESS_DECAY_RATE): void {
   for (const s of strategies) {
     s.fitness *= rate;
   }
@@ -95,7 +96,7 @@ export function computeNoveltySeed(
   genome: StrategyGenome,
   noveltyArchive: NoveltyArchive | undefined,
   noveltyWeight: number,
-  multiplier = 0.5,
+  multiplier = NOVELTY_SEED_ECOLOGY,
 ): number {
   if (!noveltyArchive) return 0;
   const tempStrategy: Strategy = {
@@ -130,7 +131,7 @@ export function rescueFromElites(opts: RescueOptions): Strategy | null {
   const champion = opts.mapElites.getRandomChampion();
   if (!champion) return null;
 
-  const rescueGenome = mutateGenome(champion, opts.mutationRate * 0.5, opts.config);
+  const rescueGenome = mutateGenome(champion, opts.mutationRate * RESCUE_MUTATION_MULTIPLIER, opts.config);
   const noveltySeed = (opts.noveltyArchive && opts.noveltyWeight !== undefined)
     ? computeNoveltySeed(rescueGenome, opts.noveltyArchive, opts.noveltyWeight, opts.noveltyMultiplier)
     : 0;

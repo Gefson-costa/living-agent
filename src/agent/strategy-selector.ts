@@ -8,6 +8,7 @@
 import type { Strategy } from '../core/types.js';
 import type { TaskType } from './interaction.js';
 import { hashString } from '../core/utils.js';
+import { HASH_NORMALIZER } from '../core/constants.js';
 import { NoveltyArchive } from '../evolution/novelty.js';
 
 export interface SelectionConfig {
@@ -59,7 +60,7 @@ export function scoreStrategy(
     : 1 / (1 + strategy.taskHistory.length * 0.1);
 
   // Habitat match: how well the strategy's habitatPref aligns with the task type hash
-  const taskHash = hashString(taskType) / 0xFFFFFFFF;
+  const taskHash = hashString(taskType) / HASH_NORMALIZER;
   const habitatMatch = 1 - Math.abs(strategy.genome.habitatPref - taskHash);
 
   // Novelty bonus: prefer strategies that are behaviorally diverse

@@ -37,7 +37,8 @@ export {
 } from './core/types.js';
 
 // Config
-export { createDefaultConfig } from './core/config.js';
+export { createDefaultConfig, createLocalConfig } from './core/config.js';
+export * from './core/constants.js';
 
 // Genome operations
 export {
@@ -166,7 +167,7 @@ export { createLangfuseObserver, NoopObserver } from './observability/langfuse-o
 export type { LangfuseObserver } from './observability/langfuse-observer.js';
 
 // Shared utilities
-export { hashString } from './core/utils.js';
+export { hashString, errorMessage } from './core/utils.js';
 
 // OpenClaw Integration (Phase 6)
 export { createLivingAgentPlugin } from './integrations/openclaw/plugin.js';

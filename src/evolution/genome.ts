@@ -6,6 +6,10 @@
 // ================================================================
 
 import type { StrategyGenome, AgentConfig } from '../core/types.js';
+import {
+  CROSSOVER_PRIMARY_WEIGHT, MAX_SKILL_REFS,
+  GENOME_DEFAULTS, MUTATION_BOUNDS,
+} from '../core/constants.js';
 
 function clamp(v: number, lo: number, hi: number): number {
   return v < lo ? lo : v > hi ? hi : v;
@@ -54,9 +58,9 @@ export function createGenome(
     reasoningDepth: local
       ? rng() * 0.5                                    // local: 0..0.5 (less CoT)
       : rng(),                                         // default: 0..1
-    mutability: 0.8 + rng() * 0.4,              // 0.8..1.2
-    learningRate: 0.003 + rng() * 0.022,         // 0.003..0.025
-    lamarckianRate: rng() * 0.08,                // 0..0.08
+    mutability: GENOME_DEFAULTS.mutability.min + rng() * (GENOME_DEFAULTS.mutability.max - GENOME_DEFAULTS.mutability.min),
+    learningRate: GENOME_DEFAULTS.learningRate.min + rng() * (GENOME_DEFAULTS.learningRate.max - GENOME_DEFAULTS.learningRate.min),
+    lamarckianRate: rng() * GENOME_DEFAULTS.lamarckianRate.max,
     habitatPref: rng(),                           // 0..1
     skillRefs: [],
   };
@@ -115,16 +119,16 @@ export function mutateGenome(
   );
 
   let mutability = parent.mutability;
-  if (rng() < 0.08 * rate) mutability = clamp(mutability + (rng() - 0.5) * 0.2, 0.5, 2.0);
+  if (rng() < 0.08 * rate) mutability = clamp(mutability + (rng() - 0.5) * 0.2, MUTATION_BOUNDS.mutability.min, MUTATION_BOUNDS.mutability.max);
 
   let learningRate = parent.learningRate;
-  if (rng() < 0.12 * rate) learningRate = clamp(learningRate + (rng() - 0.5) * 0.006, 0.001, 0.04);
+  if (rng() < 0.12 * rate) learningRate = clamp(learningRate + (rng() - 0.5) * 0.006, MUTATION_BOUNDS.learningRate.min, MUTATION_BOUNDS.learningRate.max);
 
   let habitatPref = parent.habitatPref;
   if (rng() < 0.08 * rate) habitatPref = clamp(habitatPref + (rng() - 0.5) * 0.15, 0, 1);
 
   let lamarckianRate = parent.lamarckianRate;
-  if (rng() < 0.08 * rate) lamarckianRate = clamp(lamarckianRate + (rng() - 0.5) * 0.04, 0, 0.25);
+  if (rng() < 0.08 * rate) lamarckianRate = clamp(lamarckianRate + (rng() - 0.5) * 0.04, MUTATION_BOUNDS.lamarckianRate.min, MUTATION_BOUNDS.lamarckianRate.max);
 
   // Mutate skillRefs: small chance to drop a skill (pruning dead weight)
   const skillRefs = parent.skillRefs.filter(() => rng() > 0.05 * rate);
@@ -164,17 +168,17 @@ export function crossoverGenomes(
   }
 
   // Scalars: weighted blend (primary 60%, mate 40%)
-  const w = 0.6;
+  const w = CROSSOVER_PRIMARY_WEIGHT;
 
   // Merge skill refs: deduplicated union, capped at 10
   // Primary parent's skills get priority when over cap
   const skillSet = new Set([...primary.skillRefs, ...mate.skillRefs]);
   let skillRefs = [...skillSet];
-  if (skillRefs.length > 10) {
+  if (skillRefs.length > MAX_SKILL_REFS) {
     // Keep primary's skills first, then fill from mate
     const primarySet = new Set(primary.skillRefs);
     skillRefs.sort((a, b) => (primarySet.has(b) ? 1 : 0) - (primarySet.has(a) ? 1 : 0));
-    skillRefs = skillRefs.slice(0, 10);
+    skillRefs = skillRefs.slice(0, MAX_SKILL_REFS);
   }
 
   return {
