@@ -27,6 +27,8 @@ import { strategyToLLMConfig } from '../llm/prompt-builder.js';
 import { selfEvaluate } from '../fitness/self-eval.js';
 import { computeLocalEval, shouldCallLLMEval, DEFAULT_LLM_BUDGET } from '../fitness/local-eval.js';
 import type { LLMBudget } from '../fitness/local-eval.js';
+import { ResponseHistory } from '../embeddings/response-history.js';
+import { SimpleEmbedder } from '../embeddings/embedder.js';
 import { computeHybridFitness, calibrateWeights } from '../fitness/hybrid-fitness.js';
 import { buildAutoMetrics, computeEngagementScore } from '../fitness/implicit-fitness.js';
 
@@ -87,6 +89,9 @@ export class LivingAgent {
   private auditLog: AuditLog;
   private rollback: PopulationRollback;
 
+  // Response Fingerprinting (Point 2 — vector cognition)
+  private responseHistory: ResponseHistory;
+
   // Escada 3: Self-Modification
   private toolSynthesizer?: ToolSynthesizer;
   private toolsSynthesized = new Set<string>();
@@ -123,6 +128,9 @@ export class LivingAgent {
       toolNames: this.config.toolNames,
       systemPromptTemplate: this.config.systemPromptTemplate,
     };
+
+    // Response Fingerprinting (Point 2)
+    this.responseHistory = new ResponseHistory(new SimpleEmbedder());
 
     // Safety (Escada 2.5)
     this.budgetTracker = new BudgetTracker(this.config.safety?.budget);
@@ -257,7 +265,13 @@ export class LivingAgent {
       difficulty: 0.5,
     };
 
-    const localResult = computeLocalEval(llmResponse.content, task);
+    // Pre-compute response embedding for fingerprinting (reused in local-eval + record)
+    const responseEmbedding = await this.responseHistory.getEmbedder().embed(llmResponse.content);
+
+    const localResult = computeLocalEval(llmResponse.content, task, {
+      responseHistory: this.responseHistory,
+      responseEmbedding,
+    });
     const genomeAge = strategy.taskHistory.length;
     const budget: LLMBudget = {
       ...DEFAULT_LLM_BUDGET,
@@ -321,6 +335,9 @@ export class LivingAgent {
       latencyMs: llmResponse.latencyMs,
       fitnessSignal: selfEvalScore,
     });
+
+    // Record response fingerprint (Point 2 — vector cognition)
+    await this.responseHistory.record(taskType, strategy.genome.id, llmResponse.content, hybridFitness);
 
     // Reinforce classifier memory
     this.classifierMemory.adjustWeights(userMessage, taskType, hybridFitness);
@@ -600,6 +617,14 @@ export class LivingAgent {
 
     // Fitness decay — force strategies to prove value continuously
     applyFitnessDecay(this.strategies);
+
+    // Collapse detection — penalize strategies producing identical outputs
+    for (const strategy of this.strategies) {
+      const collapse = this.responseHistory.detectCollapse(strategy.genome.id);
+      if (collapse?.collapsed) {
+        strategy.fitness -= 0.3; // heavy penalty for degenerate strategies
+      }
+    }
 
     consolidate(this.strategies, this.agentConfig, this.mapElites, {}, this.noveltyArchive);
     this.consolidationCount++;

@@ -102,13 +102,15 @@ export { computeEngagementScore, isDismissiveReply, buildAutoMetrics, classifyUs
 export type { UserIntent } from './fitness/implicit-fitness.js';
 export { selfEvaluate, parseSelfEvalScore, correctSelfEvalBias } from './fitness/self-eval.js';
 export { computeLocalEval, shouldCallLLMEval, DEFAULT_LLM_BUDGET } from './fitness/local-eval.js';
-export type { LocalEvalResult, LLMBudget } from './fitness/local-eval.js';
+export type { LocalEvalResult, LLMBudget, LocalEvalOptions } from './fitness/local-eval.js';
 
 // Embeddings (vector cognition)
 export { OllamaEmbedder, SimpleEmbedder, cosineSimilarity, centroid, updateCentroid, createEmbedder } from './embeddings/embedder.js';
 export type { Embedder } from './embeddings/embedder.js';
 export { EmbeddingRouter } from './embeddings/embedding-router.js';
 export type { StrategyProfile } from './embeddings/embedding-router.js';
+export { ResponseHistory } from './embeddings/response-history.js';
+export type { ResponseHistoryConfig } from './embeddings/response-history.js';
 
 // Learning (Phase 4)
 export {

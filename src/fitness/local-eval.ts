@@ -9,11 +9,14 @@
 // ================================================================
 
 import type { Task } from '../core/types.js';
+import type { ResponseHistory } from '../embeddings/response-history.js';
 
 export interface LocalEvalResult {
   score: number;       // 0..1, estimated quality
   confidence: number;  // 0..1, how sure we are (low → call LLM)
   method: 'local' | 'llm';
+  /** Similarity to historically good responses (null if no history). */
+  responseSimilarity: number | null;
 }
 
 export interface LLMBudget {
@@ -105,13 +108,21 @@ function scoreKeywordOverlap(response: string, taskPrompt: string): number {
 
 // ── Main local evaluation ─────────────────────────────────────
 
+export interface LocalEvalOptions {
+  /** ResponseHistory for 4th signal (similarity to top responses). */
+  responseHistory?: ResponseHistory;
+  /** Pre-computed response embedding (avoids re-embedding). */
+  responseEmbedding?: Float32Array;
+}
+
 export function computeLocalEval(
   response: string,
   task: Task,
+  options?: LocalEvalOptions,
 ): LocalEvalResult {
   // Fast-path: empty/error responses
   if (!response || !response.trim() || response.startsWith('Error:')) {
-    return { score: 0, confidence: 0.95, method: 'local' };
+    return { score: 0, confidence: 0.95, method: 'local', responseSimilarity: null };
   }
 
   const taskType = task.type || 'general';
@@ -122,19 +133,51 @@ export function computeLocalEval(
     overlap: scoreKeywordOverlap(response, task.prompt),
   };
 
-  // Weighted combination — structure matters more for coding
-  const structureWeight = taskType === 'coding' ? 0.45 : 0.3;
-  const overlapWeight = taskType === 'coding' ? 0.25 : 0.4;
-  const lengthWeight = 1 - structureWeight - overlapWeight;
-  const score = signals.length * lengthWeight + signals.structure * structureWeight + signals.overlap * overlapWeight;
+  // 4th signal: similarity to historically good responses
+  let responseSimilarity: number | null = null;
+  if (options?.responseHistory && options.responseEmbedding) {
+    responseSimilarity = options.responseHistory.similarityToTopFromEmbedding(
+      taskType, options.responseEmbedding,
+    );
+  }
 
-  // Confidence: based on signal agreement
+  // Weighted combination — structure matters more for coding
+  let structureWeight: number;
+  let overlapWeight: number;
+  let lengthWeight: number;
+  let similarityWeight = 0;
+
+  if (responseSimilarity !== null) {
+    // With 4th signal: redistribute weights
+    similarityWeight = 0.25;
+    structureWeight = taskType === 'coding' ? 0.35 : 0.22;
+    overlapWeight = taskType === 'coding' ? 0.18 : 0.30;
+    lengthWeight = 1 - structureWeight - overlapWeight - similarityWeight;
+  } else {
+    // Original 3-signal weights
+    structureWeight = taskType === 'coding' ? 0.45 : 0.3;
+    overlapWeight = taskType === 'coding' ? 0.25 : 0.4;
+    lengthWeight = 1 - structureWeight - overlapWeight;
+  }
+
+  let score = signals.length * lengthWeight
+    + signals.structure * structureWeight
+    + signals.overlap * overlapWeight;
+
+  if (responseSimilarity !== null) {
+    score += responseSimilarity * similarityWeight;
+  }
+
+  // Confidence: based on signal agreement (more signals → higher base confidence)
   const values = Object.values(signals);
+  if (responseSimilarity !== null) values.push(responseSimilarity);
   const mean = values.reduce((a, b) => a + b, 0) / values.length;
   const variance = values.reduce((a, v) => a + (v - mean) ** 2, 0) / values.length;
-  const confidence = Math.max(0, Math.min(1, 1 - variance * 3));
+  // 4 signals agreeing gives higher confidence than 3
+  const confidenceBoost = responseSimilarity !== null ? 0.1 : 0;
+  const confidence = Math.max(0, Math.min(1, 1 - variance * 3 + confidenceBoost));
 
-  return { score, confidence, method: 'local' };
+  return { score, confidence, method: 'local', responseSimilarity };
 }
 
 // ── Decision: should we call LLM self-eval? ───────────────────
