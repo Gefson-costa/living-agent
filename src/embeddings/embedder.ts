@@ -135,10 +135,22 @@ export async function createEmbedder(
 ): Promise<Embedder> {
   const ollama = new OllamaEmbedder(config);
   try {
-    const test = await ollama.embed('test');
-    if (test.length > 0) return ollama;
+    // Quick probe with 500ms timeout — Ollama local responds in <50ms
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 500);
+    const res = await fetch(`${config.baseUrl ?? 'http://localhost:11434'}/api/embeddings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: config.model ?? 'nomic-embed-text', prompt: 'test' }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    if (res.ok) {
+      const data = await res.json() as { embedding: number[] };
+      if (data.embedding?.length > 0) return ollama;
+    }
   } catch {
-    // Ollama not available
+    // Ollama not available — fall back silently
   }
   return new SimpleEmbedder();
 }

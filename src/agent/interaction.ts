@@ -73,6 +73,11 @@ export interface LivingAgentConfig {
     forceLLMEvalThreshold?: number;  // force LLM if local score < X (default 0.35)
     newGenomeInteractions?: number;  // LLM eval for first N interactions (default 5)
   };
+
+  embeddingOllama?: {                // Ollama embeddings config (separate from main LLM)
+    baseUrl?: string;                // default: http://localhost:11434
+    model?: string;                  // default: nomic-embed-text
+  };
 }
 
 export const DEFAULT_LIVING_AGENT_CONFIG: LivingAgentConfig = {

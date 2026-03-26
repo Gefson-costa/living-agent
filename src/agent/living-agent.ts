@@ -28,7 +28,7 @@ import { selfEvaluate } from '../fitness/self-eval.js';
 import { computeLocalEval, shouldCallLLMEval, DEFAULT_LLM_BUDGET } from '../fitness/local-eval.js';
 import type { LLMBudget } from '../fitness/local-eval.js';
 import { ResponseHistory } from '../embeddings/response-history.js';
-import { SimpleEmbedder } from '../embeddings/embedder.js';
+import { createEmbedder } from '../embeddings/embedder.js';
 import { computeHybridFitness, calibrateWeights } from '../fitness/hybrid-fitness.js';
 import { buildAutoMetrics, computeEngagementScore } from '../fitness/implicit-fitness.js';
 
@@ -90,7 +90,7 @@ export class LivingAgent {
   private rollback: PopulationRollback;
 
   // Response Fingerprinting (Point 2 — vector cognition)
-  private responseHistory: ResponseHistory;
+  private responseHistory!: ResponseHistory; // initialized in init()
 
   // Escada 3: Self-Modification
   private toolSynthesizer?: ToolSynthesizer;
@@ -129,9 +129,6 @@ export class LivingAgent {
       systemPromptTemplate: this.config.systemPromptTemplate,
     };
 
-    // Response Fingerprinting (Point 2)
-    this.responseHistory = new ResponseHistory(new SimpleEmbedder());
-
     // Safety (Escada 2.5)
     this.budgetTracker = new BudgetTracker(this.config.safety?.budget);
     this.auditLog = new AuditLog();
@@ -146,6 +143,13 @@ export class LivingAgent {
 
   /** Initialize the strategy population. Must call before chat(). */
   async init(): Promise<void> {
+    // Initialize embedder — tries Ollama first (real semantic embeddings),
+    // falls back to SimpleEmbedder if Ollama isn't running.
+    // This allows using Ollama just for embeddings while the main LLM
+    // is Claude/DeepSeek/etc via API.
+    const embedder = await createEmbedder(this.config.embeddingOllama);
+    this.responseHistory = new ResponseHistory(embedder);
+
     // Try to load persisted strategies
     const loaded = await this.store.loadStrategies();
     if (loaded.length > 0) {
