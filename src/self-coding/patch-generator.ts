@@ -5,7 +5,6 @@
 //  CodePatch with before/after file contents.
 // ================================================================
 
-import { readFile } from 'node:fs/promises';
 import type { LLMAdapter, StrategyGenome } from '../core/types.js';
 import type { CodeIssue, CodePatch, PatchFile } from './types.js';
 
@@ -116,11 +115,6 @@ IMPORTANT:
     }
 
     return uniquePatches;
-  }
-
-  /** Read a file from the project */
-  async readFile(relativePath: string): Promise<string> {
-    return readFile(`${this.projectRoot}/${relativePath}`, 'utf-8');
   }
 
   private parsePatchResponse(

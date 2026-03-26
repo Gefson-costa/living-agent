@@ -60,7 +60,6 @@ export interface LivingAgentConfig {
   maxHistoryTurns: number;           // max conversation turns to keep (default 20)
   noReplyTimeoutMs: number;          // timeout for no-reply auto-finalization (default 300000 = 5min)
 
-  sqlitePath?: string;               // path for persistent storage
   safety?: SafetyConfig;             // safety rails configuration (Escada 2.5)
 
   selfCoding?: {                     // Escada 3 features

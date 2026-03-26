@@ -32,14 +32,12 @@ export interface GapDiagnosis {
 export class ToolSynthesizer {
   private llm: LLMAdapter;
   private toolsDir: string;
-  private toolsDirRelative: string;
   private projectRoot: string;
 
   constructor(llm: LLMAdapter, projectRoot: string, toolsDir = 'src/skills/tools') {
     this.llm = llm;
     this.projectRoot = projectRoot;
     this.toolsDir = `${projectRoot}/${toolsDir}`;
-    this.toolsDirRelative = toolsDir;
   }
 
   /**
@@ -144,7 +142,6 @@ Response format MUST be a strict JSON object:
       const sanitizedName = String(data.name).replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase();
       const filename = `${sanitizedName}.ts`;
       const absolutePath = `${this.toolsDir}/${filename}`;
-      const relativePath = `${this.toolsDirRelative}/${filename}`;
 
       // Ensure directory exists and write tool
       await mkdir(this.toolsDir, { recursive: true });
