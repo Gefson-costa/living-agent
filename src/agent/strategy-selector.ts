@@ -17,6 +17,7 @@ export interface SelectionConfig {
   recencyWeight: number;        // weight for recency bonus (default 0.15)
   habitatWeight: number;        // weight for habitat preference match (default 0.15)
   noveltyWeight: number;        // weight for novelty bonus (default 0.10)
+  embeddingWeight: number;      // weight for embedding similarity (default 0.00 — enabled when router has data)
 }
 
 const DEFAULT_CONFIG: SelectionConfig = {
@@ -26,17 +27,24 @@ const DEFAULT_CONFIG: SelectionConfig = {
   recencyWeight: 0.15,
   habitatWeight: 0.15,
   noveltyWeight: 0.10,
+  embeddingWeight: 0.00,
 };
+
+export interface SelectionOptions {
+  noveltyArchive?: NoveltyArchive;
+  embeddingScores?: Map<string, number>;
+}
 
 /**
  * Score a strategy for a specific task type.
- * Combines task-type expertise, overall fitness, and recency.
+ * Combines task-type expertise, overall fitness, recency, habitat,
+ * novelty, and optional embedding similarity.
  */
 export function scoreStrategy(
   strategy: Strategy,
   taskType: TaskType,
   config: SelectionConfig = DEFAULT_CONFIG,
-  noveltyArchive?: NoveltyArchive,
+  options: SelectionOptions = {},
 ): number {
   // Task-type expertise (from taskTypeMemory)
   const expertise = strategy.taskTypeMemory.get(taskType) ?? 0.5;
@@ -56,17 +64,21 @@ export function scoreStrategy(
 
   // Novelty bonus: prefer strategies that are behaviorally diverse
   let noveltyBonus = 0;
-  if (noveltyArchive) {
+  if (options.noveltyArchive) {
     const desc = NoveltyArchive.describe(strategy);
-    noveltyBonus = noveltyArchive.novelty(desc);
+    noveltyBonus = options.noveltyArchive.novelty(desc);
   }
+
+  // Embedding similarity: how well this strategy's task centroid matches the current task
+  const embeddingScore = options.embeddingScores?.get(strategy.genome.id) ?? 0.5;
 
   return (
     expertise * config.expertiseWeight +
     fitness * config.fitnessWeight +
     recency * config.recencyWeight +
     habitatMatch * config.habitatWeight +
-    noveltyBonus * config.noveltyWeight
+    noveltyBonus * config.noveltyWeight +
+    embeddingScore * config.embeddingWeight
   );
 }
 
@@ -79,7 +91,7 @@ export function selectStrategy(
   strategies: Strategy[],
   taskType: TaskType,
   config: Partial<SelectionConfig> = {},
-  noveltyArchive?: NoveltyArchive,
+  options: SelectionOptions = {},
 ): Strategy {
   if (strategies.length === 0) {
     throw new Error('Cannot select from empty strategy pool');
@@ -98,10 +110,10 @@ export function selectStrategy(
 
   // Exploit: pick the highest scoring strategy
   let best = strategies[0];
-  let bestScore = scoreStrategy(strategies[0], taskType, cfg, noveltyArchive);
+  let bestScore = scoreStrategy(strategies[0], taskType, cfg, options);
 
   for (let i = 1; i < strategies.length; i++) {
-    const score = scoreStrategy(strategies[i], taskType, cfg, noveltyArchive);
+    const score = scoreStrategy(strategies[i], taskType, cfg, options);
     if (score > bestScore) {
       bestScore = score;
       best = strategies[i];

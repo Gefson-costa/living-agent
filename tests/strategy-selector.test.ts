@@ -169,7 +169,7 @@ describe('selectStrategy', () => {
 
     // Score with vs without novelty archive
     const scoreWithout = scoreStrategy(a, 'coding');
-    const scoreWith = scoreStrategy(a, 'coding', undefined, archive);
+    const scoreWith = scoreStrategy(a, 'coding', undefined, { noveltyArchive: archive });
 
     // Novelty weight should add a bonus to the score
     // Both a and b have the same base score, but novelty differs

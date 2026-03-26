@@ -43,8 +43,20 @@ export class EmbeddingRouter {
     score: number,
   ): Promise<void> {
     if (score < this.successThreshold) return;
-
     const embedding = await this.embedder.embed(taskPrompt);
+    this.recordTaskFromEmbedding(strategyId, embedding, score);
+  }
+
+  /**
+   * Record a completed task using a pre-computed embedding (avoids re-embedding).
+   */
+  recordTaskFromEmbedding(
+    strategyId: string,
+    embedding: Float32Array,
+    score: number,
+  ): void {
+    if (score < this.successThreshold) return;
+
     const existing = this.profiles.get(strategyId);
 
     if (!existing) {
@@ -70,6 +82,16 @@ export class EmbeddingRouter {
     strategies: Strategy[],
   ): Promise<Map<string, number>> {
     const taskEmbedding = await this.embedder.embed(taskPrompt);
+    return this.scoreStrategiesFromEmbedding(taskEmbedding, strategies);
+  }
+
+  /**
+   * Score strategies using a pre-computed task embedding (avoids re-embedding).
+   */
+  scoreStrategiesFromEmbedding(
+    taskEmbedding: Float32Array,
+    strategies: Strategy[],
+  ): Map<string, number> {
     const scores = new Map<string, number>();
 
     for (const strategy of strategies) {

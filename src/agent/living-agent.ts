@@ -28,6 +28,7 @@ import { selfEvaluate } from '../fitness/self-eval.js';
 import { computeLocalEval, shouldCallLLMEval, DEFAULT_LLM_BUDGET } from '../fitness/local-eval.js';
 import type { LLMBudget } from '../fitness/local-eval.js';
 import { ResponseHistory } from '../embeddings/response-history.js';
+import { EmbeddingRouter } from '../embeddings/embedding-router.js';
 import { createEmbedder } from '../embeddings/embedder.js';
 import { computeHybridFitness, calibrateWeights } from '../fitness/hybrid-fitness.js';
 import { buildAutoMetrics, computeEngagementScore } from '../fitness/implicit-fitness.js';
@@ -91,6 +92,7 @@ export class LivingAgent {
 
   // Response Fingerprinting (Point 2 — vector cognition)
   private responseHistory!: ResponseHistory; // initialized in init()
+  private embeddingRouter!: EmbeddingRouter; // initialized in init()
 
   // Escada 3: Self-Modification
   private toolSynthesizer?: ToolSynthesizer;
@@ -149,6 +151,7 @@ export class LivingAgent {
     // is Claude/DeepSeek/etc via API.
     const embedder = await createEmbedder(this.config.embeddingOllama);
     this.responseHistory = new ResponseHistory(embedder);
+    this.embeddingRouter = new EmbeddingRouter(embedder);
 
     // Vector Memory: give the skill library the same embedder for semantic retrieval
     this.skillLibrary.setEmbedder(embedder);
@@ -205,14 +208,22 @@ export class LivingAgent {
     const taskType = classifyTask(userMessage, this.classifierMemory);
     this.trackTaskType(taskType);
 
-    // 2. Select strategy (with novelty archive for diversity bonus)
+    // 2. Embed user message once (reused for routing, skill retrieval, and fingerprinting)
+    const taskEmbedding = await this.responseHistory.getEmbedder().embed(userMessage);
+
+    // 3. Select strategy — embedding router adds semantic routing signal
+    const embeddingScores = this.embeddingRouter.hasData
+      ? this.embeddingRouter.scoreStrategiesFromEmbedding(taskEmbedding, this.strategies)
+      : undefined;
     const strategy = selectStrategy(this.strategies, taskType, {
       epsilon: this.config.epsilon,
-    }, this.noveltyArchive);
+      embeddingWeight: embeddingScores ? 0.20 : 0,
+      // Rebalance: reduce habitat weight when embedding routing is active
+      habitatWeight: embeddingScores ? 0.05 : 0.15,
+    }, { noveltyArchive: this.noveltyArchive, embeddingScores });
 
-    // 3. Get relevant skills — semantic retrieval when embedder available,
+    // 4. Get relevant skills — semantic retrieval when embedder available,
     //    falls back to task-type matching. Merge with genome skillRefs.
-    const taskEmbedding = await this.responseHistory.getEmbedder().embed(userMessage);
     const semanticSkills = this.skillLibrary.hasEmbedder()
       ? await this.skillLibrary.getSkillsBySimilarity(taskEmbedding)
       : await this.skillLibrary.getSkillsForTask(taskType);
@@ -350,6 +361,9 @@ export class LivingAgent {
 
     // Record response fingerprint (Point 2 — vector cognition)
     await this.responseHistory.record(taskType, strategy.genome.id, llmResponse.content, hybridFitness);
+
+    // Update embedding router centroid (Point 1 — semantic strategy routing)
+    this.embeddingRouter.recordTaskFromEmbedding(strategy.genome.id, taskEmbedding, hybridFitness);
 
     // Reinforce classifier memory
     this.classifierMemory.adjustWeights(userMessage, taskType, hybridFitness);
