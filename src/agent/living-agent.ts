@@ -438,39 +438,13 @@ export class LivingAgent {
     const normalizedScore = Math.max(0, Math.min(1, score / 10));
     this.pendingFeedback.userFeedback = normalizedScore;
 
-    // Recompute hybrid fitness with user feedback + any engagement data.
-    const fitnessSignal: FitnessSignal = {
+    await this.finalizeAndRecord({
       completion: null,
       selfEval: this.pendingFeedback.selfEvalScore,
       userFeedback: normalizedScore,
       engagement: this.pendingFeedback.engagementScore,
-    };
-    const newFitness = computeHybridFitness(fitnessSignal, this.fitnessWeights ?? undefined);
-    this.pendingFeedback.hybridFitness = newFitness;
-
-    // Update the strategy
-    const strategy = this.strategies.find(
-      s => s.genome.id === this.pendingFeedback!.strategyId,
-    );
-    if (strategy) {
-      strategy.fitness = strategy.fitness * 0.9 + newFitness * 0.1;
-      updateTaskTypeMemory(strategy, this.pendingFeedback.taskType, newFitness);
-    }
-
-    // Update experience record
-    await this.store.recordExperience({
-      strategyId: this.pendingFeedback.strategyId,
-      taskType: this.pendingFeedback.taskType,
-      taskPrompt: this.pendingFeedback.userMessage,
-      response: this.pendingFeedback.response,
-      score: newFitness,
-      tokensUsed: this.pendingFeedback.tokensUsed,
-      latencyMs: this.pendingFeedback.latencyMs,
-      fitnessSignal: this.pendingFeedback.selfEvalScore,
-      userFeedback: normalizedScore,
     });
 
-    this.pendingFeedback = null;
     return true;
   }
 
@@ -722,12 +696,7 @@ export class LivingAgent {
         const restored = this.rollback.restore(latest.id);
         if (restored) {
           this.strategies = restored.strategies;
-          if (restored.configState) {
-            if (restored.configState.mutationRate !== undefined) this.agentConfig.mutationRate = restored.configState.mutationRate;
-            if (restored.configState.epsilon !== undefined) this.config.epsilon = restored.configState.epsilon;
-            if (restored.configState.skillExtractionThreshold !== undefined) this.config.skillExtractionThreshold = restored.configState.skillExtractionThreshold;
-            if (restored.configState.cullThreshold !== undefined) this.agentConfig.cullThreshold = restored.configState.cullThreshold;
-          }
+          this.applyConfigState(restored.configState);
           this.rollback.resetDegradation();
           this.auditLog.log(AuditLog.createEntry('rollback', `Auto-rollback: fitness degraded >20% for 3 cycles. Restored snapshot ${latest.id}`, {
             fitnessBefore: avgFitnessForArch,
@@ -744,12 +713,16 @@ export class LivingAgent {
     const latest = this.rollback.getLatestSnapshot();
     if (!latest) return;
     const restored = this.rollback.restore(latest.id);
-    if (restored?.configState) {
-      if (restored.configState.mutationRate !== undefined) this.agentConfig.mutationRate = restored.configState.mutationRate;
-      if (restored.configState.epsilon !== undefined) this.config.epsilon = restored.configState.epsilon;
-      if (restored.configState.skillExtractionThreshold !== undefined) this.config.skillExtractionThreshold = restored.configState.skillExtractionThreshold;
-      if (restored.configState.cullThreshold !== undefined) this.agentConfig.cullThreshold = restored.configState.cullThreshold;
-    }
+    if (restored) this.applyConfigState(restored.configState);
+  }
+
+  /** Apply a saved config state to the current agent/config. */
+  private applyConfigState(state?: Record<string, number>): void {
+    if (!state) return;
+    if (state.mutationRate !== undefined) this.agentConfig.mutationRate = state.mutationRate;
+    if (state.epsilon !== undefined) this.config.epsilon = state.epsilon;
+    if (state.skillExtractionThreshold !== undefined) this.config.skillExtractionThreshold = state.skillExtractionThreshold;
+    if (state.cullThreshold !== undefined) this.agentConfig.cullThreshold = state.cullThreshold;
   }
 
   /** Rescue the population if too many strategies are below cullThreshold */
@@ -800,41 +773,12 @@ export class LivingAgent {
     this.pendingFeedback.engagementScore = engScore;
     this.pendingFeedback.engagementMetrics = metrics;
 
-    // Recompute hybrid fitness with engagement signal
-    const fitnessSignal: FitnessSignal = {
+    await this.finalizeAndRecord({
       completion: null,
       selfEval: this.pendingFeedback.selfEvalScore,
       userFeedback: this.pendingFeedback.userFeedback,
       engagement: engScore,
-    };
-    const newFitness = computeHybridFitness(fitnessSignal, this.fitnessWeights ?? undefined);
-    this.pendingFeedback.hybridFitness = newFitness;
-
-    // Update the strategy
-    const strategy = this.strategies.find(
-      s => s.genome.id === this.pendingFeedback!.strategyId,
-    );
-    if (strategy) {
-      strategy.fitness = strategy.fitness * 0.9 + newFitness * 0.1;
-      updateTaskTypeMemory(strategy, this.pendingFeedback.taskType, newFitness);
-    }
-
-    // Record updated experience
-    await this.store.recordExperience({
-      strategyId: this.pendingFeedback.strategyId,
-      taskType: this.pendingFeedback.taskType,
-      taskPrompt: this.pendingFeedback.userMessage,
-      response: this.pendingFeedback.response,
-      score: newFitness,
-      tokensUsed: this.pendingFeedback.tokensUsed,
-      latencyMs: this.pendingFeedback.latencyMs,
-      fitnessSignal: this.pendingFeedback.selfEvalScore,
-      userFeedback: this.pendingFeedback.userFeedback ?? undefined,
-      engagementScore: engScore,
-      engagementMetrics: JSON.stringify(metrics),
     });
-
-    this.pendingFeedback = null;
   }
 
   /**
@@ -892,17 +836,21 @@ export class LivingAgent {
     this.pendingFeedback.engagementScore = engScore;
     this.pendingFeedback.engagementMetrics = metrics;
 
-    // Recompute hybrid fitness
-    const fitnessSignal: FitnessSignal = {
+    await this.finalizeAndRecord({
       completion: null,
       selfEval: this.pendingFeedback.selfEvalScore,
       userFeedback: this.pendingFeedback.userFeedback,
       engagement: engScore,
-    };
-    const newFitness = computeHybridFitness(fitnessSignal, this.fitnessWeights ?? undefined);
+    });
+  }
+
+  /** Shared helper: compute hybrid fitness, update strategy, record experience, clear pending. */
+  private async finalizeAndRecord(signal: FitnessSignal): Promise<void> {
+    if (!this.pendingFeedback) return;
+
+    const newFitness = computeHybridFitness(signal, this.fitnessWeights ?? undefined);
     this.pendingFeedback.hybridFitness = newFitness;
 
-    // Update the strategy
     const strategy = this.strategies.find(
       s => s.genome.id === this.pendingFeedback!.strategyId,
     );
@@ -911,7 +859,6 @@ export class LivingAgent {
       updateTaskTypeMemory(strategy, this.pendingFeedback.taskType, newFitness);
     }
 
-    // Record experience
     await this.store.recordExperience({
       strategyId: this.pendingFeedback.strategyId,
       taskType: this.pendingFeedback.taskType,
@@ -922,8 +869,10 @@ export class LivingAgent {
       latencyMs: this.pendingFeedback.latencyMs,
       fitnessSignal: this.pendingFeedback.selfEvalScore,
       userFeedback: this.pendingFeedback.userFeedback ?? undefined,
-      engagementScore: engScore,
-      engagementMetrics: JSON.stringify(metrics),
+      engagementScore: this.pendingFeedback.engagementScore ?? undefined,
+      engagementMetrics: this.pendingFeedback.engagementMetrics
+        ? JSON.stringify(this.pendingFeedback.engagementMetrics)
+        : undefined,
     });
 
     this.pendingFeedback = null;
