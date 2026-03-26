@@ -67,6 +67,12 @@ export interface LivingAgentConfig {
     enabled: boolean;
     projectRoot: string;
   };
+
+  llmBudget?: {                      // LLM call budget (#31 — local eval)
+    selfEvalRate?: number;           // fraction using LLM self-eval (default 0.3)
+    forceLLMEvalThreshold?: number;  // force LLM if local score < X (default 0.35)
+    newGenomeInteractions?: number;  // LLM eval for first N interactions (default 5)
+  };
 }
 
 export const DEFAULT_LIVING_AGENT_CONFIG: LivingAgentConfig = {

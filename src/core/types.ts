@@ -117,6 +117,11 @@ export interface AgentConfig {
   enableFitnessDecay?: boolean;
   enableElo?: boolean;
   enableCycleQD?: boolean;
+  // Local/small model constraints
+  localMode?: boolean;             // enable local model optimizations
+  maxTemperature?: number;         // cap temperature range (default 1.0)
+  maxTokenCeiling?: number;        // cap maxTokenBudget range (default 4096)
+  concurrency?: number;            // max parallel LLM calls (default 4, use 1-2 for local)
   // Storage (Phase 2+)
   sqlitePath?: string;
   redisUrl?: string;

@@ -25,19 +25,20 @@ import { fileURLToPath } from 'url';
 import type { LLMAdapter, Strategy } from '../../src/core/types.js';
 import { Ecology } from '../../src/evolution/ecology.js';
 import { buildSystemPrompt } from '../../src/llm/adapter.js';
-import { createDefaultConfig } from '../../src/core/config.js';
+import { createDefaultConfig, createLocalConfig } from '../../src/core/config.js';
 import { resetGenomeCounter } from '../../src/evolution/genome.js';
 import { MultitaskEvaluator, type MultitaskType } from '../evaluators/multitask-evaluator.js';
-import { createBenchmarkAdapter } from '../create-adapter.js';
+import { createBenchmarkAdapter, isOllamaMode } from '../create-adapter.js';
 import { runBenchmark } from '../harness.js';
 import type { BenchmarkResult, TimeSeriesPoint } from '../harness.js';
+import { BenchLogger } from '../bench-logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const RESULTS_DIR = resolve(__dirname, '..', 'results');
 const COMPARISON_PATH = resolve(RESULTS_DIR, 'multitask-comparison.json');
 
 const TASK_TYPES: MultitaskType[] = ['coding', 'research', 'analysis', 'creative', 'summarization'];
-const CONCURRENCY = 4;
+const DEFAULT_CONCURRENCY = 4;
 
 // ── Phase A: Static Baseline ────────────────────────────────────
 
@@ -56,8 +57,11 @@ interface StaticBaselineResult {
 async function runStaticBaseline(
   adapter: LLMAdapter,
   evalEvaluator: MultitaskEvaluator,
+  logger: BenchLogger,
+  concurrency = DEFAULT_CONCURRENCY,
 ): Promise<StaticBaselineResult> {
   const evalItems = evalEvaluator.getAllItems();
+  const CONCURRENCY = concurrency;
   const systemPrompt = 'You are a helpful AI assistant. Solve the given task accurately and concisely.';
 
   let totalCorrect = 0;
@@ -72,6 +76,7 @@ async function runStaticBaseline(
   for (let batchStart = 0; batchStart < evalItems.length; batchStart += CONCURRENCY) {
     const batch = evalItems.slice(batchStart, batchStart + CONCURRENCY);
     const results = await Promise.all(batch.map(async (item) => {
+      const t0 = performance.now();
       try {
         const response = await adapter.execute(item.prompt, {
           temperature: 0.3,
@@ -79,13 +84,39 @@ async function runStaticBaseline(
           systemPrompt,
           toolNames: [],
         });
+        const inferenceMs = performance.now() - t0;
+        const score = evalEvaluator.scoreById(item.id, response.content);
+        logger.log({
+          phase: 'static',
+          itemIndex: batchStart + batch.indexOf(item),
+          itemTotal: total,
+          itemId: item.id,
+          taskType: item.type,
+          score,
+          tokensUsed: response.tokensUsed,
+          inferenceMs,
+          responseLength: response.content.length,
+          genome: { temperature: 0.3, reasoningDepth: 0, maxTokenBudget: 1500 },
+          responsePreview: response.content.slice(0, 200),
+        });
         return {
           id: item.id,
           type: item.type as MultitaskType,
           tokens: response.tokensUsed,
-          score: evalEvaluator.scoreById(item.id, response.content),
+          score,
         };
       } catch {
+        logger.log({
+          phase: 'static',
+          itemIndex: batchStart + batch.indexOf(item),
+          itemTotal: total,
+          itemId: item.id,
+          taskType: item.type,
+          score: 0,
+          tokensUsed: 0,
+          inferenceMs: performance.now() - t0,
+          responseLength: 0,
+        });
         return { id: item.id, type: item.type as MultitaskType, tokens: 0, score: 0 };
       }
     }));
@@ -140,14 +171,14 @@ async function runEvolved(
   seed: number,
   cycles: number,
   adapter: LLMAdapter,
+  logger: BenchLogger,
 ): Promise<EvolvedResult | null> {
   resetGenomeCounter();
 
-  const config = createDefaultConfig({
-    strategyCount: 8,
-    taskBatchSize: 8,
-    cullThreshold: -5,
-  });
+  const local = isOllamaMode();
+  const config = local
+    ? createLocalConfig()
+    : createDefaultConfig({ strategyCount: 8, taskBatchSize: 8, cullThreshold: -5 });
 
   // Preflight
   const preflight = await adapter.execute('Reply with just "ok"', {
@@ -168,12 +199,20 @@ async function runEvolved(
   console.log('  [Living-Agent] Evolving on train split...');
 
   for (let i = 0; i < cycles; i++) {
+    const cycleStart = performance.now();
     const stats = await ecology.runCycle();
+    const cycleMs = performance.now() - cycleStart;
     timeSeries.push({
       cycle: stats.cycle,
       avgFitness: stats.avgFitness,
       bestFitness: stats.bestFitness,
       strategyCount: stats.strategyCount,
+    });
+    logger.logCycle(i + 1, cycles, {
+      avgFitness: stats.avgFitness,
+      bestFitness: stats.bestFitness,
+      strategyCount: stats.strategyCount,
+      elapsedMs: cycleMs,
     });
     if ((i + 1) % 5 === 0 || i === cycles - 1) {
       console.log(`    cycle ${i + 1}/${cycles}: avg=${stats.avgFitness.toFixed(3)} best=${stats.bestFitness.toFixed(3)} pop=${stats.strategyCount}`);
@@ -189,6 +228,7 @@ async function runEvolved(
   console.log(`  [Living-Agent] Evaluating ${strategies.length} strategies on eval split...`);
   const evalEvaluator = new MultitaskEvaluator('eval', seed);
   const evalItems = evalEvaluator.getAllItems();
+  const evalConcurrency = config.concurrency ?? DEFAULT_CONCURRENCY;
 
   const strategyResults: StrategyEvalResult[] = [];
 
@@ -204,9 +244,10 @@ async function runEvolved(
     const perType: Record<string, { correct: number; total: number }> = {};
     for (const t of TASK_TYPES) perType[t] = { correct: 0, total: 0 };
 
-    for (let batchStart = 0; batchStart < evalItems.length; batchStart += CONCURRENCY) {
-      const batch = evalItems.slice(batchStart, batchStart + CONCURRENCY);
+    for (let batchStart = 0; batchStart < evalItems.length; batchStart += evalConcurrency) {
+      const batch = evalItems.slice(batchStart, batchStart + evalConcurrency);
       const results = await Promise.all(batch.map(async (item) => {
+        const t0 = performance.now();
         try {
           const response = await adapter.execute(item.prompt, {
             temperature: Math.min(1, Math.max(0, strategy.genome.temperature)),
@@ -214,13 +255,47 @@ async function runEvolved(
             systemPrompt,
             toolNames: [],
           });
+          const inferenceMs = performance.now() - t0;
+          const score = evalEvaluator.scoreById(item.id, response.content);
+          logger.log({
+            phase: 'evolution-eval',
+            itemIndex: batchStart + batch.indexOf(item),
+            itemTotal: evalItems.length,
+            itemId: item.id,
+            taskType: item.type,
+            strategyId: strategy.genome.id,
+            genome: {
+              temperature: strategy.genome.temperature,
+              reasoningDepth: strategy.genome.reasoningDepth,
+              maxTokenBudget: strategy.genome.maxTokenBudget,
+              habitatPref: strategy.genome.habitatPref,
+              mutability: strategy.genome.mutability,
+            },
+            score,
+            tokensUsed: response.tokensUsed,
+            inferenceMs,
+            responseLength: response.content.length,
+            responsePreview: response.content.slice(0, 200),
+          });
           return {
             id: item.id,
             type: item.type as MultitaskType,
             tokens: response.tokensUsed,
-            score: evalEvaluator.scoreById(item.id, response.content),
+            score,
           };
         } catch {
+          logger.log({
+            phase: 'evolution-eval',
+            itemIndex: batchStart + batch.indexOf(item),
+            itemTotal: evalItems.length,
+            itemId: item.id,
+            taskType: item.type,
+            strategyId: strategy.genome.id,
+            score: 0,
+            tokensUsed: 0,
+            inferenceMs: performance.now() - t0,
+            responseLength: 0,
+          });
           return { id: item.id, type: item.type as MultitaskType, tokens: 0, score: 0 };
         }
       }));
@@ -322,10 +397,15 @@ export async function multitaskSpecialization(
     console.log(`LLM Provider: ${adapterInfo.name} (${adapterInfo.model})`);
     console.log('================================================================\n');
 
+    const logger = new BenchLogger('multitask-specialization');
+    console.log(`Detailed logs: ${logger.getLogPath()}\n`);
+
     // ── Phase A: Static Baseline ──────────────────────────────────
-    console.log('Phase A: Static baseline (8 identical strategies, temp=0.3)');
+    const local = isOllamaMode();
+    const concurrency = local ? 2 : DEFAULT_CONCURRENCY;
+    console.log(`Phase A: Static baseline (temp=0.3, concurrency=${concurrency})`);
     const staticEvalEvaluator = new MultitaskEvaluator('eval', s);
-    const staticResult = await runStaticBaseline(adapterInfo.adapter, staticEvalEvaluator);
+    const staticResult = await runStaticBaseline(adapterInfo.adapter, staticEvalEvaluator, logger, concurrency);
     console.log(`  Static overall accuracy: ${(staticResult.overall.accuracy * 100).toFixed(1)}%`);
     for (const t of TASK_TYPES) {
       const pt = staticResult.perType[t];
@@ -334,7 +414,7 @@ export async function multitaskSpecialization(
 
     // ── Phase B: Evolution + Per-Strategy Eval ────────────────────
     console.log('\nPhase B: Living-Agent evolution + per-strategy eval');
-    const evolved = await runEvolved(s, cycles, adapterInfo.adapter);
+    const evolved = await runEvolved(s, cycles, adapterInfo.adapter, logger);
 
     if (!evolved) {
       return {
@@ -410,6 +490,26 @@ export async function multitaskSpecialization(
     };
     writeFileSync(COMPARISON_PATH, JSON.stringify(comparison, null, 2));
     console.log(`\nResults saved to ${COMPARISON_PATH}`);
+
+    logger.logSummary({
+      staticOverallAccuracy: staticResult.overall.accuracy,
+      evolvedOverallAccuracy: evolved.aggregated.accuracy,
+      evolutionDelta: evolved.aggregated.accuracy - staticResult.overall.accuracy,
+      evolvedWins,
+      distinctSpecialists: distinctBestStrategies.size,
+      tempSpread,
+      totalTokens: evolved.totalTokens + staticResult.totalTokens,
+      strategies: evolved.strategies.map(sr => ({
+        id: sr.strategyId,
+        genome: sr.genome,
+        accuracy: sr.overall.accuracy,
+        bestType: TASK_TYPES.find(t => {
+          const best = evolved.bestPerType[t];
+          return best.strategyId === sr.strategyId;
+        }) ?? null,
+      })),
+    });
+    console.log(`Detailed logs saved to ${logger.getLogPath()}`);
 
     // ── Pass criteria (lenient, OR-combined) ──────────────────────
     const beatsStatic = evolved.aggregated.accuracy > staticResult.overall.accuracy;

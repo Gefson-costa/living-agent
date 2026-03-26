@@ -19,12 +19,13 @@ import { fileURLToPath } from 'url';
 import type { LLMAdapter } from '../../src/core/types.js';
 import { Ecology } from '../../src/evolution/ecology.js';
 import { buildSystemPrompt } from '../../src/llm/adapter.js';
-import { createDefaultConfig } from '../../src/core/config.js';
+import { createDefaultConfig, createLocalConfig } from '../../src/core/config.js';
 import { resetGenomeCounter } from '../../src/evolution/genome.js';
 import { SwebenchEvaluator, buildSwebenchPrompt } from '../evaluators/swebench-evaluator.js';
-import { createBenchmarkAdapter } from '../create-adapter.js';
+import { createBenchmarkAdapter, isOllamaMode } from '../create-adapter.js';
 import { runBenchmark } from '../harness.js';
 import type { BenchmarkResult, TimeSeriesPoint } from '../harness.js';
+import { BenchLogger } from '../bench-logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const RESULTS_DIR = resolve(__dirname, '..', 'results');
@@ -53,9 +54,11 @@ interface StaticBaselineResult {
 async function runStaticBaseline(
   adapter: LLMAdapter,
   evalEvaluator: SwebenchEvaluator,
+  logger: BenchLogger,
+  concurrency = 4,
 ): Promise<StaticBaselineResult> {
   const evalItems = evalEvaluator.getAllItems();
-  const CONCURRENCY = 4;
+  const CONCURRENCY = concurrency;
 
   let correct = 0;
   let totalTokens = 0;
@@ -65,6 +68,7 @@ async function runStaticBaseline(
     const batch = evalItems.slice(batchStart, batchStart + CONCURRENCY);
     const results = await Promise.all(batch.map(async (item) => {
       const prompt = buildSwebenchPrompt(item);
+      const t0 = performance.now();
       try {
         const response = await adapter.execute(prompt, {
           temperature: 0.3,
@@ -72,13 +76,37 @@ async function runStaticBaseline(
           systemPrompt: SWE_SYSTEM_PROMPT,
           toolNames: [],
         });
+        const inferenceMs = performance.now() - t0;
+        const score = evalEvaluator.scoreById(item.id, response.content);
+        logger.log({
+          phase: 'static',
+          itemIndex: batchStart + batch.indexOf(item),
+          itemTotal: total,
+          itemId: item.id,
+          score,
+          tokensUsed: response.tokensUsed,
+          inferenceMs,
+          responseLength: response.content.length,
+          genome: { temperature: 0.3, reasoningDepth: 0, maxTokenBudget: 2000 },
+          responsePreview: response.content.slice(0, 200),
+        });
         return {
           tokens: response.tokensUsed,
-          score: evalEvaluator.scoreById(item.id, response.content),
+          score,
           instance_id: item.instance_id,
           model_patch: response.content,
         };
       } catch {
+        logger.log({
+          phase: 'static',
+          itemIndex: batchStart + batch.indexOf(item),
+          itemTotal: total,
+          itemId: item.id,
+          score: 0,
+          tokensUsed: 0,
+          inferenceMs: performance.now() - t0,
+          responseLength: 0,
+        });
         return { tokens: 0, score: 0, instance_id: item.instance_id, model_patch: '' };
       }
     }));
@@ -114,15 +142,14 @@ async function runLivingAgent(
   seed: number,
   cycles: number,
   adapter: LLMAdapter,
+  logger: BenchLogger,
 ): Promise<LivingAgentResult | null> {
   resetGenomeCounter();
 
-  const config = createDefaultConfig({
-    strategyCount: 8,
-    taskBatchSize: 8,
-    cullThreshold: -5,
-    systemPromptTemplate: SWE_SYSTEM_PROMPT,
-  });
+  const local = isOllamaMode();
+  const config = local
+    ? createLocalConfig({ systemPromptTemplate: SWE_SYSTEM_PROMPT })
+    : createDefaultConfig({ strategyCount: 8, taskBatchSize: 8, cullThreshold: -5, systemPromptTemplate: SWE_SYSTEM_PROMPT });
 
   // Preflight — soft skip if API not reachable
   const preflight = await adapter.execute('Reply with just "ok"', {
@@ -145,12 +172,20 @@ async function runLivingAgent(
   console.log('  [Living-Agent] Evolving on train split...');
 
   for (let i = 0; i < cycles; i++) {
+    const cycleStart = performance.now();
     const stats = await ecology.runCycle();
+    const cycleMs = performance.now() - cycleStart;
     timeSeries.push({
       cycle: stats.cycle,
       avgFitness: stats.avgFitness,
       bestFitness: stats.bestFitness,
       strategyCount: stats.strategyCount,
+    });
+    logger.logCycle(i + 1, cycles, {
+      avgFitness: stats.avgFitness,
+      bestFitness: stats.bestFitness,
+      strategyCount: stats.strategyCount,
+      elapsedMs: cycleMs,
     });
     if ((i + 1) % 5 === 0 || i === cycles - 1) {
       console.log(`    cycle ${i + 1}/${cycles}: avg=${stats.avgFitness.toFixed(3)} best=${stats.bestFitness.toFixed(3)}`);
@@ -176,13 +211,14 @@ async function runLivingAgent(
 
   let correct = 0;
   const total = evalItems.length;
-  const CONCURRENCY = 4;
+  const CONCURRENCY = config.concurrency ?? 4;
   const predictions: Array<{ instance_id: string; model_patch: string }> = [];
 
   for (let batchStart = 0; batchStart < evalItems.length; batchStart += CONCURRENCY) {
     const batch = evalItems.slice(batchStart, batchStart + CONCURRENCY);
     const results = await Promise.all(batch.map(async (item) => {
       const prompt = buildSwebenchPrompt(item);
+      const t0 = performance.now();
       try {
         const response = await adapter.execute(prompt, {
           temperature: Math.min(1, Math.max(0, best.genome.temperature)),
@@ -190,13 +226,45 @@ async function runLivingAgent(
           systemPrompt,
           toolNames: [],
         });
+        const inferenceMs = performance.now() - t0;
+        const score = evalEvaluator.scoreById(item.id, response.content);
+        logger.log({
+          phase: 'evolution-eval',
+          itemIndex: batchStart + batch.indexOf(item),
+          itemTotal: total,
+          itemId: item.id,
+          strategyId: best.genome.id,
+          genome: {
+            temperature: best.genome.temperature,
+            reasoningDepth: best.genome.reasoningDepth,
+            maxTokenBudget: best.genome.maxTokenBudget,
+            habitatPref: best.genome.habitatPref,
+            mutability: best.genome.mutability,
+          },
+          score,
+          tokensUsed: response.tokensUsed,
+          inferenceMs,
+          responseLength: response.content.length,
+          responsePreview: response.content.slice(0, 200),
+        });
         return {
           tokens: response.tokensUsed,
-          score: evalEvaluator.scoreById(item.id, response.content),
+          score,
           instance_id: item.instance_id,
           model_patch: response.content,
         };
       } catch {
+        logger.log({
+          phase: 'evolution-eval',
+          itemIndex: batchStart + batch.indexOf(item),
+          itemTotal: total,
+          itemId: item.id,
+          strategyId: best.genome.id,
+          score: 0,
+          tokensUsed: 0,
+          inferenceMs: performance.now() - t0,
+          responseLength: 0,
+        });
         return { tokens: 0, score: 0, instance_id: item.instance_id, model_patch: '' };
       }
     }));
@@ -253,15 +321,20 @@ export async function swebench(
     console.log(`LLM Provider: ${adapterInfo.name} (${adapterInfo.model})`);
     console.log('================================================================\n');
 
+    const logger = new BenchLogger('swebench');
+    console.log(`Detailed logs: ${logger.getLogPath()}\n`);
+
+    const concurrency = isOllamaMode() ? 2 : 4;
+
     // ── Phase A: Static Baseline ───────────────────────────────
-    console.log('Phase A: Static baseline (no evolution)');
+    console.log(`Phase A: Static baseline (no evolution, concurrency=${concurrency})`);
     const staticEvalEvaluator = new SwebenchEvaluator('eval');
-    const staticResult = await runStaticBaseline(adapterInfo.adapter, staticEvalEvaluator);
+    const staticResult = await runStaticBaseline(adapterInfo.adapter, staticEvalEvaluator, logger, concurrency);
     console.log(`  Static accuracy:    ${(staticResult.accuracy * 100).toFixed(1)}%`);
 
     // ── Phase B: Living-Agent ─────────────────────────────────────
     console.log('\nPhase B: Living-Agent evolution + eval');
-    const la = await runLivingAgent(s, cycles, adapterInfo.adapter);
+    const la = await runLivingAgent(s, cycles, adapterInfo.adapter, logger);
 
     if (!la) {
       return {
@@ -313,6 +386,23 @@ export async function swebench(
       .join('\n');
     writeFileSync(PREDICTIONS_PATH, predictionsLines + '\n');
     console.log(`Predictions saved to ${PREDICTIONS_PATH}`);
+
+    logger.logSummary({
+      staticBaselineAccuracy: staticResult.accuracy,
+      livingAgentAccuracy: la.accuracy,
+      evolutionDelta: deltaVsStatic,
+      deltaVsNoContext,
+      totalTokens: la.totalTokens,
+      staticTokens: staticResult.totalTokens,
+      evolutionCycles: cycles,
+      bestStrategyId: best?.genome.id,
+      bestGenome: best ? {
+        temperature: best.genome.temperature,
+        reasoningDepth: best.genome.reasoningDepth,
+        maxTokenBudget: best.genome.maxTokenBudget,
+      } : null,
+    });
+    console.log(`Detailed logs saved to ${logger.getLogPath()}`);
 
     // ── Pass criteria (OR, lenient) ──────────────────────────────
     const fitnessImproved = la.lateAvgFitness > la.earlyAvgFitness;

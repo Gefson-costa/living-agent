@@ -25,6 +25,8 @@ import {
 
 import { strategyToLLMConfig } from '../llm/prompt-builder.js';
 import { selfEvaluate } from '../fitness/self-eval.js';
+import { computeLocalEval, shouldCallLLMEval, DEFAULT_LLM_BUDGET } from '../fitness/local-eval.js';
+import type { LLMBudget } from '../fitness/local-eval.js';
 import { computeHybridFitness, calibrateWeights } from '../fitness/hybrid-fitness.js';
 import { buildAutoMetrics, computeEngagementScore } from '../fitness/implicit-fitness.js';
 
@@ -247,14 +249,24 @@ export class LivingAgent {
       this.conversationHistory = this.conversationHistory.slice(-maxMessages);
     }
 
-    // 6. Self-evaluate
+    // 6. Self-evaluate (local-first, LLM only when needed — #31)
     const task: Task = {
       id: `task_${++this.interactionCounter}`,
       type: taskType,
       prompt: userMessage,
       difficulty: 0.5,
     };
-    const selfEvalScore = await selfEvaluate(task, llmResponse.content, this.llm);
+
+    const localResult = computeLocalEval(llmResponse.content, task);
+    const genomeAge = strategy.taskHistory.length;
+    const budget: LLMBudget = {
+      ...DEFAULT_LLM_BUDGET,
+      ...this.config.llmBudget,
+    };
+    const needsLLM = shouldCallLLMEval(localResult, genomeAge, budget);
+    const selfEvalScore = needsLLM
+      ? await selfEvaluate(task, llmResponse.content, this.llm)
+      : localResult.score;
 
     // 7. Compute initial hybrid fitness (without user feedback)
     // completion is null in interactive mode — no external evaluator present.

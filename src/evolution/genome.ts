@@ -37,13 +37,23 @@ export function createGenome(
     toolPreferences[i] = rng(); // 0..1
   }
 
+  const maxTemp = config.maxTemperature ?? 1.0;
+  const maxTokens = config.maxTokenCeiling ?? 4096;
+  const local = config.localMode === true;
+
   return {
     id: nextId(),
     promptStyle,
     toolPreferences,
-    temperature: 0.1 + rng() * 0.9,              // 0.1..1.0
-    maxTokenBudget: 200 + (rng() * 3800) | 0,   // 200..4000
-    reasoningDepth: rng(),                        // 0..1
+    temperature: local
+      ? 0.1 + rng() * Math.min(0.4, maxTemp - 0.1)   // local: 0.1..0.5
+      : 0.1 + rng() * (maxTemp - 0.1),                // default: 0.1..1.0
+    maxTokenBudget: local
+      ? 800 + (rng() * Math.min(maxTokens - 800, 1700)) | 0  // local: 800..2500 (thinking needs ~500)
+      : 200 + (rng() * (maxTokens - 200)) | 0,               // default: 200..4000
+    reasoningDepth: local
+      ? rng() * 0.5                                    // local: 0..0.5 (less CoT)
+      : rng(),                                         // default: 0..1
     mutability: 0.8 + rng() * 0.4,              // 0.8..1.2
     learningRate: 0.003 + rng() * 0.022,         // 0.003..0.025
     lamarckianRate: rng() * 0.08,                // 0..0.08
@@ -78,15 +88,31 @@ export function mutateGenome(
     }
   }
 
-  // Scalar mutations
+  // Scalar mutations (respect local mode constraints)
+  const maxTemp = config.maxTemperature ?? 1.0;
+  const maxTokens = config.maxTokenCeiling ?? 4096;
+  const local = config.localMode === true;
+
   let temperature = parent.temperature;
-  if (rng() < 0.12 * rate) temperature = clamp(temperature + (rng() - 0.5) * 0.3, 0.0, 1.0);
+  if (rng() < 0.12 * rate) temperature = clamp(
+    temperature + (rng() - 0.5) * (local ? 0.15 : 0.3),
+    0.0,
+    local ? Math.min(0.5, maxTemp) : maxTemp,
+  );
 
   let maxTokenBudget = parent.maxTokenBudget;
-  if (rng() < 0.10 * rate) maxTokenBudget = clamp(maxTokenBudget + ((rng() - 0.5) * 500) | 0, 100, 4096);
+  if (rng() < 0.10 * rate) maxTokenBudget = clamp(
+    maxTokenBudget + ((rng() - 0.5) * (local ? 300 : 500)) | 0,
+    local ? 800 : 100,
+    local ? Math.min(2500, maxTokens) : maxTokens,
+  );
 
   let reasoningDepth = parent.reasoningDepth;
-  if (rng() < 0.12 * rate) reasoningDepth = clamp(reasoningDepth + (rng() - 0.5) * 0.2, 0, 1);
+  if (rng() < 0.12 * rate) reasoningDepth = clamp(
+    reasoningDepth + (rng() - 0.5) * (local ? 0.1 : 0.2),
+    0,
+    local ? 0.5 : 1,
+  );
 
   let mutability = parent.mutability;
   if (rng() < 0.08 * rate) mutability = clamp(mutability + (rng() - 0.5) * 0.2, 0.5, 2.0);

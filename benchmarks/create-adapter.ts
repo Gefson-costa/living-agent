@@ -105,6 +105,11 @@ export async function createBenchmarkAdapter(): Promise<AdapterInfo | null> {
   return null;
 }
 
+/** Returns true if --ollama flag is present. */
+export function isOllamaMode(): boolean {
+  return process.argv.includes('--ollama');
+}
+
 export function hasAnyApiKey(): boolean {
   return !!(
     process.argv.includes('--ollama') ||
