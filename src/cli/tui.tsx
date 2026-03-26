@@ -346,9 +346,7 @@ function App({ agent, store, modeName }: {
 
     if (ch === 'c' && key.ctrl) {
       agent.save().then(() => {
-        if ('close' in store && typeof (store as any).close === 'function') {
-          (store as any).close();
-        }
+        store.close?.();
         exit();
       });
       return;
@@ -379,9 +377,7 @@ function App({ agent, store, modeName }: {
       case '/exit':
         addMessage('system', 'Saving...');
         await agent.save();
-        if ('close' in store && typeof (store as any).close === 'function') {
-          (store as any).close();
-        }
+        store.close?.();
         addMessage('system', 'Goodbye!');
         setTimeout(() => exit(), 100);
         break;

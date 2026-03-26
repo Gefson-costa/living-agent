@@ -53,6 +53,7 @@ import type { PatchResult } from '../self-coding/types.js';
 import { BudgetTracker } from '../safety/budget-cap.js';
 import { AuditLog } from '../safety/audit-log.js';
 import { PopulationRollback } from '../safety/rollback.js';
+import type { SerializedConfigState } from '../safety/rollback.js';
 
 // Escada 3: Self-Modification
 import { ToolSynthesizer } from '../self-coding/tool-synthesis.js';
@@ -731,7 +732,7 @@ export class LivingAgent {
   }
 
   /** Apply a saved config state to the current agent/config. */
-  private applyConfigState(state?: Record<string, number>): void {
+  private applyConfigState(state?: SerializedConfigState): void {
     if (!state) return;
     if (state.mutationRate !== undefined) this.agentConfig.mutationRate = state.mutationRate;
     if (state.epsilon !== undefined) this.config.epsilon = state.epsilon;

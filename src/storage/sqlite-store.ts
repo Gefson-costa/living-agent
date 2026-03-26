@@ -308,7 +308,7 @@ export class SqliteStore implements StorageAdapter {
 
   async loadMetadata(key: string): Promise<string | null> {
     const row = this.db.prepare('SELECT value FROM metadata WHERE key = ?').get(key);
-    return row ? (row as any).value : null;
+    return row ? (row as { value: string }).value : null;
   }
 
   close(): void {

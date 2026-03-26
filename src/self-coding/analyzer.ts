@@ -9,8 +9,9 @@ import { readFile } from 'node:fs/promises';
 import * as fsp from 'node:fs/promises';
 
 // fs.glob is experimental in Node 22+, not yet in @types/node
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const glob: (pattern: string, options?: { cwd?: string }) => AsyncIterable<string> =
-  (fsp as Record<string, any>).glob;
+  (fsp as unknown as Record<string, unknown>).glob as (pattern: string, options?: { cwd?: string }) => AsyncIterable<string>;
 import type { LLMAdapter } from '../core/types.js';
 import type { CodeIssue, SelfCodingConfig } from './types.js';
 import { Validator } from './validator.js';
@@ -138,16 +139,16 @@ ${fileContext}`;
       const jsonMatch = content.match(/\[[\s\S]*\]/);
       if (!jsonMatch) return [];
 
-      const parsed = JSON.parse(jsonMatch[0]) as any[];
+      const parsed: Array<Record<string, unknown>> = JSON.parse(jsonMatch[0]);
       return parsed
         .filter(item => item.type && item.severity && item.file && item.description)
         .map(item => ({
           type: item.type as CodeIssue['type'],
           severity: item.severity as CodeIssue['severity'],
-          file: item.file,
-          line: item.line ?? undefined,
-          description: item.description,
-          suggestedFix: item.suggestedFix ?? undefined,
+          file: item.file as string,
+          line: (item.line as number | undefined) ?? undefined,
+          description: item.description as string,
+          suggestedFix: (item.suggestedFix as string | undefined) ?? undefined,
         }))
         .slice(0, 10); // Cap at 10 issues
     } catch {

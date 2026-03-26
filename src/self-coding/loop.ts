@@ -181,7 +181,13 @@ export class SelfCodingLoop {
         }
       } catch (err) {
         bestResult.success = false;
-        try { await this.sandbox.rollback(finalBranch); } catch {}
+        try {
+          await this.sandbox.rollback(finalBranch);
+        } catch (rollbackErr) {
+          this.auditLog?.log(AuditLog.createEntry('rollback',
+            `Rollback of branch ${finalBranch} failed: ${rollbackErr instanceof Error ? rollbackErr.message : String(rollbackErr)}`,
+            { strategyId: this.config.genome?.id ?? 'system' }));
+        }
       }
     } else {
       bestResult!.branchName = '';

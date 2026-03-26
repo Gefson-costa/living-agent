@@ -163,9 +163,7 @@ async function main(): Promise<void> {
     console.log('\n[saving...] ');
     await agent.save();
     console.log('[ok] State saved. Goodbye.\n');
-    if ('close' in store && typeof (store as any).close === 'function') {
-      (store as any).close();
-    }
+    store.close?.();
     process.exit(0);
   }
 

@@ -7,6 +7,18 @@
 
 import type { LLMAdapter, LLMConfig, LLMResponse, StrategyGenome } from '../core/types.js';
 
+/** Minimal shape of an OpenAI-compatible chat completion response (OpenRouter, DeepSeek, Ollama, etc.) */
+interface ChatCompletionResponse {
+  choices?: Array<{ message?: { content?: string } }>;
+  usage?: { prompt_tokens?: number; completion_tokens?: number };
+}
+
+/** Minimal shape of an Anthropic content block */
+interface AnthropicContentBlock {
+  type: string;
+  text?: string;
+}
+
 /** Build a system prompt modulated by the genome's promptStyle vector */
 export function buildSystemPrompt(
   template: string,
@@ -137,8 +149,8 @@ export class MockAdapter implements LLMAdapter {
 // ── Anthropic Adapter ───────────────────────────────────────────
 
 export class AnthropicAdapter implements LLMAdapter {
-  private client: any;
-  private fallbackClient: any;
+  private client: InstanceType<typeof import('@anthropic-ai/sdk').default> | null = null;
+  private fallbackClient: string | null = null;
   private model: string;
 
   constructor(apiKey?: string, model = 'claude-haiku-4-5-20251001') {
@@ -163,7 +175,7 @@ export class AnthropicAdapter implements LLMAdapter {
 
   private async callAnthropic(prompt: string, config: LLMConfig): Promise<LLMResponse> {
     const start = Date.now();
-    const response = await this.client.messages.create({
+    const response = await this.client!.messages.create({
       model: this.model,
       max_tokens: config.maxTokens,
       temperature: Math.min(1, Math.max(0, config.temperature)),
@@ -176,8 +188,8 @@ export class AnthropicAdapter implements LLMAdapter {
     });
 
     const content = response.content
-      .filter((b: any) => b.type === 'text')
-      .map((b: any) => b.text)
+      .filter((b: AnthropicContentBlock) => b.type === 'text')
+      .map((b: AnthropicContentBlock) => b.text ?? '')
       .join('');
 
     return {
@@ -228,7 +240,7 @@ export class AnthropicAdapter implements LLMAdapter {
       throw new Error(`OpenRouter ${res.status}: ${text.slice(0, 200)}`);
     }
 
-    const data = await res.json() as any;
+    const data: ChatCompletionResponse = await res.json();
     const content = data.choices?.[0]?.message?.content ?? '';
     const usage = data.usage ?? {};
 
@@ -359,7 +371,7 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
         throw new Error(`${res.status}: ${text.slice(0, 200)}`);
       }
 
-      const data = await res.json() as any;
+      const data: ChatCompletionResponse = await res.json();
       const content = data.choices?.[0]?.message?.content ?? '';
       const usage = data.usage ?? {};
 

@@ -125,8 +125,8 @@ IMPORTANT:
       const jsonMatch = content.match(/\{[\s\S]*"files"[\s\S]*\}/);
       if (!jsonMatch) return [];
 
-      const data = JSON.parse(jsonMatch[0]);
-      const files = data.files as any[];
+      const data: { files?: Array<Record<string, string>> } = JSON.parse(jsonMatch[0]);
+      const files = data.files ?? [];
 
       return files
         .filter(f => f.path && f.modified)

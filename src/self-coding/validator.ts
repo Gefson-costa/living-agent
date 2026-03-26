@@ -34,10 +34,11 @@ export class Validator {
       });
 
       return this.parseTestOutput(stdout, stderr);
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Vitest exits with non-zero when tests fail — still parse output
-      if (err.stdout || err.stderr) {
-        return this.parseTestOutput(err.stdout ?? '', err.stderr ?? '');
+      const execErr = err as { stdout?: string; stderr?: string };
+      if (execErr.stdout || execErr.stderr) {
+        return this.parseTestOutput(execErr.stdout ?? '', execErr.stderr ?? '');
       }
       return { total: 0, passed: 0, failed: 0, duration: 0 };
     }
