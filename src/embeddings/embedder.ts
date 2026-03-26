@@ -50,6 +50,11 @@ export class OllamaEmbedder implements Embedder {
 }
 
 // ── Simple fallback embedder (no external deps) ───────────────
+//
+// Uses character n-gram hashing (fastText-style) instead of whole-word
+// hashing. This captures morphological similarity: "sort", "sorting",
+// "sorted" share character n-grams and activate overlapping buckets.
+// Also hashes word bigrams for local context.
 
 const VOCAB_SIZE = 512;
 
@@ -57,27 +62,50 @@ export class SimpleEmbedder implements Embedder {
   readonly dimensions = VOCAB_SIZE;
 
   async embed(text: string): Promise<Float32Array> {
-    return simpleHash(text);
+    return charNgramHash(text);
   }
 
   async embedBatch(texts: string[]): Promise<Float32Array[]> {
-    return texts.map(t => simpleHash(t));
+    return texts.map(t => charNgramHash(t));
   }
 }
 
-function simpleHash(text: string): Float32Array {
-  const vec = new Float32Array(VOCAB_SIZE);
-  const words = text.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/);
-  for (const word of words) {
-    if (word.length < 2) continue;
-    // Hash word to bucket
-    let h = 0;
-    for (let i = 0; i < word.length; i++) {
-      h = ((h << 5) - h + word.charCodeAt(i)) | 0;
-    }
-    const idx = ((h >>> 0) % VOCAB_SIZE);
-    vec[idx] += 1;
+/** FNV-1a inspired hash — fast, good distribution. */
+function fnv(str: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = (h * 0x01000193) | 0;
   }
+  return h >>> 0;
+}
+
+function charNgramHash(text: string): Float32Array {
+  const vec = new Float32Array(VOCAB_SIZE);
+  const clean = text.toLowerCase().replace(/[^\w\s]/g, '');
+  const words = clean.split(/\s+/).filter(w => w.length >= 2);
+
+  for (const word of words) {
+    // Whole word (weight 1.0)
+    vec[fnv(word) % VOCAB_SIZE] += 1.0;
+
+    // Character n-grams: 3 to 6 chars (weight 0.5)
+    // Wraps word in < > markers for prefix/suffix distinction
+    const padded = `<${word}>`;
+    for (let n = 3; n <= 6; n++) {
+      for (let i = 0; i <= padded.length - n; i++) {
+        const gram = padded.substring(i, i + n);
+        vec[fnv(gram) % VOCAB_SIZE] += 0.5;
+      }
+    }
+  }
+
+  // Word bigrams (weight 0.7) — captures local context
+  for (let i = 0; i < words.length - 1; i++) {
+    const bigram = `${words[i]}_${words[i + 1]}`;
+    vec[fnv(bigram) % VOCAB_SIZE] += 0.7;
+  }
+
   // L2 normalize
   let norm = 0;
   for (let i = 0; i < vec.length; i++) norm += vec[i] * vec[i];
