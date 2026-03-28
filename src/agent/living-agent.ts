@@ -115,6 +115,7 @@ export class LivingAgent {
     this.skillLibrary = new SkillLibrary(store);  // embedder set in init()
     this.skillExtractor = new SkillExtractor(this.skillLibrary, llm, {
       scoreThreshold: this.config.skillExtractionThreshold,
+      llmExtraction: this.config.skillLLMExtraction,
     });
     this.principleDistiller = new PrincipleDistiller(this.skillLibrary, store, llm, {
       minExperiences: this.config.distillMinExperiences,
@@ -395,6 +396,14 @@ export class LivingAgent {
         if (strategy.genome.skillRefs.length > 10) {
           strategy.genome.skillRefs = strategy.genome.skillRefs.slice(-10);
         }
+      }
+    }
+
+    // Extract prompt segment from high-scoring interactions
+    if (taskResult.score >= 0.75 && strategy.genome.promptSegments.length < 3) {
+      const segment = this.extractPromptSegment(taskType, taskResult.response, taskResult.score);
+      if (segment) {
+        strategy.genome.promptSegments.push(segment);
       }
     }
 
@@ -742,6 +751,31 @@ export class LivingAgent {
     if (!latest) return;
     const restored = this.rollback.restore(latest.id);
     if (restored) this.applyConfigState(restored.configState);
+  }
+
+  /**
+   * Extract a concise prompt segment from a high-scoring response.
+   * These segments become part of the strategy's evolved prompt (EvoPrompt-style).
+   */
+  private extractPromptSegment(taskType: string, response: string, score: number): string | null {
+    // Only extract from substantial responses
+    if (response.length < 50) return null;
+
+    // Heuristic extraction: pull the most instruction-like sentence
+    const sentences = response
+      .replace(/\n+/g, ' ')
+      .split(/(?<=[.!?])\s+/)
+      .filter(s => s.length > 20 && s.length < 200);
+
+    if (sentences.length === 0) return null;
+
+    // Prefer sentences with action verbs / instructional patterns
+    const instructional = sentences.find(s =>
+      /^(First|Always|Make sure|Remember|Consider|Use|Apply|Break|Start|Focus)/i.test(s)
+    );
+
+    const segment = instructional ?? sentences[0];
+    return `[${taskType}|${score.toFixed(2)}] ${segment.trim()}`;
   }
 
   /** Apply a saved config state to the current agent/config. */

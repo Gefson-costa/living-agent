@@ -53,6 +53,7 @@ export interface LivingAgentConfig {
   epsilon: number;                   // exploration rate (default 0.15)
   consolidateEvery: number;          // interactions between consolidations (default 20)
   skillExtractionThreshold: number;  // min score for skill extraction (default 0.8)
+  skillLLMExtraction: boolean;       // use LLM for skill extraction (default true)
 
   distillMinExperiences: number;     // min experiences per task type before distillation (default 10)
   distillWithLLM: boolean;           // use LLM for principle distillation (default true)
@@ -90,6 +91,7 @@ export const DEFAULT_LIVING_AGENT_CONFIG: LivingAgentConfig = {
   epsilon: 0.15,
   consolidateEvery: 10,
   skillExtractionThreshold: 0.8,
+  skillLLMExtraction: true,
 
   distillMinExperiences: 10,
   distillWithLLM: true,

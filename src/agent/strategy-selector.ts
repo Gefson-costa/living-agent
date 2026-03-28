@@ -24,11 +24,11 @@ export interface SelectionConfig {
 const DEFAULT_CONFIG: SelectionConfig = {
   epsilon: 0.15,
   expertiseWeight: 0.30,
-  fitnessWeight: 0.30,
+  fitnessWeight: 0.25,
   recencyWeight: 0.15,
-  habitatWeight: 0.15,
+  habitatWeight: 0.05,
   noveltyWeight: 0.10,
-  embeddingWeight: 0.00,
+  embeddingWeight: 0.15,
 };
 
 export interface SelectionOptions {
