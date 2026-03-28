@@ -21,6 +21,7 @@ import { multitaskSpecialization } from './scenarios/multitask-specialization.js
 import { swebench } from './scenarios/swebench.js';
 import { ablationMath500 } from './scenarios/ablation-math500.js';
 import { headtohead } from './scenarios/headtohead.js';
+import { logiqa } from './scenarios/logiqa.js';
 import type { BenchmarkResult } from './harness.js';
 
 // ── Parse CLI args ──────────────────────────────────────────────
@@ -66,6 +67,7 @@ const REAL_SCENARIOS: Record<string, (seed: number, cycles: number) => Promise<B
   'swebench': swebench,
   'ablation-math500': ablationMath500,
   'headtohead': headtohead,
+  'logiqa': logiqa,
 };
 
 // ── Runner ──────────────────────────────────────────────────────
@@ -170,6 +172,8 @@ function getKeyMetric(result: BenchmarkResult): string {
       return `control: ${((m.control_accuracy ?? 0) * 100).toFixed(1)}%, tokens: ${m.totalTokensUsed ?? 0}`;
     case 'headtohead':
       return `LA: ${((m.livingAgentAccuracy ?? 0) * 100).toFixed(1)}%, tokens: ${m.totalTokensUsed ?? 0}`;
+    case 'logiqa':
+      return `evolved: ${((m.livingAgentAccuracy ?? 0) * 100).toFixed(1)}% vs static: ${((m.staticAccuracy ?? 0) * 100).toFixed(1)}%, tokens: ${m.totalTokensUsed ?? 0}`;
     default:
       return result.details.slice(0, 40);
   }

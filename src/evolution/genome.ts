@@ -106,10 +106,11 @@ export function mutateGenome(
     local ? Math.min(0.5, maxTemp) : maxTemp,
   );
 
+  const minTokens = config.minTokenBudget ?? (local ? 800 : 500);
   let maxTokenBudget = parent.maxTokenBudget;
   if (rng() < 0.10 * rate) maxTokenBudget = clamp(
     maxTokenBudget + ((rng() - 0.5) * (local ? 300 : 500)) | 0,
-    local ? 800 : 100,
+    minTokens,
     local ? Math.min(2500, maxTokens) : maxTokens,
   );
 

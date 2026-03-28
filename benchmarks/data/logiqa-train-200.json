@@ -1,0 +1,2402 @@
+[
+  {
+    "id": "logiqa_train_0",
+    "context": "Some Cantonese don't like chili, so some southerners don't like chili.",
+    "query": "Which of the following can guarantee the above argument?",
+    "options": [
+      "Some Cantonese love chili.",
+      "Some people who like peppers are southerners.",
+      "All Cantonese are southerners.",
+      "Some Cantonese like neither peppers nor sweets."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_1",
+    "context": "Continuous exposure to indoor fluorescent lights is beneficial to the health of hamsters with heart disease. One group of hamsters exposed to continuous exposure to fluorescent lights has an average lifespan that is 2.5% longer than another one of the same species but living in a black wall.",
+    "query": "Which of the following questions was the initial motivation for conducting the above experiment?",
+    "options": [
+      "Can hospital light therapy be proved to promote patient recovery?",
+      "Which one lives longer, the hamster living under the light or the hamster living in the dark?",
+      "What kind of illness does the hamster have?",
+      "Do some hamsters need a period of darkness?"
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_2",
+    "context": "There is no doubt that minors should be prohibited from smoking. However, we cannot explicitly ban the use of automatic cigarette vending machines in order to prevent minors from smoking. This ban is just like setting up roadblocks on the road to prohibit driving without a license. These roadblocks naturally prohibit driving without a license, but also block more than 99% of licensed drivers.",
+    "query": "In order to evaluate the above argument, which of the following questions is the most important?",
+    "options": [
+      "Does the proportion of underage smokers in the total number of smokers exceed 1%?",
+      "How much inconvenience does the ban on the use of automatic vending machines bring to adult cigarette buyers?",
+      "Whether the proportion of unlicensed drivers in the total number of drivers really does not exceed 1%.",
+      "Is the harm of minor smoking really as serious as the public thinks?"
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_3",
+    "context": "A research report states that a special education program for children aged 3-5 under study increases their chances of success in future schooling. Therefore, implementing a similar education program for all children will improve them in the future opportunities for success in school education.",
+    "query": "Which of the following best illustrates the logical loopholes summarized above?",
+    "options": [
+      "Children's cognitive abilities are constantly changing at the age of 3-5.",
+      "Establishing such education and training programs on a national basis requires a special public expenditure.",
+      "Many parents mistakenly believe that early formal education will occupy the time that children would have been able to better explore the world independently.",
+      "Investigators are unaware that they include a large group of children who have previously received another education."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_4",
+    "context": "The traitor is a traitor, so you are a traitor, so I am a patriot. The words of a patriot are the most valuable, so my words are good. Since my words are good, you are undoubtedly a traitor!",
+    "query": "Which of the following makes the same logical mistake as above?",
+    "options": [
+      "Literature and art are not worthy of attention. Modernization must relies on science and technology, so science and technology are worthy of our attention. But literature and art are not science and technology.",
+      "Non-university can also become an outstanding talent. Gorky, Edison, Faraday, Franklin, etc. have not attended college, but they have all become outstanding talents.",
+      "The earth is a sphere, which can be proved from the fact that when we stand at a height and watch the sailing boat in the sea, we always see the mast first and then the hull. The reason for this is because the earth is a sphere.",
+      "I saw them coming out of this chemical plant several times before I realized that this young man who was eager to help patients was originally a worker in this chemical plant."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_5",
+    "context": "Last year's inflation rate was 1.2%, and this year has reached 4%, so we can conclude that the inflation rate is on the rise, and the inflation rate will be higher next year.",
+    "query": "Which of the following, if true, would seriously weaken the above conclusion?",
+    "options": [
+      "Inflation rate is calculated based on a representative sample of economically sensitive data, not on available data.",
+      "Inflation last year was the lowest in recent years.",
+      "False prosperity caused by rising inflation rate will eventually lead to economic recession.",
+      "Last year's financial turmoil caused inflation to temporarily fall below the average of 4% in recent years."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_6",
+    "context": "Aristotle's \"Apocalypse\" records such a sophistry: \"You have a dog, and it has children because it is a father; it is yours, and therefore it is your father; you hitting it means you hitting your own father. \".",
+    "query": "Which of the following makes the same logical fallacy as the above sophistry?",
+    "options": [
+      "Dogs have four legs and sheep have four legs, so dogs can be sheep.",
+      "\"Come up, Czech, roosters have long been called. \" \"What does it matter to me? I'm not a hen. \".",
+      "When someone said that Omar Dem was lying, he whispered, \"Whoever lies says something that doesn't exist; something that doesn't exist cannot be said, so no one lies. \".",
+      "Your opinion turns out to be wrong, so my criticism on your opinion is correct. Now that my opinion is correct, it is undoubted that your opinion is wrong."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_7",
+    "context": "According to \"God Creation\", God created the earth on the first day, the moon on the second day, and the sun on the third day.",
+    "query": "Which of the following assertions is not the meaning of the above-mentioned creation theory?",
+    "options": [
+      "Celestial planets come one after another.",
+      "Regarding the meaning of \"one day\", God has the same understanding and use with us.",
+      "At least there was no sun for the first two days of the earth's existence.",
+      "Without the sun and in darkness, God also can work."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_8",
+    "context": "A linguist believes that the term \"fiancée\" is contradictory. The dictionary explains \"fiancée\" as \"a wife who is engaged but not married\", and explains \"wife\" as \"when a man and a woman get married, the woman is the man's wife. \" How can you call a wife without getting married?",
+    "query": "Which of the following is the presupposed premise of the linguist?",
+    "options": [
+      "The claims of \"Fiancée\" may lead to the legalization of cohabitation.",
+      "Some are not officially married, but the essence is a de facto marriage.",
+      "In fact, \"fiancée\" is an uncertain marriage relationship.",
+      "The so-called \"fiancée\" actually means that she is not married now, but still the wife of a man."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_9",
+    "context": "There was a group discussion of judicial workers in the city. One group has 8 people. At the beginning of the meeting, the group leader asked everyone if they knew each other. As a result, only one person in the group knew 3 of the group, 3 knew 2 of the group, and 4 knew 1 of the group.",
+    "query": "If the above statistics are true, which of the following conclusions can best be reached?",
+    "options": [
+      "The group leader knows the most in the group, and the others know each other less.",
+      "This is the first time such a meeting has been held and everyone is new.",
+      "Some members may only know what they have seen on television or at a briefing.",
+      "Although there are not many acquaintances in the group, what they knew are all close friends."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_10",
+    "context": "The head of a chain store was helpless with the management issues brought about by the transition and expansion of the previous stage, so he asked a famous management expert: \"I don’t know how to manage more than 300 chain stores?\" The management expert answered straightforwardly: \"Cut them down \" The CEO asked,\" How much? \"The expert said,\" until you can manage them. \".",
+    "query": "Which of the following statements is premised by the above management experts?",
+    "options": [
+      "The number of affiliated chain stores is related to the nature of the chain stores.",
+      "The number of affiliated chain stores is related to the development of chain stores.",
+      "The number of affiliated chain stores is related to the number of chain leaders.",
+      "The number of affiliated chain stores is related to the capabilities of the boss."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_11",
+    "context": "Li Lin is a civil servant, but not a college graduate.",
+    "query": "Which of the following is necessarily true?",
+    "options": [
+      "Not all university graduates are civil servants.",
+      "Civil servants are not all college graduates.",
+      "Some college graduates are not civil servants.",
+      "Some civil servants are college graduates."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_12",
+    "context": "A research institute conducted a 10-week weight loss test. Participants lost an average of 9 kg. Participants in the middle-aged group lost an average of 13 kg, and participants in the youth group lost an average of 7 kg. Researchers attributed the weight loss difference to the fact that the weight of the middle-aged group was heavier than that of the young group before weight loss.",
+    "query": "Which of the following conclusions can be drawn from the above?",
+    "options": [
+      "Participants in the young group weighed less than those in the middle-aged group before losing weight.",
+      "All participants lost weight.",
+      "There were more participants in the young group than in the middle-aged group.",
+      "There were more participants in the middle age group than in the young group."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_13",
+    "context": "Pigeons can fly back to their homes from hundreds or even thousands of miles away. How do pigeons recognize the way home? For a long time, this has been a mystery, attracting many people to study this problem. According to their hypothesis, some researchers put pigeons into tightly blocked cages and transported them to a strange place, they can still easily found the direction of returning home. If the frosted glass contact lens are mounted on the pigeon's eyes so that they can't see anything more than a few meters away, and transported these \"myopia\" pigeons more than 100 kilometers away, they can also go home and land exactly one to two meters near the pigeonholes--it was only at this distance that they need eye to help.",
+    "query": "Based on the above, which of the following is the hypothesis proposed by these researchers?",
+    "options": [
+      "Pigeons have good eyes and an amazing memory.",
+      "The pigeon has a fairly sophisticated navigation system.",
+      "Pigeons can navigate by geomagnetic.",
+      "Pigeons lose their ability to orient during strong magnetic explosions in the sun and during lunar eclipses."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_14",
+    "context": "The financing for a large construction project was provided by a bank. When the funds were used up before the project was completed, the bank approved a further loan. Now, as the funds are used up again and the project is still not completed, the bank refuses to increase further loans, although the projects would have been ruined without loans.",
+    "query": "Which of the following, if true, would best explain why banks are responding differently from their previous responses?",
+    "options": [
+      "The bank re-evaluated the potential income of the completed project and concluded that the total revenue that the project can generate will be lower than the total interest of the old loans plus the new loans.",
+      "The bank has identified several other projects, which could lead to faster principal recovery if loans are now approved for them to start.",
+      "The bank and the borrower have agreed that the construction loan is guaranteed by the completed project.",
+      "Cost overruns are mainly due to unforeseen problems at the most difficult stage of construction."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_15",
+    "context": "The tobacco industry has a lot of money, and it is expected to continue to do so. Last year, the total amount of tobacco sold by American tobacco farmers increased significantly, but the number of smokers in the country continued to decline.",
+    "query": "If the following are true, they can be the reason for the above phenomenon, except:.",
+    "options": [
+      "More women start smoking this year than men who have quit.",
+      "People who continue to smoke consume more tobacco than in previous years.",
+      "The number of people who started smoking grass or taking snuff this year is more than the number who have given up smoking.",
+      "More cigarettes produced in the U. S. are exported to other countries this year than last year."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_16",
+    "context": "Residents in the countryside have stronger purchasing power than residents in the city, because they can use part of the funds that urban and suburban residents use to buy food and houses to buy other things they need.",
+    "query": "Which of the following best fits the above explanation of why rural residents have strong purchasing power?",
+    "options": [
+      "Generally speaking, there are more rural residents than in cities or in the suburbs.",
+      "Rural residents spend less on food and housing than urban or suburban residents.",
+      "The average income level of urban and suburban residents is generally not much higher than that of rural residents.",
+      "Both urban and rural residents spend more on house purchases than other related goods."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_17",
+    "context": "One day in 1910, the young German meteorologist Wegener was lying on a hospital bed, turning his eyes to a map of the world on the wall. He accidentally discovered that the west coast of Africa is so consistent with the east coast of South America that it is like a torn piece of paper which can be put together again. Wegener's mind flashed an idea: the two continents were originally a whole piece, but they broke up later and drifted away, and formed the way it is now. After further research, Wegener came up with a completely new hypothesis-the theory of continental drift.",
+    "query": "The following items further support the \"continental drift theory\" from different perspectives, except:.",
+    "options": [
+      "The opposite stratigraphic sequence (stratigraphic structure) on both sides of the Atlantic Ocean and the Indian Ocean is the same.",
+      "Paleontological species (plant fossils and animal fossils) on both sides of the Atlantic are almost identical.",
+      "Traces left in the rock formations indicate that long ago, today's Arctic was once a very hot desert.",
+      "Geological traces indicate that the five continents on the earth were formed almost simultaneously."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_18",
+    "context": "According to official reports, the suicide rate (the number of suicides per 1,000 people) in Greenland was 17 times higher in 1987 than in 1960. Because Greenland changed from a hunting and fishing society to an industrial society from 1960 to 1987. The huge change of suicide rate must be the result of this social change.",
+    "query": "Which of the following, if true, would most seriously challenge the above conclusion?",
+    "options": [
+      "Changing from a hunting and fishing society to an industrial society can sometimes cause major change on crime rates.",
+      "In the hunting and fishing society, a considerable number of members choose to commit suicide.",
+      "According to official records, there was a certain increase in the number of suicides in Greenland in 1987.",
+      "In 1987, most suicides in Greenland were reported officially, while most suicides in 1960 were not recorded."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_19",
+    "context": "Only by recognizing errors can they be corrected. \".",
+    "query": "All of the following items accurately express the meaning of the above determination, except:.",
+    "options": [
+      "You cannot correct mistakes unless you recognize them.",
+      "If you do not recognize the error, you cannot correct it.",
+      "If you correct the mistake, you already know the mistake.",
+      "Correct errors as long as you recognize them."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_20",
+    "context": "An academic conference is holding a group meeting. Group A has 8 people present. The group leader asks everyone if they know each other. As a result, only 1 person in the group knew 3 of the group and 3 people knew 2 of the group，and 4 people know 1 of the group.",
+    "query": "If the above statistics are true, the best conclusion can be.",
+    "options": [
+      "The group leader knows the most in the group, and the others know each other less.",
+      "This is the first time such a meeting has been held and everyone is new.",
+      "Some members may be aware of what they have only seen on television or at a briefing.",
+      "Although there are not many acquaintances in the group, what they knew are all close friends."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_21",
+    "context": "A country loses excessive topsoil and needs to import more food, which increases the pressure on the soil in other countries; air pollution in one country causes acid rain in neighboring countries; excessive emissions of carbon dioxide cause global warming and sea-level rise, which almost can endanger all countries and regions.",
+    "query": "Which of the following items best summarize the main points made above.",
+    "options": [
+      "Environmental pollution has affected relations between countries and may cause international disputes.",
+      "The rapid development of the economy will inevitably lead to the intensification of environmental pollution. It is a rule that pollution is first and then governance is followed.",
+      "In terms of pollution control, developed countries are willing to take more responsibilities and obligations.",
+      "Environmental pollution has become a regional and international problem. Solving environmental pollution is a common task for humanity."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_22",
+    "context": "In a restaurant, all the dishes belong to Sichuan cuisine or Cantonese cuisine, and Mr. Zhang's order includes Sichuan cuisine. Therefore, there is no Cantonese cuisine in Mr. Zhang's order.",
+    "query": "Which of the following is necessary to make the above argument valid?",
+    "options": [
+      "The restaurant stipulates that when you order Cantonese food, you cannot order Sichuan food and vice versa.",
+      "The restaurant rules that if you order Sichuan food, you can not order Cantonese food, but when you order Cantonese food, you must also order Sichuan food.",
+      "Mr. Zhang is from Sichuan and only likes Sichuan cuisine.",
+      "Mr. Zhang is a Cantonese, and he likes Cantonese food."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_23",
+    "context": "There are four small balls that do not appear to be separate, but their weights may be different. Take a scales and group A and B into one group, and C and D into another group. Place them on each side of the scales. The scales is basically balanced. B and D are reversed, then A and B are obviously heavier than B and C. But strangely, we put A and C on one side of the scales, and B on the other side. When there was no time to put D, the balance was pressed to B's side.",
+    "query": "Please judge, A or D, which one is heavier?",
+    "options": [
+      "D is heavier than A.",
+      "D is lighter than A.",
+      "A is as heavy as D.",
+      "Unable to determine the weight of the A and the D."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_24",
+    "context": "The National Games held a women's 5,000-meter race. Liaoning, Shandong and Hebei, each team sent three athletes to participate in the game. Before the competition, four sports enthusiasts were together to predict the outcome of the game. A said: \"Liaoning team has a set of training, and this time the top three must belong to them. \" B said：\" This year is different from last year. The Liaoning team will take at most one gold, silver and bronze medals. \" \"According to my estimation, Shandong team or Hebei team will take the card,\" said C. \"If the first place is not from the Liaoning team, it should be the Shandong team. \" said D. After the match, it was found that only one of the above four people was in words.",
+    "query": "Which of the following is most likely the result of the competition?",
+    "options": [
+      "First place Liaoning team, second place Liaoning team, third place Liaoning team.",
+      "First place Liaoning team, second place Hebei team, fourth place Shandong team.",
+      "First place Shandong team, second place Liaoning team, third place Hebei team.",
+      "First place Hebei team, second place Liaoning team, third place Liaoning team."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_25",
+    "context": "A recent study by an insurance company showed that those who work in a comfortable work environment are 25% more productive than those who work in an uncomfortable work environment. This shows that an increasingly improved work environment can increase worker productivity.",
+    "query": "Which of the following hypotheses is the most serious challenge to the above causality?",
+    "options": [
+      "On average, less productive employees spend less time in the workplace than more productive employees.",
+      "A comfortable environment is more motivating than hard work.",
+      "A comfortable work environment is usually a reward for highly productive employees.",
+      "In a crowded, uncomfortable environment, coworker pressure prevents employees from working."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_26",
+    "context": "Black Americans have high blood pressure twice as much as white Americans. The same is true of westernized blacks African compared to white Africans. Researchers hypothesize that westernized blacks suffer from high blood pressure for two reasons. The first is the high salt content of western foods; the second is the adaptation mechanism to the environment of the blacks' genes.",
+    "query": "Which of the following, if true, would best support researcher's hypothesis?",
+    "options": [
+      "Blood pressure in descendants of contemporary westernized black African Gambians is usually not high, as Gambians have historically been short of salt.",
+      "Unusually high salt intake in some parts of Africa is a serious health hazard.",
+      "Considering health, most white Africans also pay attention to controlling salt intake.",
+      "Salt deficiency and salt sufficiency have not found any substantial difference in human metabolism."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_27",
+    "context": "An indigenous person tests the physical fitness of newborn babies in order to improve the combat effectiveness of their offspring. They place newborn babies in a harsh natural environment to test their vitality, and abandon those who are weak and cannot stand the test, and leave those sturdy babies. This method did not make the local indigenous people strong but declined.",
+    "query": "Which of the following is most appropriate as the cause of the eventual failure of local talent selection?",
+    "options": [
+      "The physical fitness of newborn babies is good, but they may not be stronger when they grow up.",
+      "Physiological quality is only part of a person's overall quality, and national security requires the improvement of a person's comprehensive quality.",
+      "Talents are selected, but too few are inevitable.",
+      "The child's parents are unhappy with the brutal selection method and are unwilling to defend their city."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_28",
+    "context": "The Watt who invented the steam engine is not American. \".",
+    "query": "All but which of the following can be derived from the above conclusion?",
+    "options": [
+      "Watt is not American.",
+      "Some inventors are American.",
+      "It was the inventor who invented the steam engine.",
+      "Watt is an inventor."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_29",
+    "context": "Mr. Wang of the Institute of Technology said in an interview with the journal: \"In recent years, science students have generally been more interested in studying current affairs and politics than in the past. Because in my class, students were not absent from almost every lecture on current affairs and politics. It was almost unimaginable a few years ago. \".",
+    "query": "Which of the following assumptions does Mr. Wang's conclusion rest on?",
+    "options": [
+      "The occurrence of a series of events at home and abroad in recent years has greatly attracted science students.",
+      "The political awareness of college students enrolled in recent years is generally stronger than previous students.",
+      "Attitude to current affairs politics lectures is an important indicator of whether college students are interested in current affairs politics learning.",
+      "In terms of current affairs and political studies, science students cannot be required to meet the standards of liberal arts students."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_30",
+    "context": "Wife: I heard that eating fish can make people smart. Husband: How is this possible? Mr. Lu Xun is not a fan of fish because eatting fish takes too much time. Nie Weiping prefers fish head, but if he only eats fish heads for three meals a day, he will never be such smart on the chessboard.",
+    "query": "The husband's rebuttal actually questioned which of the following assertions?",
+    "options": [
+      "If you don't eat fish, you won't be smart.",
+      "It is not only eating fish that makes you smart.",
+      "If anyone eats fish, he can be smart.",
+      "Only eat fish or eat fish alone, people will be smart."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_31",
+    "context": " Two production management methods, A and B, have been tried out in two factories respectively. The trial work was carried out as follows: method A was tested in a large factory with a high level of education in the leadership group; method B was tested in a small factory with a low level of education in the leadership group. The result was that the economic benefits of Method A were good, but the economic benefits of Method B were not good. Therefore, it was concluded that Method A was the reason for achieving better economic benefits.",
+    "query": "All of the following can weaken the above conclusions, except:.",
+    "options": [
+      "The situation of the two factories is different, and it cannot be used as an experimental base for testing the two management methods.",
+      "Factory A's leadership team has a high level of education, which is conducive to the understanding and implementation of management methods.",
+      "Factory B's leadership team has a low level of education, which is not conducive to the understanding and implementation of management methods.",
+      "Comparing method A with method B, in fact, method B is better, but unfortunately, the foundation of small factories implementing this method is too poor."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_32",
+    "context": "After the selection of a \"documentary golden lens award\", factory A's \"Yellow River\" won the best documentary award, factory B's \"Wuyishan\" won the best photography award, and factory C's \"South China Sea\" won the best music award. The three factory directors were invited to introduce their experience to the school. In the lounge, the director of the factory A said, \"It's really interesting that the last names of us are the first word of the film title. \" \"However, each of us has a different last name from the first word of the film we made. ” At this time, a director whose last name is Wu added. “That ’s true!” Factory A' director agreed.",
+    "query": "If the above statement is true, which of the following is true?",
+    "options": [
+      "The last name of Factory A's director is Nan, Factory B's is Wu, and Factory C's is Huang.",
+      "The last name of Factory A's director is Huang, Factory B's is Wu, and Factory C's is Nan.",
+      "The last name of Factory A's director is Nan, Factory B's is Huang, and Factory C's is Wu.",
+      "The last name of Factory A's director is Wu, Factory B's is Huang, and Factory C's is Nan."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_33",
+    "context": "There is a total of 7 teachers, including a director, in a teaching and research office. Regarding these 7 staff members, only one of the following three conclusions is true: Ⅰ. Not that no one in the teaching and research office is from Shanghai.Ⅱ. The members of the teaching and researching office are not all Shanghainese Ⅲ. The director of the teaching and research office is not from Shanghai.",
+    "query": "Which of the following is true?",
+    "options": [
+      " teachers are from Shanghai.",
+      " teachers are not from Shanghai.",
+      "Only one person is not from Shanghai.",
+      "Only one person is from Shanghai."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_34",
+    "context": "Four good classmates make an appointment. If both A and B choose to work in the company, D chooses to work in the agency. And only when A chooses to work in the company, C chooses to work in the company. The final result is that both B and D are in company, and all four fulfilled a common agreement.",
+    "query": "It can be sure that:.",
+    "options": [
+      "Only C did not choose to work in the company.",
+      "Neither A nor C chose to work in the company.",
+      "Four people have chosen to work in the company.",
+      "Only A did not choose to work in the company."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_35",
+    "context": "In agricultural production, as long as the appropriate limit is not exceeded, the yield of crops will be increased with more fertilizer applied; and the yield of crops will be reduced with less fertilizer applied. It can be seen that the amount of fertilizer applied has a close relationship with the yield of crops.",
+    "query": "Which of the following logical methods is most similar to the above statement?",
+    "options": [
+      "There are sounds of gongs, sounds of blows, and sounds of speech. These sound phenomena are accompanied by the vibration of the air on the object, so it can be concluded that the vibration of the air on the object is the cause of the sound.",
+      "When sawing with a saw, the saw will generate heat; when filing with a file, the file will also generate heat; when sharpening a knife on a stone, the knife will generate heat; when shooting with a gun, the barrel will also become hot. Therefore, friction can generate heat.",
+      "The bell is energized by energizing in a glass cover with air. As the amount of air drawn changes, the ring tone becomes smaller and smaller. If the air is completely drawn out, the ring tone will not be heard at all. Therefore, how much air is the reason why the sound is loud, and whether there is air is the reason why the bell can be heard.",
+      "Cotton is a plant fibre, loose and porous, and can keep warm; snow is frozen by water, with 40% to 50% of the gap, and it is also loose and porous, and can keep warm. It can be seen that loose and porous is the reason for heat preservation."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_36",
+    "context": "One researcher found that people with low levels of the immune system scored lower on mental health tests than people with high levels of the immune system. The researcher concluded that the immune system can protect not only against physical illness but also mental illness.",
+    "query": "In fact, this causality is not valid. Which of the following is the most serious question?",
+    "options": [
+      "The researcher's theoretical research and the experiments performed are not consistent in time.",
+      "The human immune system is closely related to mental health.",
+      "Some people with a high immune system score differently on psychological tests than people with a normal immune system.",
+      "In general, intense stress first causes mental illness and then reduces the level of activity of the immune system."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_37",
+    "context": "Some people think that in recent years, a large number of rural people have flowed into cities to work, which has caused chaos in the urban social order and a decline in public security. It can be said that allowing rural people to flow into cities is harmful and unhelpful. Therefore, we should clear out the rural population in the city and limit its employment in the city.",
+    "query": "Which of the following, if true, would best refute the above view?",
+    "options": [
+      "The influx of a large number of rural people has made urban roads crowded.",
+      "The influx of rural population into the city is beneficial to both the countryside and the city; it can not only make up for the shortage of urban labour but also accelerate the development of China's rural economy and improve the quality of the rural population.",
+      "In fact, the main offender of many major vicious cases is rural people who work in cities.",
+      "Too much migrant population causes worsening urban health."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_38",
+    "context": "To establish a market economy system, corresponding laws and regulations should be established to regulate market competition. Essentially, market economy is legal economy. Therefore, it is impossible to establish a market economy system in a country with a weak legal system.",
+    "query": "Which of the following, if true, would most weaken the conclusion?",
+    "options": [
+      "Market economy and legal economy are not a same concept.",
+      "A sound legal system can effectively guarantee equality in competition.",
+      "A complete legal system is of great significance to the development of a market economy.",
+      "The improvement of the legal and regulatory system depends on the improvement of the market economy system."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_39",
+    "context": "Prosecution: refers to an action order by a citizen, legal person or other organization to request the people's court to hear the case in accordance with the law, to confirm the relationship between civil rights and obligations, to sanction the other party's civil illegal acts and to protect their legitimate rights and interests in their own name when they believe that their civil rights and interests have been infringed by others or have disputes with others.",
+    "query": "According to the above definition, which of the following cases belongs to prosecution?",
+    "options": [
+      "Someone reports to a public security agency for theft at home.",
+      "Someone submits an instrument to the High Court because of dissent.",
+      "An enterprise sued the other party for failure to perform the contract.",
+      "The defendant counter claimed the plaintiff during the litigation because he found that the plaintiff violated his rights."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_40",
+    "context": "Technical audiences: These listeners work hard to listen to others. They value words, facts, and statistics, but they don't do enough in feelings, sympathy, and true understanding.",
+    "query": "Which of the following are technical audiences?",
+    "options": [
+      "The audiences who read the newspaper with their heads down and dozed off squinting during the meeting.",
+      "The audiences who always take a lot of notes when listening to the leader's speech, but often follow their own intentions when implementing policies and are inconsistent with the leader's intentions.",
+      "The audiences who sighed \"listen to your words, better than ten years of reading\".",
+      "The audiences who only listen to some easy-to-understand content and avoid difficult topics."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_41",
+    "context": "Imaginary defence: Refers to the fact that there is no ongoing illegal infringement objectively, and the perpetrator mistakenly believes that illegal infringement is taking place, and has justified the imaginary \"infringer\".",
+    "query": "Which of the following are not imaginary defences?",
+    "options": [
+      "Someone vaguely found someone hiding under the window, thinking it was a thief stealing something, and wounding it with a stick, but found that it was a child playing hide-and-seek.",
+      "Someone walks on the street and finds that the previous one is a corrupt criminal in the General Public Security Bureau, so he immediately catches him but finds that he has identified the wrong person.",
+      "The villager Li was very annoyed by the continuous theft. One night, he found that someone quietly walked into his yard and hit him, but found that it was his son who was late.",
+      "Someone rides home late at night, and suddenly a person appears on the roadside. He thought it was robbing, and then beat the person. He found that he was a middle school student who wanted to make fun of himself."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_42",
+    "context": "Knowledge management: build a quantified and qualitative knowledge system in the organization, and allow the information and knowledge in the organization to continuously feedback to the knowledge system through processes such as acquisition, creation, sharing, integration, recording, access, update or innovation. It will form an uninterrupted accumulation of personal and organizational knowledge, and become a cycle of organizational intelligence. It will become the intelligent capital of management and application in the enterprise organization, which will help companies to make correct decisions to cope with market changes. It is a process of creating, acquiring, and using knowledge to enhance the performance of an organization.",
+    "query": "Based on the above definitions, which of the following is not the knowledge management?",
+    "options": [
+      "Ernst & Yong has developed an electronic file system which can quickly encode and store employees' knowledge and information into a file database. It can be called by company personnel and become a company's standardized, high-quality and fast consulting service.",
+      "Dell: Leaving employees' results and customer information in the company, that is, separation of people from information.",
+      "Dow's patent management: divided into current use, will use and not use, saving patent tax, obtaining patent royalties, about 200 million US dollars a year.",
+      "Smnrtall implements layoffs throughout the company based on data from last year's annual report."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_43",
+    "context": "A false conflict is when there are differences between the two parties to the conflict, but there is no objective basis for this difference.",
+    "query": "Which of the following are false conflicts?",
+    "options": [
+      "A friend called a party, but Xiao Wang was not invited, so he was very unhappy, and his friend was dissatisfied because Xiao Wang did not go to the party. In fact, the friend called and invited Xiao Wang, but Xiao Wang was away, so he asked his colleagues to tell him, but they forgot.",
+      "Li feels that the teacher's score in the mid-term exam is too low, and he is not happy, but it is not easy to speak directly, so he deliberately asks some difficult questions in class.",
+      "Kobayashi is watching TV with a friend. Kobayashi wants to watch a TV series, but his friend wants to watch the broadcast of a football game.",
+      "A mother noticed the smell of smoke in the house and thought her daughter's boyfriend had smoked, so she warned him not to smoke at home. In fact, it was her daughter who smoked."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_44",
+    "context": "In 995, Chinese players won a total of 103 world championships in major global sports competitions, creating 57 world records, the highest in history. In 1995, only 15% of the high school students who entered the university in China had physical examinations qualified.",
+    "query": "Therefore, the correct conclusion we can draw is that in 1995,?",
+    "options": [
+      "China has become a world sports power.",
+      "Only 15% of high school students in China advance to college.",
+      "China's competitive sports have reached the highest point in history.",
+      "College entrance physical examination standards have been raised."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_45",
+    "context": "The Oscar-winning film `` Titanic '' was released in a state, and an exclusive operating right of the state was given to a film distribution and projection company. All departments of the company were busy. The publicity department invested an unprecedented 1.7 million RMB for various forms of advertising. The business department organized 8 major theatres for advanced screening and extended schedules, and the finance department implemented specific revenue sharing with each theatre. In the end, almost everyone in the city went to watch this film, and the company earned 7.5 million RMB. But when summarizing this work, the company criticized the mistakes made by the publicity department in this work.",
+    "query": "Which of the following, if true, would best explain the above situation?",
+    "options": [
+      "The company's publicity department did not communicate with other departments in advance, and the propaganda lacked pertinence.",
+      "The company ’s publicity department ’s investment is actually too large because it ignores the Oscar-winning film itself has a free publicity effect.",
+      "The company's publicity department has not invested enough. When `` Titanic '' was released in another state, the company publicized and invested 3 million RMB.",
+      "The propaganda of the company's publicity department has no new breakthroughs in creativity and form."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_46",
+    "context": "A new type of computer keyboard has been introduced on the market. The new keyboard has the \"three most\" characteristics that traditional keyboards do not have, that is, the most commonly used keys are designed the closest to the most flexible fingers. The new keyboard can greatly improve typing speed and reduce error rate. Therefore, replacing the traditional keyboard with the new keyboard can quickly improve the work efficiency of related departments.",
+    "query": "Which of the following, if true, would most weaken the argument?",
+    "options": [
+      "Some keyboard users' most flexible fingers are different from ordinary people.",
+      "The most commonly used keys in traditional keyboards are not designed to be farthest from the most flexible fingers.",
+      "The more efficiently you can use a traditional keyboard, the less likely you will be proficient in using the new keyboard in the short term.",
+      "The price of the new keyboard is higher than that of the traditional keyboard."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_47",
+    "context": "The incidence of coronary heart disease in developed countries is about three times that of developing countries. Some people think that this is mainly due to people's high fat, high protein and high-calorie food intake in developed countries. Few people have the conditions to have this kind of \"rich disease\" in developing countries. In fact, this view is difficult to establish. At present, the average life expectancy in developed countries is higher than 70 years, while the average life expectancy in developing countries is less than 50 years.",
+    "query": "Which of the following, if true, would best strengthen the above rebuttal?",
+    "options": [
+      "Statistics show that patients with coronary heart disease are relatively concentrated in the middle and old age groups, that is, those over 45.",
+      "At present, patients with coronary heart disease are younger.",
+      "People's high-fat, high-protein, and high-calorie food intake in developing countries, both in total and per capita, is increasing year by year.",
+      "Compared with developing countries, people in developed countries have a higher common sense of prevention and treatment of coronary heart disease and better medical conditions."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_48",
+    "context": "A tax imposed by the government on basic goods is two cents on each can of edible oil sold. Tax records show that despite the stable per capita quantity and strong enforcement of tax laws, the amount of edible oil taxes in the first two years still dropped significantly.",
+    "query": "Which of the following is most helpful in explaining the decline in edible oil taxes?",
+    "options": [
+      "Few households start producing their own edible oil after the tax increase.",
+      "Businessmen start selling oil in bigger can than before after the tax law came into effect.",
+      "Two years after the introduction of the edible oil tax, the government began to levy taxes on many other basic commodities.",
+      "Edible oil cans are traditionally used as wedding gifts. After the implementation of the tax law, the use of edible oils as gifts has increased."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_49",
+    "context": "For a certain type of ulcer, traditional therapies can completely cure ulcers in 44% of patients within 6 months. A new treatment for this kind of ulcers has made 80% of ulcers achieved significant improvements in a 6-month trial and 61% were cured. Since the trial only treated those with more severe ulcers, this new treatment was obviously more effective than traditional therapies.",
+    "query": "What additional evidence is needed to better compare the effects of the two therapies?",
+    "options": [
+      "which is the difference between the two methods?",
+      "Are there significant differences in the cost of using the two therapies?",
+      "What percentage of patients with this ulcer treated with traditional therapies in 6 months have achieved significant improvement.",
+      "What percentage of patients who participated in a 6-month trial of a new therapy was dissatisfied with the rate of recovery."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_50",
+    "context": "A tribe or race became extinct in the development of history, but its text will be passed down. \"Arilo\" is such a text. Archaeologists found this text inland. After researching \"Arilo\", there is no text for \"sea\", but there are texts for \"winter\", \"snow\", and \"wolf\". Therefore, experts speculate that the tribes or races that use the word \"Arilo\" have historically lived in a cold place away from the ocean.",
+    "query": "Which of the following, if true, would most weaken the speculation of the above experts?",
+    "options": [
+      "There is no word for \"cloud\" in \"Arilo\".",
+      "There is no word for \"mountain\" in \"Arilo\".",
+      "\"Arilo\" has the word \"hot\".",
+      "\"Arilo\" has the word \"fish\"."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_51",
+    "context": "Nature is the environment for the development and continuation of human life. At the same time, production labor, the intermediary of the exchange of material between humans and nature, is the starting point for the formation and development of human social relations. In the labor of processing, people have formed the human-to-human production relationship, and thus formed complex social relationships such as national, class, family, etc.",
+    "query": "Therefore?",
+    "options": [
+      "Man can survive and develop only if he is passively adapted to nature.",
+      "Human-to-human, human-to-social relationship, is based on the relationship between man and nature.",
+      "People's social relations have their inherent development rules, which can exist and develop independently.",
+      "People are part of nature because people are animals."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_52",
+    "context": "6 people A. B, C, D, E, F participated in a final game. Before the match, there were 3 guesses. First, the champion is either A or B. Second, the champion is C or D. Third, D, E, F never probably be the champion. Only one of the three was correct after the match.",
+    "query": "So who is the champion?",
+    "options": [
+      "A is the champion.",
+      "B is the champion.",
+      "C is the champion.",
+      "D is the champion."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_53",
+    "context": "Ecological Fallacy: Inferring individuals based on the results of the overall analysis, arguing that individuals have overall characteristics and attributes.",
+    "query": "According to this definition, which of the following is not part of the ecological fallacy.",
+    "options": [
+      "Xiaoming just arrived in Shanghai and met five or six Shanghai girls. They are all beautiful, so he thinks all Shanghai girls are beautiful.",
+      "Generally speaking, girls do not perform as well as boys in math, physics and chemistry. Therefore, Shimin, a girl, definitely does not perform well in math, physics and chemistry.",
+      "Tibet and Guizhou's overall economy is backward, so Tibetans and Guizhouese are all very poor.",
+      "The survey found that the more economically developed a place is, the lower its fertility level is. Therefore, it is believed that a high-income family must have fewer children."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_54",
+    "context": "Sensation: refers to the human brain's reflection of individual attributes of objective things directly acting on sensory organs.",
+    "query": "Which of the following belongs to sensation:.",
+    "options": [
+      "Wang Li's brother brought her back a fruit she hadn't seen before, so she didn't know its name, but she thought it was very cute.",
+      "When the moon is overhead, you will find that no matter where you go, it always follows you.",
+      "Xiaoming returns home from school and finds that his mother bought a big watermelon on the table.",
+      "Alone lying on the bed, you felt like was being carried away in a sedan chair and had a bumpy feeling."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_55",
+    "context": "Sound: is a kind of vibration of material molecules (such as air) transmitted in the form of waves. Vibrations with a frequency between 16 Hz and 20,000 Hz are in the audible range, and can form a sensory impression in the human hearing. People have different hearing abilities. Vibrations below 16 Hz are called infrasound, and those above 20,000 Hz are called ultrasound.",
+    "query": "We can know from the above definition that.",
+    "options": [
+      "Few people can hear vibrations below 16 Hz in sound.",
+      "Vibrations between the infrasound and ultrasonic frequency ranges cannot cause human auditory sensory impressions.",
+      "There is a type of vibration that is neither called infrasound nor ultrasound.",
+      "Most animals have a more sophisticated hearing function than humans."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_56",
+    "context": "Intuitive thinking: It is the way in which the human brain can quickly understand and make judgments on new problems, new things and new phenomena that suddenly appear.",
+    "query": "Which of the following is not one of intuitive thinking.",
+    "options": [
+      "Ancient Greek scholar Archimedes discovered the law of buoyancy while bathing in a bathtub.",
+      "Focus on a problem, point your mind at this center from different directions and different angles.",
+      "Humans get inspiration from insect eye composition, and develop many advanced night vision weapons.",
+      "Darwin realizes \"natural selection\" theory in reading Malthusian population theory."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_57",
+    "context": "Representation: It refers to the image of people in the mind when things are not in front of them.",
+    "query": "Which of the following belongs to representation?",
+    "options": [
+      "A clear image in people's minds after visiting the Temple of Heaven in Beijing.",
+      "After reading \"Afanggong Fu\", the image of Afanggong that people have in mind.",
+      "The image of the machine conceived in the mind of the inventor before he designed the new machine.",
+      "The image of a demon in the myth that appears in people's minds."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_58",
+    "context": "Leibniz was a great philosopher of the 17th century. He published his results of calculus research before Newton. But at that time Newton published his personal notes, stating that he had applied the principle of calculus at least 10 years before Leibniz published his results. Newton also said that not long before Leibniz published his results, he talked about his thoughts on calculus in a letter to Leibniz. But the post-hoc research showed that in this letter from Newton, the few lines of calculus did not touch on any significance of this theory. Therefore, it can be concluded that Leibniz and Newton each independently invented calculus.",
+    "query": "Which of the following must be assumed in the above argument.",
+    "options": [
+      "Leibniz has no less talent in mathematics than Newton.",
+      "Leibniz and Newton are honest people.",
+      "No third person independently invented calculus no later than Leibniz and Newton.",
+      "Neither Leibniz nor Newton gets key details about calculus from a third channel."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_59",
+    "context": "Mr. Zhang's class has 120 students, half male and half female.80 students like math, and 100 students like Chinese.",
+    "query": "Which of the following extrapolation based on the above information may be correct.",
+    "options": [
+      "0 boys like mathematics but not Chinese.",
+      "0 boys who like Chinese do not like math.",
+      "0 girls who like Chinese do not like math.",
+      "Only 10 of the 60 boys who like mathematics like Chinese."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_60",
+    "context": "Experts point out that the suicide behavior of the elderly during aging is mainly caused by \"lossing\", such as lossing health, lossing partners, lossing child care, lossing financial capacity, etc. Therefore, relevant persons pointed out that society, families should care the elderly, and the community should also provide the necessary services, such as long-term care services, psychological counselling services, legal help, etc. The relevant crisis intervention organizations must cooperate and work together to reduce the elderly's probability of suicide.",
+    "query": "Based on the above information, which of the following statement is correct.",
+    "options": [
+      "Old people commit suicide mainly because they are aging and unhealthy.",
+      "The elderly have such a high probability of suicide that the relevant crisis intervention organizations must take responsibility.",
+      "Family, children, communities, crisis intervention organizations, and other sectors of society should care about the lives of the elderly.",
+      "As long as the community has provided appropriate nursing and counselling services, the suicide probability of the elderly must be reduced."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_61",
+    "context": "Shortly after the Gulf War, researchers reported on this area. During the war, when normal oil production slowed down, the area suffered from hundreds of thick smoke, heavy oil fires and wanton oil crossflow. However, after the war, the oil pollution in this area was lighter than the results of their investigation in this area before the war. They also reported that compared with the levels of polycyclic aromatic hydrocarbons (abbreviated as PAHs) recorded in the baltic oil-producing region with mild climate, the concentration of compounds in this region is relatively low. PAHs used to produce combustible products were ejected from oil wells during the war.",
+    "query": "Which of the following discussion can best explain the above materials.",
+    "options": [
+      "Oil pollution has a greater impact on the environment in temperate regions than in desert regions.",
+      "Oil pollution and PAHs pollution dissipate faster in temperate regions than in desert regions.",
+      "Oil pollution and PAHs pollution dissipate faster in desert areas than in mild climates.",
+      "In peacetime, oil production and transportation in the Gulf led to high levels of PAHs and large-scale oil dumping."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_62",
+    "context": "Experts studying various types of mental stress in the UK have found that more and more people will experience varying degrees of discomfort after using the Internet. According to a sample survey of 10,000 people who regularly surf the Internet, the number of people who admit to feeling agitated and annoyed after surfing the Internet has reached one third, and 44% of Internet fans under the age of 20 admit to feeling irritable and nervous after going online. Psychologists believe that there is indeed some kind of \"Internet Mania. \".",
+    "query": "According to the above information, which of the following are the least likely causes of \"Internet Mania\"?",
+    "options": [
+      "Due to the sharp increase in the number of Internet users and congested channels, if you want to access a relatively busy website, sometimes you have to wait a long time.",
+      "A variety of information can be accessed on the Internet, but often too much information will make people confused, lose confidence, and lose personal attention.",
+      "Although the use of the Internet is free in some countries, the online payment system is implemented in China, which has restricted the online time of Internet users.",
+      "Due to anonymity, Internet users are often treated rudely or received information spam by other Internet users."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_63",
+    "context": "Modern western aesthetics, contrary to the traditional philosophical methods of the past, moves towards psychological aesthetics and scientific aesthetics. Psychological aesthetics uses scientific methods to study human aesthetic psychology, focusing on the subject; scientific aesthetics uses scientific methods to analyze the structure and function of aesthetic objects, focusing on the object. But no matter which method is adopted, they think that the endless philosophical speculative discussion on the nature of beauty (the definition of beauty) is of little significance.",
+    "query": "This shows that.",
+    "options": [
+      "Modern western aesthetics believes that philosophical thinking of traditional aesthetics is meaningless and scientific.",
+      "Psychological aesthetics studies human aesthetic psychology, focusing on the study of the subject and content of aesthetic objects.",
+      "Scientific aesthetics focuses on the study of aesthetic objects, that is, the scientific analysis of the structure and function of aesthetic objects.",
+      "The philosophical discussion on the essence of beauty should be abandoned."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_64",
+    "context": "There are 4 cups on the table, each with a sentence written on it. The first cup: \"Beer is in all cups\". The second cup: \"Cola in this cup\". The third cup: \" No coffee in this cup \". Fourth cup:\" Some cups have no beer \". Only one of the 4 sentences is true.",
+    "query": "So which of the following is true?",
+    "options": [
+      "Beer is in all cups.",
+      "No cola in all cups.",
+      "Coffee in the third cup.",
+      "Cola in the second cup."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_65",
+    "context": "Meteorologists say that when they design accurate mathematical models that can describe all the complex details of the atmosphere, they can make completely accurate weather forecasts. This is actually a plausible boast that can never be proven wrong. As long as there is an error in any weather forecast, you can find inaccuracies in the relevant mathematical models. Therefore, this declaration of meteorologists is meaningless.",
+    "query": "Which of the following, if true, would best serve as a basis for refuting the above view (i. e. the meteorologist's claim is meaningless).",
+    "options": [
+      "Some unusual data structures can be used as the basis for accurate weather forecasts, even if the exact mechanism is unknown.",
+      "As the accuracy of mathematical models is getting higher and higher, the accuracy of weather forecasts is also getting higher and higher.",
+      "Mathematical models of the meteorological consequences of catastrophic events like volcanic eruptions are beginning to be constructed.",
+      "Modern weather forecasts have reached 85% accuracy."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_66",
+    "context": "Some people think that if a country can operate its economy efficiently, it will be able to create wealth and become rich: and if such a country wants to maintain political stability, the wealth it creates must be distributed fairly; the fair distribution of wealth will end economic risks; however, the existence of risks is an indispensable prerequisite for the efficient operation of the economy.",
+    "query": "Which conclusion can be drawn from the above viewpoints?",
+    "options": [
+      "Political stability and economic wealth cannot coexist in a country.",
+      "Political stability and economic efficiency cannot coexist in a country.",
+      "The economic operations of a rich country must be effective.",
+      "A politically unstable country must be full of economic risks."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_67",
+    "context": "Xiao Ai walked down the street with her sister Xiao Hui. Suddenly Xiao Ai said to Xiao Hui, \"Oh, my nephew Xiao Gang is working in the bakery in front of us. Let's buy some bread. \" But Xiao Hui said \"I do not have a nephew called Xiao Gang. \".",
+    "query": "According to this, Xiao Hui should be Xiaogang's.",
+    "options": [
+      "Aunt.",
+      "Wife.",
+      "Mom.",
+      "Father's sister."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_68",
+    "context": "The 002 Nobel Prize winner in economics, psychologist Kahneman proposed in his famous \"Prospect Theory\": (a) most people are risk-averse when facing gains; (b) most people are risk-prone when facing losses; people are more sensitive to losses than to gains.",
+    "query": "Which of the following does not fit the prospect theory.",
+    "options": [
+      "A is sure to win 1,000 yuan. B has a 50% chance to win 2,000 yuan, and 50% probability will get nothing. Most people will choose A.",
+      "With the plan X, it can save 200 people; With the plan Y, there is a one-third chance to save 600 people, and two-thirds chance that none will be saved. People are more willing to choose the plan X.",
+      "If you have several good news to post, you should put them together.",
+      "Before the annual return rate of the fund reaches 3%, the fund management company only charges 0.5% of the management fee to maintain its cost; when the annual return rate is between 3% and 4.5%, the fund manager will charge an additional 50% of the 3% return as the performance reward."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_69",
+    "context": "The long-tail theory is a new theory emerging in the Internet age and was proposed by American Chris Anderson. The long-tail theory believes that in the past due to factors of cost and efficiency, people could only focus on important people or important things. If the normal distribution curve is used to describe these people or things, people can only pay attention to the \"head\" of the curve and will ignore most people or things that need more energy and cost to pay attention to in the \"tail\" of the curve.",
+    "query": "Which of the following cases, the long tail theory is used to emphasize the \"tail\".",
+    "options": [
+      "Although the \"hot\" economic power is not as good as it was then, we still pay absolute attention to it.",
+      "Businesses believe that listeners have an unlimited demand for non-popular music, and the market is extremely huge and should be paid attention to.",
+      "Vendors focus on 20% of mainstream products that 80% of customers buy, and focus on maintaining 20% of mainstream customers who buy 80% of their products.",
+      "When selling products, manufacturers focus on a few \"VIP\" customers, \"no time\" to take into account the majority of ordinary consumers."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_70",
+    "context": "The crime of abuse refers to the acts of beating, scolding, freezing, starvation, confinement, forced overwork, failure to give medical treatment or other methods to the family members living together.",
+    "query": "By definition, which of the following does not constitute crimes of abuse.",
+    "options": [
+      "Wang's son is ill, but Wang is allowed to progress to critical illness on the grounds that the treatment will not be effective.",
+      "Li often uses corporal punishment to educate his naughty son and often detains him.",
+      "Zhang often insults his wife with words, and sometimes beats his wife.",
+      "Supermarket owners often search employees and often ask for overtime for no reason."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_71",
+    "context": "The Matthew Effect refers to the phenomenon that the better become better, the worse become worse, the richer become richer, and the poorer become poorer.",
+    "query": "Which of the following options are not part of the Matthew Effect.",
+    "options": [
+      "In the frenzy of the stock market and property market, the most profitable is always the dealer, and the most loser is always the retailer.",
+      "Talents in poor areas will flow to developed areas. Resources in poor areas will flow to developed areas cheaply. The system of poor areas is usually not as reasonable as that in developed areas. So the cycle will be repeated, and regional differences will increase.",
+      "Anyone can buy only one lottery ticket and win the jackpot.",
+      "The more talented people there are, the more attractive they are; in turn, the scarce the recognized talents."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_72",
+    "context": "A counterclaim is an act in which an accused has filed an independent action in an action that has been linked to the original suit.",
+    "query": "Which of the following options is counterclaims.",
+    "options": [
+      "The plaintiff sued the defendant for not repaying the loan, and the defendant sued the plaintiff for illegal construction.",
+      "The plaintiff sued for divorce, and the defendant asked the court to confirm that the marriage relationship was originally invalid.",
+      "The plaintiff sued, asking the defendant to deliver according to the sales contract, and the defendant sued the supplier for failing to deliver on time.",
+      "The plaintiff sued the defendant for the ownership of the house he lived in, and the defendant asked the court to ask the plaintiff to repay the arrears."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_73",
+    "context": "The Marriage Law stipulates that divorce will be granted to both men and women who voluntarily divorce. In a marriage case, only one party is voluntarily willing to divorce.",
+    "query": "Therefore, the court's decision should be.",
+    "options": [
+      "Divorce cannot be decided.",
+      "Divorce may not be determined.",
+      "Judgement after mutual agreement.",
+      "Divorce should be decided."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_74",
+    "context": "Traditional Chinese medicine is the pride of many Chinese people, but recently a signature campaign called \"Cancel Traditional Chinese Medicine\" initiated by experts believes that \"Chinese medicine\" does not actively seek progress and is not a rational and scientific medicine; it abuses natural resources; it is heartless and unjust, and deceive patients. \".",
+    "query": "It can be deduced from this phenomenon that.",
+    "options": [
+      "The efficacy of traditional Chinese medicine can not be questioned, so the cancellation of traditional Chinese medicine is just arrogant.",
+      "People do not understand and have no confidence in traditional Chinese culture and traditional medicine.",
+      "Although the efficacy of traditional Chinese medicine is unquestionable, the remarks to some extent reflect some of the difficulties that traditional Chinese medicine is currently facing.",
+      "Such statements are purely personal prejudice and are not worth mentioning."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_75",
+    "context": "Professor Richard Layard of the London School of Economics: \"There is a paradox in our lives. Most people want higher and higher incomes and work tirelessly for it. But although western society is getting richer, people do not feel happier. Economic growth does not necessarily make people happier. It is futile for the masses to pursue material wealth. The more likely result is to make people less happy.",
+    "query": "According to Richard Layard, which of the following statement is incorrect?",
+    "options": [
+      "Happiness has nothing to do with people's income.",
+      "People with higher incomes are less happy.",
+      "People who want happiness should not have a high income.",
+      "Happiness is not only measured by income."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_76",
+    "context": "Suppose a government starts taxing two cents for each can of edible oil sold. However, tax records show that despite the stable population and strong enforcement of tax laws, the tax on edible oil has shown a downward trend in the first two years after the tax law came into effect.",
+    "query": "Which of the following items, if correct, is the most helpful explanation for the decline in the taxation of edible oils.",
+    "options": [
+      "Few households start producing their own edible oil after the tax increase.",
+      "Merchants started selling edible oil in larger tanks than before after the tax law was implemented.",
+      "Two years after the introduction of the edible oil tax, the government began to levy taxes on many other commodities.",
+      "Edible oil cans are traditionally used as wedding gifts. After the implementation of the tax law, the use of edible oils as gifts has increased."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_77",
+    "context": "Four teams A. B, C, and D play a round-robin match (each team plays one game against the other team). Results: Team B loses one, Team C wins one less than Team B, and Team B wins one less than Team D.",
+    "query": "So, the ranking of Team A is.",
+    "options": [
+      "First place.",
+      "Second place.",
+      "Third place.",
+      "Fourth place."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_78",
+    "context": "Aesthetic Realm: refers to the joyful feelings and scenes beyond the natural realm, utilitarian realm and moral realm sublimated from the realm of life.",
+    "query": "According to the above definition, which of the following options is not Aesthetic Realm?",
+    "options": [
+      "It feels elegant to enjoy the famous painting Mona Lisa.",
+      "Reading \"Picking Chrysanthemum under the East Hedge, Seeing Nanshan at Ease\" gives you a feeling of ease.",
+      "Listening to the Erhu's performance \"Two Springs Reflecting the Moon\" makes people quiet.",
+      "Reading the \"Stock Guide\" and become interested in stocks."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_79",
+    "context": "Administrative disputes refer to disputes caused by administrative management between national administrative organs or between national administrative organs and enterprises, institutions, social organizations and citizens, including administrative disputes and administrative cases.",
+    "query": "Which of the following options is not an administrative dispute?",
+    "options": [
+      "The plaintiff is a clinic approved by the competent administrative department of health in accordance with the law. Because it did not accept the sanctions imposed by the health bureau on its unlicensed promotion of health products, it sued the health bureau.",
+      "Plaintiff failed to obtain insurance compensation due to work-related injury, and sued factory to court.",
+      "The plaintiff, an individual industrial and commercial household, was charged by the local administration for industry and commerce for setting up stalls in tourist attractions. The plaintiff considered the charges arbitrary and sued the administration.",
+      "The plaintiff refused to accept the confirmation of fire department's fire accident liability and applied for a new confirmation."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_80",
+    "context": "Transfer Learning: refers to the impact of one type of learning on another type of learning, that is, the influence that has occurred between the acquired knowledge experience, knowledge structure, motor skills, learning attitudes, strategies and methods, and new knowledge and skills.",
+    "query": "Which of the following options does not reflect the ability to transfer learning?",
+    "options": [
+      "Using geometric methods to prove the yellow-red intersection angle.",
+      "When we encounter difficult problems and feel at a loss, we associate similar scenes that occurred before to find solutions from experience.",
+      "Xiao Zhang likes a football star. At first, he only liked his football skills, but slowly started to pay attention to all his life.",
+      "When basketball players learn to put shots, they are always used to throwing the ball in the beginning, but it is difficult to adapt to the shot-taking action of pushing the shot in a straight line."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_81",
+    "context": "Stress: refers to the response of all organisms to various external stimuli. It is a dynamic response and is completed in a relatively short period of time.",
+    "query": "According to the above definition, which of the following is not stress?",
+    "options": [
+      "Yellow weasel emits an odour when it encounters enemy.",
+      "Various reactions when people see text and images.",
+      "Polar bear's fur is white, consistent with the colour of the environment in which it lives.",
+      "Cicada generally does not tweet below 24 ℃, but only tweet when the temperature is above 24 ℃ and the light reaches a certain level."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_82",
+    "context": "Job burnout: refers to the phenomenon that the work itself requires too much of an individual's ability, energy, and resources, causing the worker to feel exhausted.",
+    "query": "According to this definition, which of the following is not the teachers' job burnout?",
+    "options": [
+      "Mr. Wang finds it difficult to complete the extra teaching tasks assigned by the school.",
+      "Now many students are very naughty and some young teachers are struggling to cope with it.",
+      "Because Mr. Li often works overtime recently, he has always been weak in class these days.",
+      "Mr. Zhang has been distressed at work recently because of her tense relationship with her husband."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_83",
+    "context": "① Popularization of computers ② Computer management society ③ Reduction of ethics of computer technicians ④ Disclosure of computer management information ⑤ Increase of computer professionals ⑥ Informationization of overall business management of enterprises.",
+    "query": "According to the following facts and comprehensive analysis, the most likely result is.",
+    "options": [
+      "The increased computer crime rate.",
+      "Violation of personal privacy.",
+      "Increased computer allergies.",
+      "Increased unemployed in management jobs."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_84",
+    "context": "In city A. the driver's car accident insurance is paid at an average level, rather than the annual distance travelled by each driver. Under this mechanism, the insurance company can achieve a certain profit. Therefore, people with less than average mileage subsidize people with more than average mileage to some extent.",
+    "query": "Which of the following statements holds true, then the above statement holds true？.",
+    "options": [
+      "Whenever a new driver purchases insurance, the average accident insurance premium charged to all drivers will also increase accordingly.",
+      "If drivers are classified based on annual mileage, insurance companies' profits will rise significantly.",
+      "Drivers who receive high compensation from insurance companies pay insurance costs equal to or lower than those paid by other drivers.",
+      "For an insurance company, the cost paid for someone with less than average mileage is less than the cost paid for someone with more mileage than average."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_85",
+    "context": "When taking a polygraph test, as long as you take a small amount of some commonly used sedatives, you can make people undetected when lying. Because the psychological stress response measured by the polygraph can be suppressed by drugs without significant side effects. Inferred from this, this drug will also be effective in reducing psychological stress in daily life.",
+    "query": "The premise of this passage is _____________.",
+    "options": [
+      "Sedatives are effective in treating psychological stress.",
+      "Inhibition of psychological stress response increases subjective psychological stress.",
+      "The psychological stress measured by the polygraph is similar to the psychological stress of daily life.",
+      "People who lie during a polygraph test often show signs of psychological stress."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_86",
+    "context": "There are two kinds of people living on an island. One is the truth-teller and the other is the lie-teller. One day, one person travels to the island and encounters three islanders A. B, and C. Then he asked them who was the truth-teller and who was the lie-teller. A said, \"B and C are both lie-tellers. \" B said, \"I am the truth-teller. \" C said, \"B is a lie-teller. \".",
+    "query": "How many of these three people are telling lies?",
+    "options": [
+      ".",
+      ".",
+      ".",
+      "."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_87",
+    "context": "Whether the technological revolution will increase unemployment is a problem that has long plagued people. From some statistics, people have found interesting phenomena. Although the United States has invested heavily in computer technology and other aspects over the past years, its current unemployment rate (approximately 5.5%) is not higher than the unemployment rate in the early 1960s, and in Western Europe it is 11%, where investment in computers has been less than in the United States.",
+    "query": "Which of the following can be logically derived from the above text?",
+    "options": [
+      "The development prospect of information technology is very broad.",
+      "Information technology needs to evolve faster.",
+      "Information technology does not cause unemployment.",
+      "Development of information technology will not increase unemployment."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_88",
+    "context": "In terms of being a tool of public health policy, the study of epidemic diseases has an advantage over the effects of toxins on animals: in epidemiology, there is no need to make inferences between different kinds of organisms.",
+    "query": "Which of the following options can be inferred from the above?",
+    "options": [
+      "In epidemiology, inferences between organisms are just auxiliary tools.",
+      "Epidemiology is a precise science.",
+      "In epidemiology, humans can be directly the subject of research.",
+      "Toxin studies in animals draw conclusions slower than epidemiology."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_89",
+    "context": "Sentence: A sentence consisting of a subject-predicate phrase or a single word.",
+    "query": "Which of the following options is a single sentence.",
+    "options": [
+      "as a bony man, it is better to stand and die than to live on his knees.",
+      "if you want to appreciate our gardens, Suzhou gardens should not be missed.",
+      "we should think carefully before answering the question so as not to revise it later.",
+      "due to long-term overwork, Li is finally sick and hospitalized."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_90",
+    "context": "Empathy refers to objectively understanding the subjective thoughts and emotional feelings of the parties from a human perspective and position, and conveying this understanding to the parties, but this does not necessarily mean that the listener must agree with the views and behaviors of the parties.",
+    "query": "Which of the following options embodies empathy?",
+    "options": [
+      "do you feel wronged?",
+      "say something then I can help you.",
+      "there was nothing wrong with you doing that!",
+      "don't be sad, everything will pass."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_91",
+    "context": "Green consumption: also known as sustainable consumption, refers to a new type of consumption behavior and process characterized by moderate consumption control, avoiding or reducing damage to the environment, advocating nature and protecting the ecology. Green consumption includes not only green products, but also recycling of materials, efficient use of energy, protection of living environment, species, etc.",
+    "query": "Based on the above definitions, which of the following is most in line with the concept of green consumption?",
+    "options": [
+      "buy more green plants.",
+      "try to choose products with little or no packaging when shopping.",
+      "in order to achieve the purpose of protecting special, we advocate keeping pets at home.",
+      "choose the cheapest product when shopping."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_92",
+    "context": "Spam: E-mail advertisements, publications or other materials sent to users who do not take the initiative to ask for instructions; mails without clear communication methods, senders, return addresses, etc; using China Telecom's network to engage in acts that violate other ISP's security policies or service terms; and other mails that are expected to lead to complaints.",
+    "query": "Based on the above definitions, which of the following is not a spam?",
+    "options": [
+      "an advertisement email introducing the latest skin care products but dont know where it from.",
+      "an enthusiastic letter of praise but no clear sender.",
+      "an email from a known contact but with a virus in it.",
+      "an email with winning information from an unknown website."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_93",
+    "context": "Single service contract: refers to a contract in which one party only has rights and does not perform obligations, and the other party has only obligations but does not enjoy rights.",
+    "query": "Which of the following contracts is a single-service contract?",
+    "options": [
+      "A gives B a car.",
+      "A owes a debt to B, and the amount is large, so he mortgages his house to B.",
+      "A buys B's old computer.",
+      "A rents two houses from B."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_94",
+    "context": "Fact 1: TV ads are becoming more and more ineffective, and the proportion of brand names that TV viewers can recall for promotion on TV is slowly decreasing. Fact 2: Television viewers recall the first or last advertisement in a series of commercial advertisements much better than they recall the advertisement somewhere in the middle.",
+    "query": "Which of the following options, if correct, fact 2 will most likely provide an explanation for fact 1.",
+    "options": [
+      "the average number of consecutive TV commercials is gradually increasing.",
+      "At present, the average TV viewer can only recall less than half of the brands he or she sees promoting.",
+      "the total time allocated to each group of consecutive TV commercials gradually decreases.",
+      "the number of groups that broadcast continuous advertisements on TV every hour gradually increases."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_95",
+    "context": "There is only one step between success and failure. Liu Qing, a famous writer in our country, once said, \"The most important thing in this road of life is this step. \" Many people ran 99 steps clearly, but they stopped because they faced difficulties. He is only one step away from success.",
+    "query": "Which of the following options matches the meaning of this text?",
+    "options": [
+      "step 99 is less useful than the last step.",
+      "success or failure is determined by that step.",
+      "Persist at critical times, you may succeed.",
+      "there is only one step between success and failure."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_96",
+    "context": "After a chef and a writer have argued fiercely, no one can persuade each other. The writer said angrily: \"You haven't done writing at all, so you don't have the right to conduct literary discussions. \" The chef answered, \"I haven't laid eggs, but I'm more familiar with the taste of scrambled eggs than anyone else! \".",
+    "query": "which of the following can't be concluded from the above dialogue?",
+    "options": [
+      "the writer expressed contempt for the chef in his argument.",
+      "the chef shows high level of literary criticism in the dialogue.",
+      "the author may be a chef qualified for literary criticism. The premise is ture.",
+      "The chef's retort compared \"writing\" to \"laying eggs\" and \"literary criticism\" to \"tasting the taste of eggs\" is wrong."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_97",
+    "context": "A group of randomly selected people watched a speaker give a lecture on environmental ethics to a large and concentrated audience, and another group of randomly selected people watched the same speaker give a lecture to a small and unconcentrated group of people in the same way. The former group thought that the speaker thought deeply and confidently, while the latter group thought that the speaker's expression was vague and lengthy.",
+    "query": "The above materials best refute which of the following statements?",
+    "options": [
+      "the same social behavior may give different feelings to different people in different social backgrounds.",
+      "a randomly selected group of people may reach a consistent understanding of the personal qualities of the speaker in a specific social environment.",
+      "a listener's comment on the speaker's speech may be influenced by the attitude of others.",
+      "People's judgment of the speaker's personal qualities depends mainly on his content and the way he speaks."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_98",
+    "context": "Natural disasters such as earthquakes, volcanic eruptions, and abnormal weather have caused far greater harm in the last decade than in previous decades. It can be concluded that as a natural environment, the earth becomes increasingly unfriendly and dangerous, so we should use meteorology and earth science to explore the reasons for this trend.",
+    "query": "Which of the following options, if correct, the conclusions obtained above will be serious affected.",
+    "options": [
+      "Meteorology and geology provided early warning systems for natural disasters in the last decade that are much better than in previous decades.",
+      "In the last decade, international help operations against victims of natural disasters have been much better organized than they were decades ago.",
+      "population pressure and poverty are forcing more and more people to move to disaster-prone areas.",
+      "Major earthquakes, volcanic eruptions and natural disasters such as abnormal weather (such as droughts, landslides and floods) occurred in the last decade and the previous decades have been recorded."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_99",
+    "context": "Pawning refers to the act that the pawnbroker pledges his movable property and property rights as pawns or mortgages his real estate as pawns to the pawnshop, paying a certain proportion of expenses, obtaining the pawnbroker's money, and paying interest on the pawnbroker's money, repaying the pawnbroker's money and redeeming the pawnbroker's property within an agreed period of time.",
+    "query": "According to the above definitions, which of the following is pawning:.",
+    "options": [
+      "A furniture factory urgently needed funds and sold a batch of office furniture to a pawnshop for a very low price.",
+      "After a person defrauded a pawnshop of a large amount of money by using fake antiques forged by himself, he redeemed the fake antiques out of his own pocket for fear of disclosure.",
+      "A factory took a batch of raw materials as collateral and obtained pawn money from a pawn bank. After that, the plant continued to lose money. After repeated discussions, the pawn bank agreed to let the plant pay back the pawn money and only pay interest equivalent to the bank loan.",
+      "After stealing a friend's jewelry and exchanging it for money at a pawnshop, someone thought the money was too low to be worthwhile and redeemed the jewelry."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_100",
+    "context": "Language is a symbol system, a system of vocabulary building materials and grammatical organization rules combining sound and meaning with speech as the material shell and semantics as the meaning content.",
+    "query": "According to the above definitions, which of the following is language:.",
+    "options": [
+      "Mute or sign language, a symbol system produced by the communication needs of the deaf, using fingers or gestures as a carrier.",
+      "Oracle, text from the Shang Dynasty in China.",
+      "Machine language is a computer language expressed directly in binary code instructions.",
+      "Hebrew, the national language of the Jews, is one of the oldest languages in the world."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_101",
+    "context": "Children's products are any products intended for play or use by children under the age of 14.",
+    "query": "According to the above definitions, which of the following is children's products:.",
+    "options": [
+      "Some kind of milk powder for infants aged 0 to 1.",
+      "A comic book suitable for children around 10 years old.",
+      "Bumper cars in amusement parks that kids love to play with.",
+      "Brightly packed lollipops."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_102",
+    "context": "Multimedia teaching means that in the teaching process, according to the teaching objectives and the characteristics of the teaching objects, through teaching design, modern teaching media are reasonably selected and used, and are organically combined with traditional teaching methods to participate in the whole teaching process, and various media information is used on students to form a reasonable teaching process structure and achieve the optimal teaching effect.",
+    "query": "According to the above definitions, which of the following is not multimedia teaching:.",
+    "options": [
+      "Fan Zheng uses Powerpoint courseware in civil servant exam preparation lectures.",
+      "Zhu Xuelin answers class-related questions to students through video calls.",
+      "Students learn legal knowledge through a mock court organized by the school.",
+      "In the 1950s, agricultural technicians explained the planting technology to fellow villagers through a slideshow."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_103",
+    "context": "National heroes are: people who have made outstanding contributions in the struggle against the invasion and oppression of foreign nations, including those who are not afraid of violence and sacrifice in the struggle against them.",
+    "query": "According to the above definitions, which of the following is national hero:.",
+    "options": [
+      "Song Jiang, a famous peasant uprising leader in the Song Dynasty.",
+      "Lin zexu, a famous historical figure who once ordered \"selling cigarettes from humen\".",
+      "Li Siguang, a famous scientist who picked the \"poor oil country hat\" for China.",
+      "Lei Feng, a good soldier who serves the people wholeheartedly."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_104",
+    "context": "Literary creation means that writers are moved by real life and create artistic images with language as materials to form literary works that can be appreciated by readers through the processing and transformation of their minds according to their aesthetic experience of life. Such a special and complicated spiritual production activity is called literary creation.",
+    "query": "According to the above definitions, which of the following is literary creation:.",
+    "options": [
+      "Fan Zheng and Zhu Xuelin refused to meet visitors and devoted themselves to writing exam preparation materials for civil servants for several months.",
+      "Gao Yubao only attended school for one month. He was a child laborer at 9 years old, a laborer at 15 years old, and a carpenter at 17 years old. He wrote some popular Chinese characters and his \"painted characters\" into the popular novel \"Midnight Chicken call\".",
+      "A Bing, a blind man, spent his whole life on aesthetic experience of folk art and created the world-renowned erhu solo work \"Two Springs Reflect the Moon\".",
+      "An American student who likes Chinese classical literature very much, read a lot of books and made a lot of notes with unique insights."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_105",
+    "context": "Psychological displacement refers to that the communicators temporarily give up their subjective reference standards, try to see things from each other's views and values, and observe each other's thoughts and feelings from each other's standpoint and angle. It is helpful for the communicators to establish stable psychological connections and form harmonious and intimate interpersonal relationships. Psychological displacement can be said to be a kind of communication ability. The stronger the psychological displacement ability is, the greater its effect is, and the better communication will be.",
+    "query": "According to the above definitions, which of the following is not psychological displacement:.",
+    "options": [
+      "When lectured on \"The Casual Encounter on the Train\", the Chinese teacher let the students play the role of \"father\" in the text, and act as a temporary waiter on the train when he is in college.",
+      "Zhu Xuelin is always trying to figure out the students' ideas in order to continuously improve his teaching level.",
+      "Fan Zheng invited former students and asked him to tell his new classmates his successful experience of the year in class.",
+      "A founding member of the film crew of a youth TV series, came to listen to Fan Zheng's lectures and experience the classroom life of contemporary college students."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_106",
+    "context": "Self-awareness is a person's understanding and evaluation of himself. It includes the understanding and evaluation of his own psychological tendency, personality psychological characteristics, and psychological processes. It is because people have a self-awareness that they can control themselves and adjust to form a complete personality.",
+    "query": "According to the above definition, which of the following is not in the category of self-awareness:.",
+    "options": [
+      "Children around the age of 1 know that their hands are their own and can reach for toys.",
+      "Zhu Xuelin often reflects on himself in his diary.",
+      "Zhu Xuelin wore a tie that was in harmony with the color of his suit before the lecture.",
+      "Fan Zheng made a brief introduction to his classmates before he started teaching."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_107",
+    "context": "Gambler psychology： Gamblers have their own set of theories, called gambler's fallacy, which is characterized by always believing that their expected goal will come. Just like when roulette is wagered, the probability of red or black in each round is 50%, but the gambler believes that if he bets red, if black appears several times in a row, the chance of red appearing next time will increase. If red does not appear this time, then it is more certain next time. This is a typical inequality principle, in fact, every chance is always 50%. The main characteristics of gamblers' psychology are: 1. they only want to get lucky and make a fortune, do not want to work or start a business to become rich; 2. dare to risk everything, take risks, or even take life as a risk cost; 3, in order to achieve the goal, they can use whatever means.",
+    "query": "According to the above definitions, which of the following belongs to the gambler's psychology:.",
+    "options": [
+      "Fan Zheng bought some welfare lottery tickets, and felt that this kind of lottery buying was a kind act.",
+      "Zhu Xuelin accidentally won the lottery and felt that his luck would get better and better.",
+      "Someone is addicted to online games and doesn't even want to go to work.",
+      "Someone resigned to speculate in stocks."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_108",
+    "context": "Disturbance of inner behavior enters a state of continuous imbalance. This is the psychological crisis, which can refer to the serious imbalance of the psychological state, the difficulty in solving the intense conflicts of psychological contradictions, the mental collapse or mental disorder, and the occurrence of psychological disorders. When a person has a psychological crisis, the person concerned may be aware of it in a timely manner, or it may be \"unconsciously. \" A person who thinks that he or she adheres to a habitual behavior pattern may also have a potential psychological crisis.",
+    "query": "According to the above definitions, Which of the following are not in the category of psychological crisis:.",
+    "options": [
+      "Fan Zheng's friend died suddenly, and he looked back at his friend with infinite emotion. For many days, Fan Zheng felt very distressed and extremely sad.",
+      "Although the smoking time of Zhu Xuelin is not very long, when he just quit smoking, he always feel abnormally irritable and confused.",
+      "Xiaoming was nervous when he heard that he was going to take an exam.",
+      "He Wei loves his three pet dog babies very much. When he travels abroad, He Wei misses his dog babies very much. Due to his anxiety, he has to go home alone halfway."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_109",
+    "context": "Many people who call themselves teachers are not actually teachers because teaching is not their main source of income.",
+    "query": "Which of the following is assumed in the above discussion?",
+    "options": [
+      "Many people called teachers lack qualified professional knowledge and skills.",
+      "The amount of income can measure the degree to which a profession is valued by society.",
+      "Low income prevents teachers from dedicating themselves.",
+      "A person cannot be called a writer unless the writing is his main source of income. The same is true for teachers."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_110",
+    "context": "If parent decides that the child is wanted before the child is born, then the child will definitely not be abused after birth.",
+    "query": "Which of the following is true, then the above conclusion will be true?",
+    "options": [
+      "People who love children do not abuse the next generation.",
+      "People who don't want children usually raise them.",
+      "People who don’t love their children usually abuse them.",
+      "Child abusers don't want children."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_111",
+    "context": "Xiao Zhang asked Xiao Li to go to the mall the next day. Xiao Li said, \"If it doesn't rain tomorrow, I'll go climbing. \" There was a drizzle the next day. Xiao Zhang thought Xiao Li would not go climbing, so he went to Xiao Li's dormitory to find him. But Xiao Li was still climbing the mountain. When the two met again, Xiao Zhang blames Xiao Li for his word. Since it was raining, why did he go to the mountain? Xiao Li said that he didn't break his word and Xiao Zhang's reasoning was illogical.",
+    "query": "For the argument between the two, which of the following is appropriate?",
+    "options": [
+      "This argument between Xiao Zhang and Xiao Li is meaningless.",
+      "Xiao Zhang's reasoning is illogical.",
+      "Two people have different understandings of drizzle.",
+      "Xiao Li's comment caused the debate."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_112",
+    "context": "It is because of sufficient dairy products as a source of food that herders living in the Hulunbuir steppe can ingest sufficient calcium. Obviously, this sufficient calcium is essential for herdsmen in hulun buir grassland to have a strong body.",
+    "query": "Which of the following conditions, if true, would weaken the above assertion best?",
+    "options": [
+      "Some herdsmen of the Hulunbuir Prairie do not have a strong physique, but the calcium intake from food is quite a lot.",
+      "Some herdsmen in the Hulunbuir Prairie do not have a strong physique and they cannot take enough calcium from food.",
+      "Some herdsmen of the Hulunbuir Prairie have a strong physique but do not have enough dairy products as a source of food.",
+      "Some herdsmen in the Hulunbuir Prairie do not have a strong physique, but have sufficient dairy products as a source of food."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_113",
+    "context": "Light exposure can help alleviate winter depression. Researchers have studied nine patients who all suffered from winter depression due to shorter winter days. Researchers exposed the patients to strong light with floral fragrance for three hours in the morning and three hours in the evening. Within a week, seven patients completely got rid of depression and the other two showed significant improvement. As the light could induce the body to mistakely think that summer is coming, winter depression was cured.",
+    "query": "Which of the following, if true, would weaken the conclusion of the above argument?",
+    "options": [
+      "Researchers' intentional use of floral scent, when exposed to strong light, has a significant effect on improving the indications for patients with winter depression.",
+      "The experiment was conducted in the temperate climate of the northern hemisphere, and the experimental differences between the northern and southern hemispheres cannot be distinguished or excluded in advance.",
+      "Damage to the skin from intense light has been confirmed by special studies, and summer is more harmful than winter.",
+      "The non-working state of six hours a day changes the patients' original living environment and improves their mentality, which is a major impact on patients with depression."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_114",
+    "context": "Evaporation heat dissipation: refers to a heat dissipation method in which the moisture of body fluid changes from liquid state to gaseous state on the surface of skin and mucous membrane (mainly respiratory tract mucous membrane) while taking away a large amount of heat.",
+    "query": "According to the above definition, which of the following belongs to evaporative heat dissipation?",
+    "options": [
+      "Wipe your body with alcohol when you have a high fever.",
+      "Swimming to escape summer heat.",
+      "Cooling with ice cubes in summer.",
+      "Sweating on a hot summer day."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_115",
+    "context": "Moral hazard: refers to the fact that after a certain contract is signed, the agent carries out activities in the case where the client cannot monitor or the cost exceeds the benefits of supervision, and this kind of activities will cause losses to the client.",
+    "query": "According to the above definition, which of the following behaviors is not a moral hazard?",
+    "options": [
+      "A terminally ill person conceals his illness and purchases a huge amount of life insurance.",
+      "People who buy car-theft insurance are reluctant to install car anti-theft devices.",
+      "People who buy property insurance are reluctant to spend money to strengthen door locks.",
+      "People who purchase health insurance visit hospitals more often than before."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_116",
+    "context": "Urban Agglomeration: refers to the accumulation of a considerable number of cities of different natures, types and scales within a specific area, with one or two megacities as the center. Depending on certain natural environments and traffic conditions, the inner links between cities are constantly strengthening to form a relatively complete city \"collection\".",
+    "query": "According to the above definition, which of the following belongs to Urban Agglomeration?",
+    "options": [
+      "Zhejiang Province.",
+      "Six cities and one province in East China.",
+      "Yangtze River Delta Economic Zone.",
+      "Hong Kong, Macao and Taiwan."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_117",
+    "context": "Doppler Effect: refers to the phenomenon that the observer feels that the frequency changes when the wave source and the observer move relative to each other. When the wave moves from the wave source to the observer, the receiving frequency becomes higher, and when the wave source moves away from the observer, the receiving frequency becomes lower.",
+    "query": "According to the above definition, which of the following phenomena does not belong to the Doppler Effect?",
+    "options": [
+      "Experienced soldiers can judge whether the flying cannonball is approaching or distant from the sound of the cannonball flight.",
+      "The speed of motion of distant celestial bodies relative to the earth can be determined by the frequency of light waves emitted by distant celestial bodies received from the earth.",
+      "A monitor equipped with a speedometer transmits ultrasonic waves of a known frequency to the moving vehicle, and at the same time measures the frequency of the reflected wave, and the speed of the vehicle can be known according to the frequency change of the reflected wave.",
+      "The alcohol detector is used to detect whether the driver drinks alcohol. When the alcohol concentration in the driver's mouth is too high, the diffusion speed is faster, and the light wave emitted by the detector can be detected."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_118",
+    "context": "Compensatory wage gap: refers to the wage difference caused by the non-monetary characteristics of different jobs.",
+    "query": "According to the definition above, which of the following options has nothing to do with compensatory wages?",
+    "options": [
+      "The annual income of a city's power system meter reader is higher than the city's per capita salary. The high salary is used to compensate for their physical and mental labor consumed during the work process.",
+      "Coal workers receive higher wages than other workers with similar education levels. High wages are used to compensate for the dullness and danger of coal mining and the long-term health problems faced by coal workers.",
+      "Professor's salary is lower than lawyers and doctors who have about the same education time, and low salary can be compensated by academic and personal satisfaction brought by work.",
+      "Night workers in factories pay more than workers in the day shift. High wages are used to compensate for the adverse health effects of having to work at night and sleeping during the day."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_119",
+    "context": "Insurance Company X is considering issuing a new policy to provide the services needed by the elderly who suffer from geriatric diseases. The insurance premium must be low enough to attract customers. Therefore, company X will consider that the income from the policy is not enough to cover the claims that will arise.",
+    "query": "Which of the following strategies is most likely to minimize Company X's losses on the policy?",
+    "options": [
+      "Attract middle-aged customers who will not be able to claim to benefit from the policy for future years.",
+      "Provide insurance only to individuals who are wealthy enough to pay for medical services.",
+      "Provide more services in this policy than in other lower-cost policies.",
+      "Provide insurance only to individuals who have been rejected by other insurance companies in similar insurance programs."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_120",
+    "context": "Salesperson: \"The picture tube is the core component of any TV. The TV brand P and the TV brand T use picture tube of same quality. But the price of P is lower. So when you buy TV brand P, not brand T, you pay a lower price for a TV with the same image quality. \".",
+    "query": "Which of the following, if correct, will best support the salesperson's conclusion.",
+    "options": [
+      "The image quality of television is determined solely by the quality of its picture tube.",
+      "P TV and T TV are assembled in the same factory.",
+      "The salesperson makes less money from selling P than T TVs.",
+      "P sell more than T TVs every day."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_121",
+    "context": "It is known that there are 6 balls, 3 wooden balls, and 3 leather balls. Among them, 5 balls are stained with red pigment, and 4 balls are stained with blue pigment.",
+    "query": "Which of the following statements is possibly correct?",
+    "options": [
+      "Two balls are stained with blue pigment but neither is stained with red pigment.",
+      "Three wooden balls stained with red pigment are not stained with blue pigment.",
+      "Two wooden balls are stained with red but not with blue.",
+      "Only one of the three wooden balls stained with blue pigment is stained with red pigment."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_122",
+    "context": "A large amount of carbon dioxide released into the atmosphere by burning fossil fuels now does not actually cause a greenhouse effect--that is, an increase in global average temperature. Because if the supply of carbon dioxide rises, plants will consume the gas more, so they will grow taller and lusher, so the concentration of carbon dioxide in the atmosphere will eventually remain stable.",
+    "query": "Which of the following items, if correct, will most seriously weaken the conclusion that a large amount of carbon dioxide currently released into the atmosphere will not cause the greenhouse effect.",
+    "options": [
+      "When the concentration of carbon dioxide in the atmosphere rises, seawater absorbs more carbon dioxide.",
+      "Methane is produced when plants rot, which is another gas that can cause a significant greenhouse effect.",
+      "From the beginning of the Industrial Revolution, the rise in carbon dioxide concentrations in the atmosphere has led to increased agricultural productivity.",
+      "The fact that carbon dioxide content has risen or fallen many times in the history of the earth suggests that there are some biological effects that can reverse the greenhouse effect."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_123",
+    "context": "It is a feeling to like a person; it is a fact to dislike a person. The facts are easy to explain, but the feeling is indescribable.",
+    "query": "which of the following can we infer from this passage?",
+    "options": [
+      "Like or dislike a person is unclear.",
+      "Like or dislike a person is irrational.",
+      "There is no reason to dislike someone.",
+      "Like a person is not clear why."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_124",
+    "context": "Protein medicines, such as insulin, must still be implemented through a cumbersome subcutaneous injection procedure. If protein medicines are taken orally, they will be digested without reaching the target cells. However, some non-protein medicines contain chemical bonds that are not broken down by the digestive system.",
+    "query": "The above discussion most strongly supports the assertion that users of protein drugs will benefit if which of the following research objectives is successfully achieved.",
+    "options": [
+      "Permanently remove substances that digest protein in the digestive system.",
+      "Determine how long it takes for each non-protein drug to reach its target cell.",
+      "Encapsulating insulin is a mixture that can be broken down by target cells, but its chemical bonds will not be digested.",
+      "A systematic method to determine which enzymes and bacteria are present in the normal digestive system."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_125",
+    "context": "The ancient Greek playwright Euripides did not adhere to the rules of stylistic structure in his late writings as he did earlier. A recently discovered play by Euripides, in which the verses are as strict as his earlier plays, so the script must have been written by Euripides in the early days.",
+    "query": "Which of the following is the assumption made above? ?",
+    "options": [
+      "Ancient playwrights tend to be more reluctant to break certain stereotypes in their later stages than in their early stages.",
+      "Euripides did not write any script that mimicked the style of his earlier works late in his career.",
+      "With the development of creation, Euripides is increasingly free from the conventions of its poetic structure.",
+      "Late in his creative career, Euripides was the only playwright of his time struggling to break the rules of poetry."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_126",
+    "context": "An animal protection group in Country M is working to change the long-held perception of bats as a horrifying animal. The group argues that bats are scary and disturbing because they avoid people just because they see people, and they only operate at night.",
+    "query": "Which of the following, if true, would most seriously challenge the accuracy of the organization's arguments? ?",
+    "options": [
+      "Bats have gradually lost their natural habitats, such as caves and hollow trees, so they have gradually moved to more populated areas to find habitats.",
+      "People know more about the behavior of other very scary animals like lions, alligators and snakes than they do of bats.",
+      "Bats are also considered a scary animal in areas other than country M.",
+      "Raccoons and owls also avoid people when they see people, and they only work at night, but generally, they are not scary and disturbing."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_127",
+    "context": "Hard news is news that affects the national economy, people's livelihood and people's vital interests, including major party and state guidelines, policy formulation and changes, market conditions, disease epidemics, weather changes, major disasters, etc. Hard news provides the basis for people's political, economic, work and daily life decisions.",
+    "query": "According to the above definition, which of the following is not hard news?",
+    "options": [
+      "China's relief supplies worth more than 56 million yuan aid Thailand through Shanghai Port.",
+      "Postgraduate students from Peking University return to their hometown in rural areas to build \"Liren\" library to promote educational reform.",
+      "Shanghai has an increase of 180,000 newborns each in the next two years, which is the highest birth rate in ten years.",
+      "\"God Eight\" dream-chasing, China implements the first space docking."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_128",
+    "context": "The magnitude of the earthquake in Mecca is a unit of measurement that measures the impact of an earthquake on a particular location, and is judged by the macroscopic phenomena such as the degree of damage to ground buildings during the earthquake, changes in terrain and landforms, and human perception. The intensity is from 1 to 12 degrees from not felt to full damage, and damage will be caused by 5 degrees or more. The intensity will vary depending on the observation site.",
+    "query": "According to the above definition, which of the following is wrong with the following statement?",
+    "options": [
+      "The magnitude of the earthquake nearer to the source will definitely increase.",
+      "Macquarie earthquake intensity is not the absolute intensity of the earthquake.",
+      "The magnitude of the earthquake in Mecca is related to various conditions in the earthquake area.",
+      "The magnitude of the earthquake in Mecca is a scale indicating the degree of earthquake damage."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_129",
+    "context": "The so-called \"homogeneous competition\" refers to the phenomenon in which products of different brands in the same product category imitate each other in terms of performance, appearance and even marketing methods, so as to gradually converge. Homogenization competition is not conducive to consumers to identify product characteristics. If it is a well-known brand It is still competitive. If it is a generic brand, it will inevitably have a brutal price war. The market prospect is not optimistic.",
+    "query": "According to the above definition, which of the following is homogeneous competitions?",
+    "options": [
+      "Publishing House follows the trend and publishes novels.",
+      "Green organic planting in the countryside.",
+      "Using the Internet for publicity.",
+      "False advertisements in the health products industry."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_130",
+    "context": "\"Trojan\" program is currently a relatively popular virus file. Unlike ordinary viruses, it does not reproduce itself and does not \"intentionally\" infect other files. It entices users to download and execute by disguising themselves as normal files. The trojan opens the portal of the seed computer so that the seed owner can destroy it arbitrarily, steal files from the seed computer, and even remotely control the seed computer.",
+    "query": "According to the above definitions, which of the following are main hazards caused by \"trojan\" programs?",
+    "options": [
+      "Corrupt System Files.",
+      "Reduce running speed.",
+      "Stealing user privacy.",
+      "Disguising normal files."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_131",
+    "context": "The word \"totem\" comes from the Indian word \"totem\", meaning \"its relative\", \"its mark\". In the primitive beliefs, the people of this clan are believed to have originated from a specific species, that is, they are related to a certain animal Or natural objects have kinship. Therefore, the totem belief has relationship with ancestor worship. The second meaning of \"totem\" is \"sign\". The totem sign played an important role in primitive society, it was the earliest social organization sign And symbol, with unity groups, close blood relations, maintaining social organization and distinguishing functions.",
+    "query": "According to the above definition, which of the following is not a totem phenomenon below?",
+    "options": [
+      "The Mongolians regard \"Cangtian\" as the eternal supreme god, and \"Genghis Khan\" means \"Lai Cangtian's strength and sweat\".",
+      "In the legend of the Dai people, their first grandmother mated with a large flower snake, breeding and forming the Dai people.",
+      "A bird pole is erected at the entrance of each village of the ancient Korean people as a symbol of the clan.",
+      "The Oroqen tribe calls the male bear \"Yaya\", meaning grandfather, and the female bear \"Taitie\", meaning grandmother."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_132",
+    "context": "There are four blood types: A. B, O, and AB. People with the same blood type can transfuse each other. Only people with type O blood can be transfused to any type of blood, but they can only receive type O blood, but not the other three. Blood type blood, only people with type AB blood can accept blood of any one type, but can only be lost to people with blood type AB, and the other three types of blood cannot accept type AB blood. Zhao is known as type A blood Qian can't accept Zhao's blood, nor can he transfusion to Zhao. Sun can accept Zhao's blood, but can't transfusion to Zhao, Li can't accept Zhao's blood, but can transfusion to Zhao.",
+    "query": "Based on the above conditions, determine the blood types of Qian, Sun and Li?",
+    "options": [
+      "Qian A. Sun B, Li O.",
+      "Qian B, Sun O, Li AB.",
+      "Qian AB, Sun O, Li B.",
+      "Qian B, Sun AB, Li O."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_133",
+    "context": "Now most of the disposable plastic cans are labeled with the type or quality of the plastic (from 1 to 9). The plastic with the lowest number is the easiest to be recycled by the recycling factory. Plastic is rarely recycled. As a result, consumers can significantly reduce non-recyclable waste in the long run by refusing to buy products that are packaged in the highest numbered plastic products.",
+    "query": "Which of the following items, if correct, can most seriously weaken the above conclusions.",
+    "options": [
+      "Currently, the cost of collecting, sorting, and recycling discarded plastic waste is higher than new plastic products made from raw materials.",
+      "Many consumers don't notice the numbers printed on plastic containers.",
+      "After recycling of plastic containers, the number is almost always on the rise, because recycling will reduce the quality of plastic products.",
+      "Communities that collect all discarded plastic containers for recycling in the future only dump higher-numbered plastics into garbage dumps when there is clearly no recycler to recycle them."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_134",
+    "context": "After the computer results of a class were announced, Class A said: Some of our class passed, Class B said: Some class failed, Class C said: Zhang Ming did not pass, but in fact two of the three students What my classmates say is not true.",
+    "query": "Which of the following items are the real situation of the computer test results of this class.",
+    "options": [
+      "At least one classmate failed the exam.",
+      "Except Zhang Ming, there are other students who passed the exam.",
+      "None of the students in this class failed the exam.",
+      "Only one student in this class failed the exam."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_135",
+    "context": "People who regularly participate in boxing are generally healthier than those who do not, so participating in sports can help improve health.",
+    "query": "If the following items are true, they will most likely question the above conclusions.",
+    "options": [
+      "Only healthy people can participate in boxing.",
+      "Boxing can train people's responsiveness and increase their acuity.",
+      "Every year, a small number of people are injured in boxing due to accidents.",
+      "Men love boxing more than women."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_136",
+    "context": "Skillful technology or sufficient time (more than one month) is a necessary condition for completing a craft. Xiao Zhou completed a craft in only 25 days, indicating that Xiao Zhou has mastered the skill.",
+    "query": "Which of the following? Term reasoning methods are most similar to the stem.",
+    "options": [
+      "A product must be sold well in the market, high quality and sufficient publicity and advertising are necessary. There is a fan, experts appraise that the quality is high, but the sales are not good, indicating that its publicity and advertising are not enough.",
+      "Low wages and poor financial management, the family economy is bound to be tight. Xiao Zhao's wages are not high, but the economy is affluent every month, indicating that Xiao Zhao is good at financial management.",
+      "Either exceptional performance this year, or the company's 30 years of service, can receive this year's special allowance. Mr. Huang received this year's special allowance, but he has only served in the company for 10 years, indicating that Mr. Huang's exceptional performance this year.",
+      "An offender must have both motive and time for committing a crime. In a case, Mr. Li has the motive for the crime, but has no time for the crime, indicating that Mr. Li is not the perpetrator of the case."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_137",
+    "context": "Demonstration: When making economic decisions, people tend to consider environmental factors less or not, such as cost-benefit analysis of air and water cleanliness, extinction of endangered species, etc. Environmental economists believe that people need to consider environmental factors more It is necessary to give environmental factors a certain economic value. However, the economic value itself comes from the cost-benefit analysis made by people when they make economic decisions. Conclusion: There is a contradiction between the basic research goals of environmental economics and their research methods.",
+    "query": "Assuming the above argument is correct, how strong does the argument support the conclusion?",
+    "options": [
+      "Strong, it is impossible to give a certain economic value to environmental factors, unless people consider environmental factors when making economic decisions.",
+      "Strong, unless economic decisions have no de facto effect on things affected by environmental factors.",
+      "Weak at best because the above paragraph does not prove that economic decision makers generally do not consider environmental factors.",
+      "At best it is weak because the above discussion assumes that pollution and other environmental impacts rarely result from economic decisions."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_138",
+    "context": "Although the detection system X and the detection system Y are based on different principles, they can detect all product defects, and they will erroneously eliminate 3% of non-defective products. Due to the high cost of erroneous elimination, two sets are installed at the same time. System and save money by simply eliminating products that both systems consider defective.",
+    "query": "The above discussion needs to be based on the following hypothesis.",
+    "options": [
+      "The loss caused by accepting a defective product is greater than the loss caused by eliminating a flawless product.",
+      "Regardless of which system is used, the second test only needs to test the products that have not been eliminated for the first time.",
+      "Among products in the same price range, System X and System Y are the least error detection systems on the market.",
+      "The 3% defect-free product incorrectly eliminated by System X is not identical to the 3% defect-free product incorrectly eliminated by System Y."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_139",
+    "context": "Human assets refer to labor resources that are owned or controlled by a company for a certain period of time and can be measured in currency to bring future economic benefits to the enterprise. It is formed by capitalizing the investment of labor resources, that is, human assets are recruited by the company The cost of selecting, hiring, training, and developing enterprise assets recognized in accordance with asset metrics.",
+    "query": "According to the above definition, which of the following is not a human asset below?",
+    "options": [
+      "Excellent management talent.",
+      "Innovative R & D team.",
+      "Hardworking production workers.",
+      "Efficient personnel system."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_140",
+    "context": "The shadow price is a price calculated by the linear rule method that reflects the optimal use of resources. Calculus is used to describe the shadow price of the resource, that is, when the resource increases by a quantity to obtain a new maximum value of the objective function, the maximum value of the objective function increases The ratio of the quantity to the increment of the resource is the first-order partial derivative of the objective function on the constraints (that is, the resource). When the optimal use of resources is solved by the linear programming method, that is, the process of how to maximize the total output of limited resources The corresponding minimum value is obtained, and its solution is the dual solution. The minimum value is used as an economic evaluation of resources and is expressed as a shadow price.",
+    "query": "According to the above definition, which of the following is the shadow price?",
+    "options": [
+      "A mathematical concept.",
+      "A philosophical concept.",
+      "A management concept.",
+      "A statistical concept."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_141",
+    "context": "Many animal remains have been found in caves that have the remains of Pleistocene primates (some people think of it as human ancestors). From the frequency of various bones, many animals have died elsewhere, only some parts of the body Part of it was brought back to the cave. So, with so many prey, Pleistocene primates must be good at hunting.",
+    "query": "Which of the following items, if correct, weaken the above conclusions most severely.",
+    "options": [
+      "The imprints on all bones, including the bones of the Pleistocene primate, are the fingerprints of a large carnivore of that era.",
+      "The bones in the cave do not include the bones of an elephant-like animal of the same period as the Pleistocene primate.",
+      "No evidence of fire in cave where animal bones were found.",
+      "Pleistocene primates sometimes move between caves in search of shelter, they don't just stay in one cave all their lives."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_142",
+    "context": "A and B walk from the library to the classroom at the same time. A walks halfway and runs halfway. B walks halfway and runs halfway. If both walk, the speed is the same.",
+    "query": "then?",
+    "options": [
+      "A arrives in the classroom first.",
+      "B arrives in the classroom first.",
+      "A and B arrive at the classroom at the same time.",
+      "Unable to judge."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_143",
+    "context": "Skillful technology or sufficient time (more than one month) is a necessary condition to complete a craft. Xiao Zhou completed a craft in only 25 days, indicating that Xiao Zhou has mastered the skill.",
+    "query": "Which of the following? Term reasoning methods are most similar to the stem.",
+    "options": [
+      "A product must be sold well in the market, high quality and sufficient publicity and advertising are necessary. There is a fan, experts appraise that the quality is high, but the sales are not good, indicating that its publicity and advertising are not enough.",
+      "Low wages and poor financial management, the family economy is bound to be tight. Xiao Zhao's wages are not high, but the economy is affluent every month, indicating that Xiao Zhao is good at financial management.",
+      "Either exceptional performance this year, or the company's 30 years of service, can receive this year's special allowance. Mr. Huang received this year's special allowance, but he has only served in the company for 10 years, indicating that Mr. Huang's exceptional performance this year.",
+      "An offender must have both motive and time for committing a crime. In a case, Mr. Li has the motive for the crime, but has no time for the crime, indicating that Mr. Li is not the perpetrator of the case."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_144",
+    "context": "To strengthen the construction of socialist material civilization, we must vigorously develop socialist productive forces. Only by further reforming the production relations that restrict the development of productive forces can we vigorously develop socialist productive forces. Without establishing a firm consciousness on the path of reform, it is impossible to go Reform the production relations that restrict the development of productive forces.",
+    "query": "Which of the following () items can be deduced from the stem.",
+    "options": [
+      "To strengthen the construction of socialist material civilization, we must establish a firm sense of reform.",
+      "People who advocate strengthening the construction of socialist material civilization cannot agree not to take the road of reform.",
+      "Once a firm consciousness on the path of reform is established, the construction of socialist material civilization can be strengthened.",
+      "To develop socialist productive forces, it is not necessary to follow the path of reform."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_145",
+    "context": "Recourse to authority refers to the logical fallacy of the argument without analysing quotes from authoritative persons as a sufficient argument for the validity of the argument.",
+    "query": "Which of the following () statement contains the error of \"recourse to authority\".",
+    "options": [
+      "For well-known scientists, the government and society always give them various titles, reputations and various favorable treatments.",
+      "A principal said: \"The logic of boys and girls is different, a well-known professor has always said so\".",
+      "Xiao Wang wants to apply for a doctoral candidate in the direction of ancient Chinese literature. Professor Zhang, a famous expert in ancient Chinese literature, wrote a letter of recommendation for him.",
+      "As an authority in the field of nuclear physics, Researcher Wang, the representative of the National People's Congress, accepted an interview on food safety. In the interview, he repeatedly emphasized that his opinions on food safety are merely personal opinions."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_146",
+    "context": "A research team at Cellera Genomics reported in the journal Science that comparing mouse chromosomes with human chromosomes, they found that they have 95% similarity in terms of genes, gene content, and DNA sequence, so There is not much difference between mice and humans.",
+    "query": "The assumption on which the above conclusion relies is ().",
+    "options": [
+      "Completed mapping of animal genetic maps is often very inaccurate.",
+      "From the perspective of intelligence and emotion, there are huge differences between mice and humans.",
+      "Rats have little intelligence and can be ignored when compared with humans.",
+      "The main criterion for judging the difference between species is the genetic similarity of the species."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_147",
+    "context": "The teachers in a middle school are very caring. Some teachers who often volunteer for blood donation make up lessons for students with learning difficulties free of charge. All teachers who subsidize poor students form difficult pairs with needy families, but all teachers who make up lessons for difficult students for free None of them formed difficult pairs with difficult families.",
+    "query": "Based on the above premise, Which of the following () must be true.",
+    "options": [
+      "Some teachers who sponsored poor students did not volunteer blood donations.",
+      "Some teachers who often volunteer blood don't fund poor students.",
+      "Some teachers who finance poor students often volunteer blood donations.",
+      "Some teachers who often volunteer for blood donation help with difficult families."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_148",
+    "context": "A is a necessary condition for B, C is a sufficient condition for B but not a necessary condition for B.",
+    "query": "Then ().",
+    "options": [
+      "C is a sufficient condition for A but not a necessary condition for A.",
+      "C is a necessary condition but not a sufficient condition for A.",
+      "C is a necessary and sufficient condition for A.",
+      "C is neither a sufficient condition nor a necessary condition for A."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_149",
+    "context": "It is generally believed that the thinking of scientists is based on strict logical reasoning, rather than image thinking. But research shows that Nobel Prize winners use image thinking more than ordinary scientists because image thinking Make a major scientific breakthrough.",
+    "query": "The above conclusion is based on the following () assumptions.",
+    "options": [
+      "Methodical, stepwise reasoning is essential for general scientific research.",
+      "Nobel laureates have the ability to think creatively with visual thinking.",
+      "Nobel Laureate Makes Major Scientific Breakthrough.",
+      "Nobel Laureate is smarter and harder than average scientist."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_150",
+    "context": "Once consumers realize that inflation has begun, they will generally increase their consumption, and this increase is easily explained by the phenomenon that consumers hope that they will not delay the purchase of products that will definitely increase their prices, although consumers expect that prices will continue to rise Wages will also rise, but consumers will eventually postpone purchases of even daily necessities during long-term inflation.",
+    "query": "Which of the following () items, if correct, can best explain the apparent inconsistencies in consumer behavior described above.",
+    "options": [
+      "Consumers save more during inflation than during non-inflation.",
+      "There is usually a lag between when economic indicators signal that inflation has begun and consumers realize that inflation has begun.",
+      "If a large number of consumers cannot buy the goods, prices will eventually fall, but wages will not be affected.",
+      "Because the increase in wages cannot keep up with the rise in prices, consumer purchasing power has declined during the long-term inflation stage."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_151",
+    "context": "After graduating from high school, people rarely do math problems or talk about history, but people face daily decisions related to the family economy. However, when mathematics and history are compulsory in the high school curriculum, family economics is only an elective Class, and very few students take this course.",
+    "query": "Which of the following points () are best supported by the above discussion.",
+    "options": [
+      "Unless high school focuses more on non-professional subjects like family economics, people who graduate from high school will never easily make decisions in daily life.",
+      "Although family economics is the most useful discipline for people who have to make decisions in their daily lives, usually mathematics and history can also help people make these decisions.",
+      "Mathematics, history and other subjects that are not directly related to one's daily life should not be a required part of the high school curriculum.",
+      "If it is important to teach high school students about disciplines that they will face later in everyday life, then home economics should be an important part of the high school curriculum."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_152",
+    "context": "A certain meeting invited Zhang, Wang, Li, Zhao, Sun, and Zhou from a certain unit. However, due to work arrangements, six people cannot go at the same time. Among them: Zhang and Zhao Only one person can participate in the meeting; Li and Zhao can only have one person to participate in the meeting; at least one of Zhang and Wang can participate in the meeting; two of three are Zhang, Sun and Zhou. Attend the meeting; both Wang and Li either attend the meeting or neither; if Zhao does not attend the meeting, then Sun does not attend the meeting.",
+    "query": "According to this arrangement, the last person who did not attend the meeting may be ().",
+    "options": [
+      "Zhang and Wang.",
+      "Wang and Li.",
+      "Lee and Zhao.",
+      "Zhao and Sun."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_153",
+    "context": "A. B, and C sell their products. One of these three products is a counterfeit product, and the other two are genuine products. A said, \"My product is a genuine product, and B's product is a counterfeit product. \" B said: \"My product is genuine, C's product is a counterfeit product\"; C said: \"B's product is a genuine product, and A's product is a counterfeit product. \" It is known that one of the three persons A. B, and C has two sentences. It is true that one sentence is true, one sentence is false, and one sentence is false.",
+    "query": "Well, the counterfeit products are ().",
+    "options": [
+      "A.",
+      "B.",
+      "C.",
+      "Unsure."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_154",
+    "context": "Archaeology is a science that studies how to find and acquire the physical relics of ancient human society, and how to study the history of human society based on these relics. In other words, archaeology is a science subject based on the discovery of science and the study of history through objects.",
+    "query": "According to the above definition, which of the following is archaeology?",
+    "options": [
+      "Author of ancient books.",
+      "Identification of the authenticity of ancient paintings at auction.",
+      "Estimating the value of the exhibits.",
+      "Research on the age of agricultural tools unearthed."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_155",
+    "context": "Action thinking is also known as \"intuitive action thinking\". Its basic feature is that thinking and action are inseparable. You cannot think without action. The task or topic of action thinking is related to the current directly perceived object. The way of thinking about solving problems is not According to appearance and concept, but based on current perception and actual operation.",
+    "query": "According to the above definitions, which of the following is not thinking of action?",
+    "options": [
+      "Toddlers fiddle with objects for calculations.",
+      "A student rides a bicycle home.",
+      "Gorilla stacking wooden boxes to get high things.",
+      "An architect draws design drawings on the computer."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_156",
+    "context": "Geo-cultural culture is a social science that explores the cultural characteristics and development laws of geographical areas from local geography, environmental relationships and the social, cultural differences and causes associated with them.",
+    "query": "According to the above definitions, which of the following is geophysical research objects?",
+    "options": [
+      "Huishang phenomenon.",
+      "The development process of an agricultural landscape in a certain place.",
+      "Urban house price skyrocketing.",
+      "Entrepreneurship of college students in a city."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_157",
+    "context": "Opinion leaders are active people who often provide information to others in the interpersonal communication network and exert influence on others. They play an important intermediary or transition role in the formation of the effect of mass communication. To form a two-level spread of information.",
+    "query": "Based on the above definition, is the following statement correct?",
+    "options": [
+      "Wide range of opinion leaders.",
+      "Opinion leaders are usually authority figures.",
+      "Opinion leaders are democratic recommendations.",
+      "Independent opinion interviews by opinion leaders."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_158",
+    "context": "Natural breath refers to the fruits and animals produced in accordance with the natural growth law of matter, and is part of the original before separation from the original. Natural breath is obtained by the owner; both the owner and the beneficial owner If it is obtained by the usufructuary, if the parties agree otherwise, the agreement shall be followed.",
+    "query": "According to the above definition, which of the following is the following natural breath?",
+    "options": [
+      "Xiao Shen's mobile phone picked up on the subway.",
+      "Antiques dug out of Uncle Chen's old house.",
+      "Peaches from peach trees in Changfeng Park.",
+      "Aunt Zhang's cat to the neighbor Aunt Wang."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_159",
+    "context": "Papers involving national military, political or economic secrets are not part of a public dissertation.",
+    "query": "If the above assertion is true, Which of the following items must also be true.",
+    "options": [
+      "Papers that do not involve national military, political or economic secrets cannot be made public.",
+      "Non-public dissertations are all about national military, political or economic secrets.",
+      "Some papers involving national military, political or economic secrets can be made public.",
+      "None of the public dissertations are those involving national military, political, or economic secrets."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_160",
+    "context": "Paradox refers to making two mutually negative determinations of the same subject against the same object in the same thinking or debate process.",
+    "query": "Which of the following?",
+    "options": [
+      "At the beginning of reading \"Liao Zhai Zhi Yi\", Xiao Li thought that all the ghosts were blue-faced fangs, but after reading the complete book, he said that not all ghosts were blue-faced fangs.",
+      "Mr. Fang said when introducing the classification of organisms, \"Eyeworms have both animal and plant characteristics. \".",
+      "Introducing the situation of animals in Antarctica, Mr. Wang said, \"Although there are few species of birds in the Antarctic coast, there are many birds. \".",
+      "After Manager Zhang spoke, Lao Chen said, \"I basically completely agree with Manager Zhang\"."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_161",
+    "context": "A research team at Celera Genomics reported in the journal Science that comparing mouse chromosomes with human chromosomes, they found that they have 95% similarity in terms of genes, gene content, and DNA sequence. There is not much difference between mice and humans.",
+    "query": "What assumption does the above conclusion rely on?",
+    "options": [
+      "The genetic maps of animals that have been drawn are often inaccurate.",
+      "From the perspective of intelligence and emotion, there are huge differences between mice and humans.",
+      "The main criterion for judging the difference between substances is the genetic similarity of the species.",
+      "Rats have little intelligence and can be ignored when compared with humans."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_162",
+    "context": "The population of City A has maintained a negative growth for a long time. According to education experts, due to the declining number of school-age children, the number of primary and junior high school students in City A will be less and less.",
+    "query": "Which of the following items, if correct, would be the strongest indication that the educational experts' inferences are flawed.",
+    "options": [
+      "Due to various reasons, there is no effective statistics on the phenomenon of individual unmarried or illegal childbirth.",
+      "With the sharp increase in migrant workers, their children will be studying in elementary and junior high schools in city A nearby.",
+      "Due to the implementation of withdrawal sites and schools and the uneven distribution of educational resources, the number of primary and junior high schools in City A has increased significantly in recent years.",
+      "The reduction in the number of students in schools will make small-class teaching truly a reality, which will help improve the quality of education."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_163",
+    "context": "The three persons A. B, and C sell their products. One of the three products is a counterfeit product, and the other two are genuine products. A said: \"My product is a genuine product, B's product is a counterfeit product\"; B said: \"My product It's a genuine product, and C's product is a counterfeit product \"; C said,\" B's product is a genuine product, and A's is a counterfeit product. \"It is known that one of the three persons A. B, and C is true, one One bit is true, one is false, and one is both false.",
+    "query": "So who is selling counterfeit goods?",
+    "options": [
+      "A.",
+      "B.",
+      "C.",
+      "Unsure."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_164",
+    "context": "The teachers in middle school are very caring. Some teachers who often volunteer for blood donation make up lessons for students with learning difficulties for free. Every teacher who subsidizes poor students has formed difficult pairs with families with difficulties, but all those who make up for less None of the teachers had difficulties in pairing families.",
+    "query": "Based on the above premise, Which of the following items must be true.",
+    "options": [
+      "Some teachers who often volunteer blood don't support poor students.",
+      "Some teachers who sponsored poor students did not volunteer blood donations.",
+      "Some teachers who sponsor poor students often donate blood.",
+      "Some teachers who often volunteer for blood donation help with difficult families."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_165",
+    "context": "Carbon footprint refers to the collection of greenhouse gas emissions caused by corporate organizations, activities, products or individuals, and it indicates the carbon consumption crown of a person or group. Carbon is natural resources composed of carbon elements such as oil, coal, and wood. Carbon consumes much more, and carbon dioxide, the culprit that causes global warming, is also produced, and the carbon footprint is large, otherwise, the carbon footprint is small.",
+    "query": "Based on the above definitions, Which of the following actions may not necessarily reduce personal carbon footprint:.",
+    "options": [
+      "Go to bed early and get up early to exercise.",
+      "Advocating for no pets.",
+      "Eat more vegetables and less meat.",
+      "Choosing buses to reduce self-driving."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_166",
+    "context": "Cultural change refers to a change in the culture of an ethnic group due to the development of an ethnic society or due to contact between different ethnic groups. New things are added due to invention or borrowing, resulting in the loss of old things. It is a cultural change; Due to changes in the ecological environment and social life, some cultural factors automatically disappear in the absence of substitutes, which is also a cultural change.",
+    "query": "According to the above definition, Which of the following are not cultural changes: ____.",
+    "options": [
+      "Pompeii Champaign with splendid charisma disappeared in the eruption of Mount Vesuvius.",
+      "The ancient Maya and Mayan culture died together in the long river of history.",
+      "With the colonization and development of Britain, English became the official language of many Asian countries.",
+      "London's taxi carriages have gradually withdrawn from the stage of history due to the advent of cars."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_167",
+    "context": "The concept of stealing refers to the logical error caused by consciously or unconsciously violating the logical requirements of the same law in the course of thinking and debate, replacing one different concept with another.",
+    "query": "According to the above definition, Which of the following are the concepts of stealing:.",
+    "options": [
+      "I haven't asked about this matter, just understand the situation from the side, and give some opinions for reference only.",
+      "If Zhang Da is defined as the wife's lover, then the wife is the husband's lover.",
+      "In order to accelerate China's development, the aerospace industry must be vigorously developed, because, in developed countries, the aerospace industry is developing rapidly.",
+      "A western reporter asked: \"In your China, why is the road taken by people clear?\" Zhou Enlai replied: \"We are following the Marxist road. For short, the road. \"."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_168",
+    "context": "Declarative knowledge is knowledge about \"which of the following is the world\". It can be directly stated. The required psychological process is mainly memory. Procedural knowledge is knowledge about \"how to do\". It cannot be stated directly. It can only be inferred by a certain form of assignment. It exists.",
+    "query": "According to the above definition, Which of the following classification is correct.",
+    "options": [
+      "’Repairing bicycles is declarative knowledge, and‘ music appreciation ’requires procedural knowledge.",
+      "\"The capital of the United States is Washington\" is declarative knowledge, ‘addition and subtraction’ requires procedural knowledge.",
+      "\"Boiling at 100 ° C with water\" is declarative knowledge, \"the molecular formula of water is H, O\" is procedural knowledge.",
+      "\"riding archery\" is declarative knowledge, \"red light stop. Green light line\" is procedural knowledge."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_169",
+    "context": "Soft science is an emerging comprehensive science that comprehensively uses the theories and methods of natural sciences, social sciences, and mathematics and philosophy to solve various complex social problems brought about by the development of modern science and technology. It studies economics, science, technology, and management. The internal links between social links such as education and their development laws provide optimized solutions and decisions for their development.",
+    "query": "According to the above definitions, Which of the following are not soft sciences: _____.",
+    "options": [
+      "Psychology.",
+      "Management.",
+      "Forecasting.",
+      "Decision Science."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_170",
+    "context": "The abduction method refers to not directly negating a wrong topic, but first assuming its truth, and then deriving the absurd result from it, and the absurdity of the reduced topic is derived from the absurdity of the result, thereby directly negating the argument method of the wrong topic.",
+    "query": "Based on the above definitions, Which of the following are not a fallacy.",
+    "options": [
+      "When there was a patient, the nurse in the hospital said, \"Please arrange me in a third-class ward. I am poor. \" \"Can no one help you?\" No, I mean there is an older sister, she is a nun, and very \"Poor. \" The nurse said angrily and said, \"The nun is very rich because she is married to God. \" \"Okay, you can arrange me in a first-class ward, and then send the bill to my brother-in-law. \".",
+      "A explains to B: \"I play elegant pop music. \" B asks: \"Is the popular music elegant?\" A was surprised when he heard: ‘How can something not elegant be popular? \"Yi said with a smile:\" So, is the flu cold elegant? \".",
+      "Someone is firmly opposed to killing. He advises people: \"If you kill a pig while you are alive, you will become a pig in the next life; if you kill a cow in the world, you will become a cow in the next life. \" The audience said, \"It's better to kill. \".",
+      "Once, a British female journalist read the work of Qian Zhongshu, a literary master, and admired Qian Zhongshu very much. She had to see him. On the phone, Qian Zhongshu said to the lady, \"If you eat an egg, I think it tastes good enough, why bother to know the hen who laid the eggs? \"."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_171",
+    "context": "Compensation trade refers to a type of trade in which an importer purchases foreign technical equipment and certain raw materials, and agrees to use products or labor services to pay in instalments within a certain period of time.",
+    "query": "According to the above definition, Which of the following are not _.",
+    "options": [
+      "A motorcycle factory in a certain country introduced the technology of a Japanese company. The two parties agreed that the factory should pay 30% of the cost first, and then use the motorcycle manufactured in the factory to pay the remaining balance one year later.",
+      "Company A in one country purchases tomato sauce complete equipment and technical services from Company B in country S, and the two parties agree that Company A will repay the entire amount of domestic bamboo products in three years.",
+      "A power plant in a country purchases 50,000 tons of coke from a coal company in another country, and the two parties agree to provide mining equipment to the second coal company in one or two years to repay the entire payment.",
+      "Company A of a country purchases consulting services from a foreign company. Due to the tight funds of Company A. three months after the end of the projects of both parties, Company A will pay the full amount of the consulting project."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_172",
+    "context": "A passion group is a temporary, high-rate workgroup that is often formed temporarily for a challenging job.",
+    "query": "According to the above definition, Which of the following belong to the passion group is _.",
+    "options": [
+      "A creative and design community initiated by a painter.",
+      "Someone was hurt because of seeing the cause of justice. Several netizens initiated a fundraising event.",
+      "In order to complete the multi-brand strategic planning as soon as possible, an automobile company gathered several experts in the company to form a project team.",
+      "Dozens of bicycle enthusiasts form a cycling team and meet to go from Shanghai to Suzhou on their own weekend."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_173",
+    "context": "Symbiosis means that two creatures live together, depend on each other, and are mutually beneficial. 分开 If they are separated from each other, either or both of them will not be able to survive.",
+    "query": "According to the above definitions, Which of the following are symbiotic:.",
+    "options": [
+      "Amphiprion likes to swim between the tentacles of the anemone, which is protected by the anemone and can also share the food spit by the anemone.",
+      "Since the ants eat wood, the flagellates in their intestines can secrete cellulose hydrolase to help termites digest and break down the wood fibers.",
+      "Bunting birds nest around honeycombs to protect bees. Honey badgers like to eat honey and follow Ruowing birdlife.",
+      "Trichogramma lays eggs in the eggs of Ascaris lumbricoides."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_174",
+    "context": "The bullwhip effect is a phenomenon of amplification of demand variation in the supply chain. It refers to the inability to effectively share information when the information flow is passed from the final client to the original supplier. Increasing volatility.",
+    "query": "Which of the following are \"bullwhip effects\".",
+    "options": [
+      "During the bird flu epidemic in various places, retailer A heard that vinegar can prevent the flu. He saw this as a good business opportunity and hoarded a large amount of bagged vinegar for future high-priced sales.",
+      "A new product is on the market and demand exceeds supply. Retailer A temporarily increases the order quantity to wholesaler B based on the sales of the product. B orders from the commodity sales center based on the order quantity submitted by different parts vendors.",
+      "Retailer A estimates an order quantity based on last month's sales volume, in order to ensure that the order quantity is available in time. After slightly increasing the order quantity, it is submitted to wholesaler B, and B orders from a commodity sales center for the same consideration.",
+      "A commodity sales center has increased the market launch of the product according to market trends and annual sales monthly standards. More and more retailers have selected the product."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_175",
+    "context": "Environmentalists worry that the heavy use of plastic packaging will pollute the environment and try to get manufacturers to find ways to recycle plastic materials. However, despite their efforts, the recycling rate of plastic products is only 6.5%. The recycling rate of glass containers is 33%.",
+    "query": "If the following ______ items are true, they will not help explain the relatively low recovery rate of plastic products.",
+    "options": [
+      "Many factories can recycle glass, but only a few factories can use recycled plastic for production.",
+      "Many plastic products are incompatible and cannot be recycled, and most glass products are compatible.",
+      "New plastics require more oil, and new glass can use renewable resources.",
+      "The quality of products made from recycled plastic is poor, while recycled glass does not have such problems."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_176",
+    "context": "With the popularity of mobile devices, mobile phones and tablet computers (PAD) have gradually penetrated into people's lives. Many people have also changed from being inseparable from TVs to being inseparable from mobile phones and PADs. Some people believe that more use of computers It will reduce the time people have a TV. After all, time is limited, but surveys show that the increase in \"time spent on computers\" has not reduced the time spent watching TV.",
+    "query": "In order to verify the accuracy of the above findings, which of the following is the most important consideration.",
+    "options": [
+      "Whether people spend less time watching TV among people who do n’t use or rarely use computers.",
+      "Except for this part of the population who participated in the survey, are many other people saying that they often watch TV.",
+      "Among those who participated in the survey, did the type of TV programs they watch change with the use of computer time.",
+      "The so-called \"computer-use time\" of the respondent includes the time of using the computer at work."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_177",
+    "context": "The average life expectancy of a population is an important indicator of the health level of a country and region. The sixth national census showed that the average life expectancy of China's population in 2010 reached 74.83 years, while the average life expectancy of our population in the early days of the founding of our country was only about 35 years. The elderly people thought more than 60 years ago now seem to be just middle-aged people.",
+    "query": "Which of the following, if true, would most weaken this view.",
+    "options": [
+      "Since the founding of the People's Republic of China, the decline in the number of newborn babies has been the most important cause of the increase in the average life expectancy of the population.",
+      "In the early days of the founding of the People's Republic, the country was moving from war to peace, the situation in the country was still unstable, and the population was much lower than it is now.",
+      "In the early days of the founding of the People's Republic of China, the living environment was harder and people's nutritional levels were much worse than now.",
+      "With the development of medicine, the level of medical care has greatly improved compared with the early days of the founding of the People's Republic of China."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_178",
+    "context": "A neurologist said to the patient: \"The synthetic drug S that appears on the market has a good effect on insomnia, but because the long-term side effects of S are unclear, I do not recommend the use of this drug. \" Some patients countered: \" You have different words and deeds, and you have prescribed many medicines with side effects, so the real reason you refuse to use S medicine is not the side effects of the medicine. \".",
+    "query": "The patient's perspective is flawed because ___________.",
+    "options": [
+      "After using it for a while, the side effects of S medicine will naturally appear.",
+      "Known risks can be reduced by specific methods, while unknown risks cannot.",
+      "Doctors may not believe in the efficacy of S medicine instead of worrying about its side effects.",
+      "Side effects and coping strategies of synthetic and natural medicines are different."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_179",
+    "context": "Small animals suitable for experimentation must reproduce quickly and their genes should be as similar to humans as possible; some small animals reproduce fast but have few genes similar to humans; therefore, some fast-growing small animals are not suitable for experiments.",
+    "query": "Which of the following logical structures is most similar to the problem.",
+    "options": [
+      "According to relevant regulations, in order to obtain the National Poor Student Scholarship, applicants must have a poor family and excellent grades; some of the recipients of this scholarship are very poor, but their grades are not excellent; obviously, the rules for assessing the National Poor Student Scholarship have not been obtained. Strict enforcement.",
+      "To get a good box office for a movie, it must have both visibility and a successful market release; some movies with good box office are actually not highly visible; therefore, the main reason why some movies are good at the box office is Successful market launch.",
+      "To take the course \"Philosophy of Cognitive Science\", you must have completed \"Knowledge of Knowledge\" and be interested in cognitive science; although some students are interested in cognitive science, they have not taken \"knowledge\" Thesis; therefore, some students who are interested in cognitive science cannot take the course Philosophy of Cognitive Science.",
+      "Generally, computers that are not used for weekly system maintenance must be taken to a specialist store for repair after one year of use; some computers do not need to be taken to a specialist store for repair after a long period of use; therefore, some Computers undergo system maintenance every week."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_180",
+    "context": "If an official of the government environmental protection department is to speak at this private environmental protection seminar, he must be a member of a private environmental protection organization. However, the meeting stipulates that as a member of a private environmental protection organization, it is not allowed to be both a government environmental protection official and Speak at this civil environmental seminar.",
+    "query": "If the above determination is true, Which of the following ____ items are also true.",
+    "options": [
+      "Among the speakers at this seminar, there are no government environmental protection officials.",
+      "Only members of civil environmental organizations can speak at this seminar.",
+      "No one except the government's environmental protection officials spoke at this seminar.",
+      "Among the speakers at this seminar, there are no members of civil environmental groups."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_181",
+    "context": "If colleges and universities can hire a large number of graduates from first-class universities overseas, it will undoubtedly help to improve the quality of teaching and scientific research. Therefore, the employment of graduates who have obtained doctoral degrees from domestic universities will not help improve the quality of teaching and research.",
+    "query": "Which of the following ____ items, if true, will constitute the most powerful questioning of the above views.",
+    "options": [
+      "Higher education institutions cannot fully recruit graduates who have obtained PhD degrees from top overseas universities.",
+      "In many colleges and universities, a considerable number of teachers have graduated from domestic colleges and have no experience of studying abroad.",
+      "Graduates who have obtained a PhD from top overseas universities are more willing to stay overseas for employment, even after returning to China, they tend to work in foreign companies.",
+      "Graduates hired by higher education institutions to obtain doctoral degrees from top overseas universities are usually jointly trained by domestic universities and overseas universities, and they also have doctoral certificates issued by domestic universities."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_182",
+    "context": "After using various conventional advertising and promotion methods, the online sales revenue of an e-commerce company has not improved as expected. For this reason, management has heavily hired professionals to conduct market analysis. The analysis report proposed that mobile payment ( It usually refers to those who use smartphones to pay for goods or services they consume). This is the real potential customer group of e-commerce. So the management decided to cooperate with a large commercial bank to open the new mobile payment function. Publicity and promotion were carried out in China, but after one month, the effect was not satisfactory, and online sales revenue did not increase significantly.",
+    "query": "If the following _____ items are true, the above results can best be explained.",
+    "options": [
+      "As the security of transactions is questioned, the number of people who have recently opened mobile payment features has decreased.",
+      "Dry mobile payment is an emerging business, and consumers are more cautious about it.",
+      "Generally speaking, it takes a period of time for people who have newly opened mobile payment functions to make such online shopping.",
+      "Online shopping is more popular among white-collar workers, but they prefer e-commerce to provide some unique services."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_183",
+    "context": "Declarative knowledge is knowledge about \"what the world is\". It can be directly stated. The required psychological process is mainly memory. Procedural knowledge is knowledge about \"how to do\". It cannot be stated directly. It can only be inferred by some form of homework. It exists.",
+    "query": "Based on the above definition, is the following classification correct?",
+    "options": [
+      "\"Bicycle repair\" is declarative knowledge. \"Music appreciation\" requires procedural knowledge.",
+      "\"The capital of the United States is Washington\" is declarative knowledge, \"addition and subtraction\" requires procedural knowledge.",
+      "\"Water boils at 100 ° C\" is declarative knowledge, and \"the molecular formula of water is H2O\" is procedural knowledge.",
+      "\"riding archery\" is declarative knowledge, \"red light stop, green light line\" is procedural knowledge."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_184",
+    "context": "Holiday syndrome refers to symptoms such as tiredness, insomnia, etc. that appear after long holidays or holidays, so that anxiety, emptiness or anger easily make it difficult to concentrate on work. This is the result of people's physical and mental unbearably after long-term leisure Feeling unwell.",
+    "query": "Based on the above definition, which of the following is holiday syndromes?",
+    "options": [
+      "After returning from India, Li experienced new values in life and immediately quit her job.",
+      "Xiao Wang had a bad stomach during the holiday, but he didn't want to have lunch after work.",
+      "Xiao Zhang went climbing Huangshan on National Day. After work, he always felt backache and leg pain.",
+      "Xiao Zhao enjoys the Spring Festival and is always absent after work."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_185",
+    "context": "Information transfer refers to the entire process of obtaining information from the source of the information, through a certain material carrier, in a certain way, through a certain channel, and finally for the information receiver.",
+    "query": "According to the above definitions, what are not the following information transfers?",
+    "options": [
+      "The writer recorded the beautiful scenes in the dream through language.",
+      "The beautiful singing voice of the 1930s has passed through the record so far.",
+      "When the ancient war was urgent, people passed important military information through the beacon.",
+      "Deaf people communicate with others through gestures."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_186",
+    "context": "The ancestral return phenomenon refers to a less normal biological \"degeneration\" phenomenon. Existing organisms occasionally appear to inherit some of the traits of their ancestors. Therefore, the ancestral return phenomenon can also be used as evidence of biological evolution. research value.",
+    "query": "which is not a return to the ancestral phenomenon?",
+    "options": [
+      "Some newborns will have short tails or whole body hair.",
+      "Domestic ducks sometimes have a duck that can fly short distances.",
+      "Bengal tiger occasionally produces a breed of white with pure white hair, which is called white tiger.",
+      "Double-winged insect hind wings have degenerated into balance bars, but occasionally individuals with two pairs of wings appear."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_187",
+    "context": "Archaeologists recently carried out archaeological excavations of the ancient city of S on an island, and they found some wreckage and typical ancient building ruins destroyed by the earthquake. Therefore, archaeologists speculated that in 300 AD, a strong earthquake that destroyed the building at the time.",
+    "query": "Which of the following views, if correct, can best support archaeologists' guesses.",
+    "options": [
+      "The most modern history of the ancient city of S records the earthquake of 300 AD.",
+      "In the ancient city of S, some island-like portraits made between 260 and 350 AD were found.",
+      "Drinking containers found in graves built around 300 AD also appeared in graves near the ancient city of S.",
+      "In the ancient city of S, archaeologists did not find copper coins after 300 AD, but found a large number of copper coins minted before 300 AD."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_188",
+    "context": "A supermarket employee put various brands of shampoo on the shelf. It is known that there are five brands of shampoo, E, F, G, H, I, etc. , arranged on the shelf from left to right. Shelf requirements: ① F is close to the left of H, ②I is adjacent to E, ③G is to the left of F.",
+    "query": "If I is to the left of G, Which of the following ____ items must be true.",
+    "options": [
+      "E is immediate to the left of G.",
+      "G is to the left of F.",
+      "I is immediate to the left of G.",
+      "E is immediate to the left of F."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_189",
+    "context": "In recent years, the number of players participating in F1 racing has grown much faster than the number of F1 events. In addition, the application of 3D simulation competition systems has become more and more popular. The average number of F1 racing players who actually participated in the field F1 races in the past 5 years. It has dropped by 20%, and if this trend continues, the level of F1 racers will definitely drop significantly.",
+    "query": "The above argument is based on the following hypotheses?",
+    "options": [
+      "Many F1 racers now spend most of their time on the 3D simulation race system in order to stay in shape and be able to compete in the arena.",
+      "F1 racers can only maintain or improve their level if they are guaranteed to participate in a certain number of venues each year.",
+      "All racers, including F1 racers, usually have a much lower difficulty and intensity than previous years.",
+      "The field level of each F1 racer has declined in recent years."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_190",
+    "context": "Merchants in the scenic area: The turnover in these months has decreased significantly, mainly due to the sharp increase in the price of scenic tickets. Scenic Spot Management Department: The decrease in the business's turnover has nothing to do with the price increase of scenic tickets. The main reason for the decrease is that they have not adopted a small profit but high sales marketing strategy.",
+    "query": "If the following items are true, they can weaken the interpretation of the scenic area management department.",
+    "options": [
+      "The ticket price of this scenic spot is not high compared to other scenic spots.",
+      "The scenic area management department has done some work in guiding merchants to make small profits but sells more, but not enough efforts.",
+      "Excessive scenic area ticket prices have drastically reduced the number of tourists.",
+      "The decrease in business turnover is common in other scenic spots."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_191",
+    "context": "Wireless charging, also known as non-contact inductive charging, uses the principle of magnetic field resonance to transfer energy from the power supply device (charger) to the device that uses electricity. The two are not connected by wires.",
+    "query": "So chargers and devices that use electricity?",
+    "options": [
+      "Compared with wireless charging, the wired charging energy conversion is obtained in one time, the power loss is small, and energy-saving and environmental protection.",
+      "Using wirelessly charged devices can significantly reduce device wear.",
+      "High requirements for wireless charging technology and high price are the main reasons why it cannot be popular at this stage.",
+      "The longer the wireless transmission distance, the greater the loss of useless power."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_192",
+    "context": "A factory has multiple dormitory areas and workshops, and the employees who live in the A dormitory area are not textile workers. Therefore, some employees who work in the A workshop do not live in the A dormitory area.",
+    "query": "In order for this reasoning to be true, which of the following must be added as a prerequisite?",
+    "options": [
+      "Some weavers do not work in workshop A.",
+      "Some employees working in workshop A are not textile workers.",
+      "Some employees living in the A dormitory area work in the A workshop.",
+      "Some weavers work in workshop A."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_193",
+    "context": "It is important to cultivate the aesthetic taste of design students, so schools should offer Chinese and Western art history courses for design students.",
+    "query": "If the following options are true, what will most weaken the conclusion?",
+    "options": [
+      "There is no significant difference in aesthetic taste between students who have taken Chinese and Western art history courses and those who have not taken them.",
+      "Whether there is aesthetic interest has little to do with whether students can design excellent works.",
+      "The degree of student's hard work in the course is proportional to the exquisiteness of the designed work.",
+      "Not all students who have taken Chinese and Western art history courses can become outstanding designers."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_194",
+    "context": "In the past five years, there have been 4 derailment accidents of the xx high-speed train. In response to public questions about the design flaws of the xx high-speed train, the train manufacturer of the model has rebutted: the investigation showed that each derailment accident was due to driving Caused by a violation of operating procedures.",
+    "query": "Which of the following assumptions is the train manufacturer's refutation based on?",
+    "options": [
+      "When questioning the design flaws of the xx high-speed train, the public did not clearly indicate what kind of flaws existed.",
+      "Derailment accidents of high-speed trains in the past five years have not been caused by driver violation of operating procedures.",
+      "Investigators have the ability to find out whether the derailment accident was due to a flaw in train design or a problem in train manufacturing.",
+      "xx high-speed trains do not have any design defects that can cause drivers to violate operating regulations."
+    ],
+    "correct_option": 3
+  },
+  {
+    "id": "logiqa_train_195",
+    "context": "In the past ten years, the number of doctorates awarded by our country has continued to rise, so we can consider that the number of graduate students in our country has been increasing in the past ten years.",
+    "query": "Of the following items, which best supports the above conclusions?",
+    "options": [
+      "The difficulty of obtaining a Ph. D. has not changed in the past ten years.",
+      "In the past ten years, the proportion of the number of doctoral students in our country has remained unchanged.",
+      "The number of applicants for Ph. D. this year is about twice that of ten years ago.",
+      "This year, China ’s doctoral students account for only about 20% of graduate students."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_196",
+    "context": "It is estimated that there may be millions of tons of plastic floating in the ocean, but a new study found that 99% of these plastics have disappeared, and researchers believe that most of the disappearing plastic may have been eaten by marine life, And then enter the marine food chain.",
+    "query": "Which of the following best evaluates the correctness of the above conclusions?",
+    "options": [
+      "Is there any other trash in the ocean besides plastic?",
+      "Will the plastic floating in the ocean disappear in other forms besides being eaten by marine life?",
+      "Can we say that the plastic that entered the marine food chain is \"disappearing\"?",
+      "The seas where the disappeared plastic is most likely concentrated."
+    ],
+    "correct_option": 1
+  },
+  {
+    "id": "logiqa_train_197",
+    "context": "A country's demographic agency predicts that by 2031, the country's population will fall below 127 million and the population will decrease by 24 million in the next 40 years. To this end, the government has issued a series of policies to encourage fertility. The total population has stabilized. As of June 1, 2014, the population was 146.1 million. From January to May 2014, the population increased by 59,100, with a growth rate of 0.04%. Therefore, some experts believe that the country encourages fertility The policy achieved the desired effect.",
+    "query": "If the following options are true, what will strengthen the above point?",
+    "options": [
+      "If the government does not have the policy to encourage fertility, the total child population will continue to decline.",
+      "The quality of the population could be improved if the government introduced a more effective fertility policy.",
+      "The country's total population has been rising slowly in recent years.",
+      "The fertility policy introduced by the government is a long-term national policy."
+    ],
+    "correct_option": 0
+  },
+  {
+    "id": "logiqa_train_198",
+    "context": "The column settings of a literary journal website are usually adjusted at any time according to reader feedback and page views. In September last year, a number of new columns appeared on the revised website. Among them, 5 columns are serials of comedy and humor, and 3 columns It is a long-form science fiction serial, and the two columns are literary criticism. As of January this year, only seven of these newly launched columns are still being updated, and five of them are serials of comedy and humor.",
+    "query": "If the above statement is true, which of the following can be derived from the stem?",
+    "options": [
+      "There is only one column for literary criticism.",
+      "There is only one column for a long-form science fiction novel.",
+      "At least one feature-length science-fiction column has been offline.",
+      "Compared to literary criticism, readers prefer serials in comedy and humor."
+    ],
+    "correct_option": 2
+  },
+  {
+    "id": "logiqa_train_199",
+    "context": "In the school library, only by showing the certificate issued by the department can you enter the special collection library. If you do not participate in the research group of the professor, the department will not issue a certificate. Xiao Zhang was recently absorbed by Professor Li into his own because of his outstanding performance Xiao Wang quit Professor Chen's group last week for personal reasons.",
+    "query": "If the above assertion is true, which of the following must be true?",
+    "options": [
+      "Xiao Zhang can now access the special collection library.",
+      "Xiao Wang cannot access the special collection library now.",
+      "As long as you enter the professor's research group, you can access the special collection library.",
+      "Did not obtain a certificate issued by the faculty, indicating that the group of professors did not participate."
+    ],
+    "correct_option": 1
+  }
+]

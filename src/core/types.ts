@@ -123,6 +123,7 @@ export interface AgentConfig {
   localMode?: boolean;             // enable local model optimizations
   maxTemperature?: number;         // cap temperature range (default 1.0)
   maxTokenCeiling?: number;        // cap maxTokenBudget range (default 4096)
+  minTokenBudget?: number;         // floor for maxTokenBudget mutation (default 500)
   concurrency?: number;            // max parallel LLM calls (default 4, use 1-2 for local)
 }
 
