@@ -14,6 +14,8 @@ function makeGenome(overrides: Partial<StrategyGenome> = {}): StrategyGenome {
     learningRate: 0.01,
     lamarckianRate: 0.02,
     habitatPref: 0.5,
+    fewShotCount: 0,
+    promptSegments: [],
     skillRefs: [],
     ...overrides,
   };

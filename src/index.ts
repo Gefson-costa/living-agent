@@ -124,6 +124,8 @@ export {
 } from './learning/reward-learning.js';
 export { consolidate } from './learning/consolidation.js';
 export type { ConsolidationConfig, ConsolidationResult } from './learning/consolidation.js';
+export { ExemplarStore } from './learning/exemplar-store.js';
+export type { Exemplar } from './learning/exemplar-store.js';
 
 // Interactive Agent (Phase 5)
 export { LivingAgent } from './agent/living-agent.js';

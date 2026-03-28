@@ -33,6 +33,18 @@ const COMPARISON_PATH = resolve(RESULTS_DIR, 'gsm8k-comparison.json');
 
 const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
 
+/** Math-specific system prompt — provides structured reasoning instructions */
+const GSM8K_SYSTEM_PROMPT = `You are an expert math problem solver.
+
+Instructions:
+1. Read the problem carefully and identify what is being asked.
+2. Break the problem into clear sequential steps.
+3. For each step, write the arithmetic expression and compute the result.
+4. After completing all steps, verify your answer by checking it makes sense.
+5. State your final answer as a single integer on the last line.
+
+Important: Show your work step by step. Double-check your arithmetic.`;
+
 interface DspyResults {
   zeroshot?: { accuracy: number; correct: number; total: number; duration_s?: number };
   bootstrap?: { accuracy: number; correct: number; total: number; error?: string; duration_s?: number };
@@ -117,7 +129,7 @@ async function runStaticBaseline(
 ): Promise<StaticBaselineResult> {
   const evalItems = evalEvaluator.getAllItems();
   const CONCURRENCY = 4;
-  const systemPrompt = 'You are a math expert. Solve problems step by step, showing clear reasoning. Give your final answer as a single number.';
+  const systemPrompt = GSM8K_SYSTEM_PROMPT;
 
   let correct = 0;
   let totalTokens = 0;
@@ -177,6 +189,7 @@ async function runLivingAgent(
     strategyCount: 8,
     taskBatchSize: 8,
     cullThreshold: -5,  // More lenient — GSM8K fuzzy scoring is sparser than MathEvaluator
+    systemPromptTemplate: GSM8K_SYSTEM_PROMPT,
   });
 
   // Preflight — soft skip if API not reachable
@@ -197,7 +210,22 @@ async function runLivingAgent(
   });
 
   const timeSeries: TimeSeriesPoint[] = [];
-  console.log('  [Living-Agent] Evolving on train split...');
+
+  // Warm-up: 5 cycles with lenient culling to populate task memory
+  const WARMUP_CYCLES = 5;
+  const originalCullThreshold = config.cullThreshold;
+  config.cullThreshold = -100; // effectively disable culling
+  console.log(`  [Living-Agent] Warm-up (${WARMUP_CYCLES} cycles, no culling)...`);
+  for (let i = 0; i < WARMUP_CYCLES; i++) {
+    const stats = await ecology.runCycle();
+    totalTokens += 0; // already tracked via callback
+    if (i === WARMUP_CYCLES - 1) {
+      console.log(`    warm-up done: avg=${stats.avgFitness.toFixed(3)} best=${stats.bestFitness.toFixed(3)} pop=${stats.strategyCount}`);
+    }
+  }
+  config.cullThreshold = originalCullThreshold;
+
+  console.log(`  [Living-Agent] Evolving on train split (${cycles} cycles)...`);
 
   for (let i = 0; i < cycles; i++) {
     const stats = await ecology.runCycle();

@@ -121,14 +121,14 @@ describe('CycleQD', () => {
     expect(me.currentAxes).toEqual(['avgTokenEfficiency', 'taskDiversity']);
   });
 
-  it('advanceCycle rotates dimensions and clears grid', () => {
+  it('advanceCycle rotates dimensions and re-inserts survivors', () => {
     const g = createGenome(config);
     me.insert(g, 10, makeBehavior());
     expect(me.filledCells).toBe(1);
 
     me.advanceCycle();
-    expect(me.filledCells).toBe(0);
-    expect(me.coverageRatio).toBe(0);
+    // Survivors re-inserted under new axes — should still have coverage
+    expect(me.filledCells).toBeGreaterThanOrEqual(1);
   });
 
   it('insert uses dimensions from current cycle', () => {
@@ -139,12 +139,14 @@ describe('CycleQD', () => {
     expect(me.filledCells).toBe(1);
 
     me.advanceCycle();
+    // g1 survivor re-inserted under new axes (successRate × toolEntropy)
+    const afterAdvance = me.filledCells;
 
-    // Cycle 1: successRate × toolEntropy — same behavior but different axes
+    // Cycle 1: successRate × toolEntropy — new entry
     const g2 = createGenome(config);
     const b2 = makeBehavior({ successRate: 0.9, toolEntropy: 0.1 });
     me.insert(g2, 10, b2);
-    expect(me.filledCells).toBe(1);
+    expect(me.filledCells).toBeGreaterThanOrEqual(afterAdvance);
   });
 
   it('after 4 cycles dimensions wrap around', () => {

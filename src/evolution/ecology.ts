@@ -204,7 +204,7 @@ export class Ecology {
     const birthTarget = Math.max(1, Math.min(needed + 2, Math.floor(this.config.strategyCount * BIRTH_TARGET_FRACTION)));
 
     for (let b = 0; b < birthTarget && topStrategies.length >= 2; b++) {
-      const { parent1, parent2 } = selectParents(topStrategies);
+      const { parent1, parent2 } = selectParents(topStrategies, this.eloTracker);
 
       // Active MAP-Elites: 20% chance to use a champion as second parent
       let parent2Genome = parent2.genome;
@@ -214,7 +214,7 @@ export class Ecology {
       }
 
       const childGenome = this.config.enableCrossover !== false
-        ? breedOffspring(parent1.genome, parent2Genome, this.config.mutationRate, this.config)
+        ? breedOffspring(parent1.genome, parent2Genome, this.config.mutationRate, this.config, parent1.fitness, parent2.fitness)
         : mutateGenome(parent1.genome, this.config.mutationRate, this.config);
 
       // Lamarckian transfer: pass learned weight deltas from best parent

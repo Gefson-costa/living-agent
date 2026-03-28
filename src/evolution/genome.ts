@@ -62,6 +62,8 @@ export function createGenome(
     learningRate: GENOME_DEFAULTS.learningRate.min + rng() * (GENOME_DEFAULTS.learningRate.max - GENOME_DEFAULTS.learningRate.min),
     lamarckianRate: rng() * GENOME_DEFAULTS.lamarckianRate.max,
     habitatPref: rng(),                           // 0..1
+    fewShotCount: (rng() * 4) | 0,               // 0..3 initially
+    promptSegments: [],                           // start empty, accumulate through learning
     skillRefs: [],
   };
 }
@@ -130,6 +132,13 @@ export function mutateGenome(
   let lamarckianRate = parent.lamarckianRate;
   if (rng() < 0.08 * rate) lamarckianRate = clamp(lamarckianRate + (rng() - 0.5) * 0.04, MUTATION_BOUNDS.lamarckianRate.min, MUTATION_BOUNDS.lamarckianRate.max);
 
+  // Mutate fewShotCount (0..5)
+  let fewShotCount = parent.fewShotCount;
+  if (rng() < 0.10 * rate) fewShotCount = clamp(fewShotCount + ((rng() < 0.5) ? -1 : 1), 0, 5);
+
+  // Mutate promptSegments: small chance to drop a segment
+  const promptSegments = parent.promptSegments.filter(() => rng() > 0.08 * rate);
+
   // Mutate skillRefs: small chance to drop a skill (pruning dead weight)
   const skillRefs = parent.skillRefs.filter(() => rng() > 0.05 * rate);
 
@@ -144,6 +153,8 @@ export function mutateGenome(
     learningRate,
     lamarckianRate,
     habitatPref,
+    fewShotCount,
+    promptSegments,
     skillRefs,
   };
 }
@@ -155,6 +166,8 @@ export function crossoverGenomes(
   mate: StrategyGenome,
   config: AgentConfig,
   rng: () => number = Math.random,
+  primaryFitness?: number,
+  mateFitness?: number,
 ): StrategyGenome {
   // Float arrays: uniform crossover per element
   const promptStyle = new Float32Array(config.promptStyleDim);
@@ -167,8 +180,23 @@ export function crossoverGenomes(
     toolPreferences[i] = rng() < 0.5 ? primary.toolPreferences[i] : mate.toolPreferences[i];
   }
 
-  // Scalars: weighted blend (primary 60%, mate 40%)
-  const w = CROSSOVER_PRIMARY_WEIGHT;
+  // Scalars: fitness-proportional blend (clamp 0.3..0.8 to prevent domination)
+  const w = (primaryFitness !== undefined && mateFitness !== undefined)
+    ? Math.max(0.3, Math.min(0.8, primaryFitness / (primaryFitness + mateFitness + 0.01)))
+    : CROSSOVER_PRIMARY_WEIGHT;
+
+  // fewShotCount: blend (rounded)
+  const fewShotCount = Math.round(primary.fewShotCount * w + mate.fewShotCount * (1 - w));
+
+  // Merge prompt segments: interleave from both parents, cap at 3
+  const promptSegments: string[] = [];
+  const maxSegments = 3;
+  const pSegs = primary.promptSegments;
+  const mSegs = mate.promptSegments;
+  for (let i = 0; i < Math.max(pSegs.length, mSegs.length) && promptSegments.length < maxSegments; i++) {
+    if (i < pSegs.length && promptSegments.length < maxSegments) promptSegments.push(pSegs[i]);
+    if (i < mSegs.length && promptSegments.length < maxSegments && !promptSegments.includes(mSegs[i])) promptSegments.push(mSegs[i]);
+  }
 
   // Merge skill refs: deduplicated union, capped at 10
   // Primary parent's skills get priority when over cap
@@ -192,6 +220,8 @@ export function crossoverGenomes(
     learningRate: primary.learningRate * w + mate.learningRate * (1 - w),
     lamarckianRate: primary.lamarckianRate * w + mate.lamarckianRate * (1 - w),
     habitatPref: primary.habitatPref * w + mate.habitatPref * (1 - w),
+    fewShotCount,
+    promptSegments,
     skillRefs,
   };
 }
@@ -226,6 +256,9 @@ export function geneticDistance(a: StrategyGenome, b: StrategyGenome): number {
   const habDist = Math.abs(a.habitatPref - b.habitatPref);
   const reasonDist = Math.abs(a.reasoningDepth - b.reasoningDepth);
 
+  // Few-shot count distance (normalized to 0..1)
+  const fewShotDist = Math.abs((a.fewShotCount ?? 0) - (b.fewShotCount ?? 0)) / 5;
+
   // Skill distance: 1 - Jaccard similarity of skillRef sets
   const aSkills = new Set(a.skillRefs);
   const bSkills = new Set(b.skillRefs);
@@ -234,12 +267,13 @@ export function geneticDistance(a: StrategyGenome, b: StrategyGenome): number {
   const skillDist = union.size > 0 ? 1 - intersection / union.size : 0;
 
   return clamp(
-    styleDist * 0.24 +
-    toolDist * 0.18 +
-    tempDist * 0.13 +
-    tokenDist * 0.08 +
-    habDist * 0.10 +
-    reasonDist * 0.13 +
+    styleDist * 0.22 +
+    toolDist * 0.16 +
+    tempDist * 0.12 +
+    tokenDist * 0.07 +
+    habDist * 0.09 +
+    reasonDist * 0.12 +
+    fewShotDist * 0.08 +
     skillDist * 0.14,
     0, 1,
   );
@@ -259,6 +293,8 @@ export function cloneGenome(g: StrategyGenome): StrategyGenome {
     learningRate: g.learningRate,
     lamarckianRate: g.lamarckianRate,
     habitatPref: g.habitatPref,
+    fewShotCount: g.fewShotCount ?? 0,
+    promptSegments: [...(g.promptSegments ?? [])],
     skillRefs: [...g.skillRefs],
   };
 }

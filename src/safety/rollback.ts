@@ -42,6 +42,8 @@ interface SerializedGenome {
   learningRate: number;
   lamarckianRate: number;
   habitatPref: number;
+  fewShotCount: number;
+  promptSegments: string[];
   skillRefs: string[];
 }
 
@@ -180,6 +182,8 @@ function serializeGenome(g: StrategyGenome): SerializedGenome {
     learningRate: g.learningRate,
     lamarckianRate: g.lamarckianRate,
     habitatPref: g.habitatPref,
+    fewShotCount: g.fewShotCount ?? 0,
+    promptSegments: [...(g.promptSegments ?? [])],
     skillRefs: [...g.skillRefs],
   };
 }
@@ -207,6 +211,8 @@ function deserializeGenome(g: SerializedGenome): StrategyGenome {
     learningRate: g.learningRate,
     lamarckianRate: g.lamarckianRate,
     habitatPref: g.habitatPref,
+    fewShotCount: g.fewShotCount ?? 0,
+    promptSegments: [...(g.promptSegments ?? [])],
     skillRefs: [...g.skillRefs],
   };
 }

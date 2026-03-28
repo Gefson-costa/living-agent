@@ -72,10 +72,10 @@ describe('computeRewardSignal', () => {
   it('negative delta is penalized more than equivalent positive (Kahneman-Tversky)', () => {
     const posSignal = computeRewardSignal(5.05, 5); // delta = +0.05
     const negSignal = computeRewardSignal(4.95, 5); // delta = -0.05
-    // Loss should be further from 1.0 than gain (1.5x)
+    // Loss should be further from 1.0 than gain (1.2x)
     const posDeviation = posSignal - 1.0;
     const negDeviation = 1.0 - negSignal;
-    expect(negDeviation).toBeCloseTo(posDeviation * 1.5, 5);
+    expect(negDeviation).toBeCloseTo(posDeviation * 1.2, 5);
   });
 
   it('clamps to range 0.2..4.0', () => {

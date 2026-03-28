@@ -10,37 +10,52 @@ import { FITNESS_DECAY_RATE, NOVELTY_SEED_ECOLOGY, RESCUE_MUTATION_MULTIPLIER } 
 import { mutateGenome, crossoverGenomes } from './genome.js';
 import { NoveltyArchive } from './novelty.js';
 import { MapElites } from './map-elites.js';
+import { EloTracker } from './elo-tracker.js';
 import { decayTaskTypeMemory } from '../learning/task-memory.js';
 
 // ── Fitness Decay ───────────────────────────────────────────────
 
-/** Multiply every strategy's fitness by `rate` (default 0.95). */
+/** Age-dependent fitness decay: offspring get a grace period, veterans get full decay. */
 export function applyFitnessDecay(strategies: Strategy[], rate = FITNESS_DECAY_RATE): void {
+  const decayAmount = 1 - rate;
   for (const s of strategies) {
-    s.fitness *= rate;
+    const ageMultiplier = Math.min(1.0, s.age / 5); // ramp up over 5 cycles
+    s.fitness *= 1 - decayAmount * ageMultiplier;
   }
 }
 
 // ── Parent Selection ────────────────────────────────────────────
 
 /**
- * Pick two distinct parents at random from `topStrategies`.
- * If the random draw picks the same strategy twice, shift to the next one.
- * With a single strategy, breeds with itself (self-crossover).
- * Throws only if the pool is completely empty.
+ * Tournament selection (size 3) weighted by fitness + Elo rating.
+ * Falls back to uniform random when no EloTracker is provided.
  */
-export function selectParents(topStrategies: Strategy[]): { parent1: Strategy; parent2: Strategy } {
+export function selectParents(topStrategies: Strategy[], eloTracker?: EloTracker): { parent1: Strategy; parent2: Strategy } {
   if (topStrategies.length === 0) {
     throw new Error('selectParents requires at least 1 strategy');
   }
   if (topStrategies.length === 1) {
     return { parent1: topStrategies[0], parent2: topStrategies[0] };
   }
-  const parent1 = topStrategies[Math.floor(Math.random() * topStrategies.length)];
-  let parent2 = topStrategies[Math.floor(Math.random() * topStrategies.length)];
-  if (parent2 === parent1) {
-    parent2 = topStrategies[(topStrategies.indexOf(parent1) + 1) % topStrategies.length];
-  }
+
+  const tournamentPick = (exclude?: Strategy): Strategy => {
+    const pool = exclude ? topStrategies.filter(s => s !== exclude) : topStrategies;
+    if (pool.length === 0) return topStrategies[0]; // fallback
+    let best = pool[Math.floor(Math.random() * pool.length)];
+    let bestScore = best.fitness + (eloTracker ? eloTracker.getRating(best.genome.id) / 3000 : 0);
+    for (let t = 0; t < 2; t++) {
+      const candidate = pool[Math.floor(Math.random() * pool.length)];
+      const score = candidate.fitness + (eloTracker ? eloTracker.getRating(candidate.genome.id) / 3000 : 0);
+      if (score > bestScore) {
+        best = candidate;
+        bestScore = score;
+      }
+    }
+    return best;
+  };
+
+  const parent1 = tournamentPick();
+  const parent2 = tournamentPick(parent1);
   return { parent1, parent2 };
 }
 
@@ -52,8 +67,10 @@ export function breedOffspring(
   genome2: StrategyGenome,
   mutationRate: number,
   config: AgentConfig,
+  fitness1?: number,
+  fitness2?: number,
 ): StrategyGenome {
-  const base = crossoverGenomes(genome1, genome2, config);
+  const base = crossoverGenomes(genome1, genome2, config, Math.random, fitness1, fitness2);
   return mutateGenome(base, mutationRate, config);
 }
 

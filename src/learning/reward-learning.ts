@@ -52,17 +52,22 @@ export function rewardModulatedUpdate(strategy: Strategy, prevFitness: number): 
   const recent = strategy.taskHistory[strategy.taskHistory.length - 1];
   const score = recent.score;
 
-  // Nudge promptStyle: high score reinforces current direction, low score dampens
+  // Gradient-proportional update: score maps to -1..1 continuous signal
+  const gradient = (score - SCORE_REINFORCE_THRESHOLD) * 2;
+
+  // Nudge promptStyle: proportional to score quality
   const style = strategy.genome.promptStyle;
   for (let i = 0; i < style.length; i++) {
-    const direction = score > SCORE_REINFORCE_THRESHOLD ? style[i] : -style[i] * 0.5;
+    const direction = gradient * style[i];
     style[i] = clamp(style[i] + direction * effectiveRate, -1, 1);
   }
 
-  // Nudge toolPreferences: boost tools on success, dampen on failure
+  // Nudge toolPreferences: proportional boost or dampen
   const tools = strategy.genome.toolPreferences;
   for (let i = 0; i < tools.length; i++) {
-    const nudge = score > SCORE_REINFORCE_THRESHOLD ? (1 - tools[i]) * effectiveRate : -tools[i] * effectiveRate * 0.5;
+    const nudge = gradient > 0
+      ? gradient * (1 - tools[i]) * effectiveRate
+      : gradient * tools[i] * effectiveRate;
     tools[i] = clamp(tools[i] + nudge, 0, 1);
   }
 }

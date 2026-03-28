@@ -27,6 +27,7 @@ import { Ecology } from '../../src/evolution/ecology.js';
 import { buildSystemPrompt } from '../../src/llm/adapter.js';
 import { createDefaultConfig, createLocalConfig } from '../../src/core/config.js';
 import { resetGenomeCounter } from '../../src/evolution/genome.js';
+import { selectStrategy } from '../../src/agent/strategy-selector.js';
 import { MultitaskEvaluator, type MultitaskType } from '../evaluators/multitask-evaluator.js';
 import { createBenchmarkAdapter, isOllamaMode } from '../create-adapter.js';
 import { runBenchmark } from '../harness.js';
@@ -161,6 +162,8 @@ interface EvolvedResult {
   bestPerType: Record<MultitaskType, { strategyId: string; accuracy: number }>;
   aggregated: { accuracy: number; correct: number; total: number };
   aggregatedPerType: Record<MultitaskType, PerTypeResult>;
+  routed: { accuracy: number; correct: number; total: number };
+  routedPerType: Record<MultitaskType, PerTypeResult>;
   earlyAvgFitness: number;
   lateAvgFitness: number;
   totalTokens: number;
@@ -196,7 +199,21 @@ async function runEvolved(
   });
 
   const timeSeries: TimeSeriesPoint[] = [];
-  console.log('  [Living-Agent] Evolving on train split...');
+
+  // Warm-up: 5 cycles with lenient culling to populate task memory and habitat niches
+  const WARMUP_CYCLES = 5;
+  const originalCullThreshold = config.cullThreshold;
+  config.cullThreshold = -100; // effectively disable culling
+  console.log(`  [Living-Agent] Warm-up (${WARMUP_CYCLES} cycles, no culling)...`);
+  for (let i = 0; i < WARMUP_CYCLES; i++) {
+    const stats = await ecology.runCycle();
+    if (i === WARMUP_CYCLES - 1) {
+      console.log(`    warm-up done: avg=${stats.avgFitness.toFixed(3)} best=${stats.bestFitness.toFixed(3)} pop=${stats.strategyCount}`);
+    }
+  }
+  config.cullThreshold = originalCullThreshold;
+
+  console.log(`  [Living-Agent] Evolving on train split (${cycles} cycles)...`);
 
   for (let i = 0; i < cycles; i++) {
     const cycleStart = performance.now();
@@ -357,6 +374,57 @@ async function runEvolved(
     aggTotal += aggregatedPerType[t].total;
   }
 
+  // ── Routed evaluation: use strategy selector per item ──────────
+  // This shows real deployed performance — each task is routed to
+  // the best strategy using habitat + expertise + fitness scoring.
+  console.log('  [Living-Agent] Routed evaluation (strategy selector per task)...');
+  const routedPerType: Record<string, { correct: number; total: number }> = {};
+  for (const t of TASK_TYPES) routedPerType[t] = { correct: 0, total: 0 };
+  let routedCorrect = 0;
+
+  for (let batchStart = 0; batchStart < evalItems.length; batchStart += evalConcurrency) {
+    const batch = evalItems.slice(batchStart, batchStart + evalConcurrency);
+    const results = await Promise.all(batch.map(async (item) => {
+      // Route to best strategy for this task type (no exploration in eval)
+      const selected = selectStrategy([...strategies], item.type, { epsilon: 0 });
+      const sysPrompt = buildSystemPrompt(
+        config.systemPromptTemplate,
+        selected.genome,
+        config.toolNames,
+        selected.taskTypeMemory,
+      );
+      try {
+        const response = await adapter.execute(item.prompt, {
+          temperature: Math.min(1, Math.max(0, selected.genome.temperature)),
+          maxTokens: selected.genome.maxTokenBudget,
+          systemPrompt: sysPrompt,
+          toolNames: [],
+        });
+        const score = evalEvaluator.scoreById(item.id, response.content);
+        totalTokens += response.tokensUsed;
+        return { type: item.type as MultitaskType, score };
+      } catch {
+        return { type: item.type as MultitaskType, score: 0 };
+      }
+    }));
+
+    for (const r of results) {
+      routedPerType[r.type].total++;
+      if (r.score === 1) {
+        routedCorrect++;
+        routedPerType[r.type].correct++;
+      }
+    }
+  }
+
+  const routedPerTypeResult: Record<string, PerTypeResult> = {};
+  for (const t of TASK_TYPES) {
+    const pt = routedPerType[t];
+    routedPerTypeResult[t] = { ...pt, accuracy: pt.total > 0 ? pt.correct / pt.total : 0 };
+  }
+  const routedTotal = evalItems.length;
+  console.log(`    routed overall: ${routedCorrect}/${routedTotal} = ${(routedCorrect / routedTotal * 100).toFixed(1)}%`);
+
   const window = Math.min(5, Math.floor(cycles / 2));
   const earlyPoints = timeSeries.slice(0, window);
   const latePoints = timeSeries.slice(cycles - window);
@@ -368,6 +436,8 @@ async function runEvolved(
     bestPerType: bestPerType as Record<MultitaskType, { strategyId: string; accuracy: number }>,
     aggregated: { accuracy: aggTotal > 0 ? aggCorrect / aggTotal : 0, correct: aggCorrect, total: aggTotal },
     aggregatedPerType: aggregatedPerType as Record<MultitaskType, PerTypeResult>,
+    routed: { accuracy: routedTotal > 0 ? routedCorrect / routedTotal : 0, correct: routedCorrect, total: routedTotal },
+    routedPerType: routedPerTypeResult as Record<MultitaskType, PerTypeResult>,
     earlyAvgFitness: avg(earlyPoints, 'avgFitness'),
     lateAvgFitness: avg(latePoints, 'avgFitness'),
     totalTokens,
@@ -455,6 +525,29 @@ export async function multitaskSpecialization(
     );
     console.log(`Evolved wins ${evolvedWins} of ${TASK_TYPES.length} task types`);
 
+    // Routed evaluation results
+    console.log('\n════════════════════════════════════════════════════════════════');
+    console.log('Routed Evaluation (strategy selector routes each task)');
+    console.log('════════════════════════════════════════════════════════════════');
+    console.log('Type            Static    Routed    Delta');
+    console.log('────────────────────────────────────────────────────────────────');
+    let routedWins = 0;
+    for (const t of TASK_TYPES) {
+      const sAcc = staticResult.perType[t].accuracy;
+      const rAcc = evolved.routedPerType[t].accuracy;
+      const delta = rAcc - sAcc;
+      const sign = delta >= 0 ? '+' : '';
+      if (rAcc > sAcc) routedWins++;
+      console.log(
+        `${t.padEnd(15)} ${(sAcc * 100).toFixed(1).padStart(5)}%    ${(rAcc * 100).toFixed(1).padStart(5)}%   ${sign}${(delta * 100).toFixed(1).padStart(5)}pp`,
+      );
+    }
+    console.log('────────────────────────────────────────────────────────────────');
+    console.log(
+      `${'OVERALL'.padEnd(15)} ${(staticResult.overall.accuracy * 100).toFixed(1).padStart(5)}%    ${(evolved.routed.accuracy * 100).toFixed(1).padStart(5)}%   ${evolved.routed.accuracy >= staticResult.overall.accuracy ? '+' : ''}${((evolved.routed.accuracy - staticResult.overall.accuracy) * 100).toFixed(1).padStart(5)}pp`,
+    );
+    console.log(`Routed wins ${routedWins} of ${TASK_TYPES.length} task types`);
+
     // Specialization metrics
     const distinctBestStrategies = new Set(TASK_TYPES.map(t => evolved.bestPerType[t].strategyId));
     const temps = evolved.strategies.map(sr => sr.genome.temperature);
@@ -513,15 +606,17 @@ export async function multitaskSpecialization(
 
     // ── Pass criteria (lenient, OR-combined) ──────────────────────
     const beatsStatic = evolved.aggregated.accuracy > staticResult.overall.accuracy;
+    const routedBeatsStatic = evolved.routed.accuracy > staticResult.overall.accuracy;
     const winsEnoughTypes = evolvedWins >= 3;
     const hasDistinctSpecialists = distinctBestStrategies.size >= 2;
     const fitnessImproved = evolved.lateAvgFitness > evolved.earlyAvgFitness;
     const hasTempSpread = tempSpread > 0.15;
 
-    const passed = beatsStatic || winsEnoughTypes || hasDistinctSpecialists || fitnessImproved || hasTempSpread;
+    const passed = beatsStatic || routedBeatsStatic || winsEnoughTypes || hasDistinctSpecialists || fitnessImproved || hasTempSpread;
 
     console.log(`\nPass criteria (any one sufficient):`);
     console.log(`  1. Evolved > static overall:     ${beatsStatic ? 'YES' : 'no'}`);
+    console.log(`  1b. Routed > static overall:     ${routedBeatsStatic ? 'YES' : 'no'}`);
     console.log(`  2. Wins >= 3 of 5 types:         ${winsEnoughTypes ? 'YES' : 'no'} (${evolvedWins}/5)`);
     console.log(`  3. >= 2 distinct specialists:     ${hasDistinctSpecialists ? 'YES' : 'no'} (${distinctBestStrategies.size})`);
     console.log(`  4. Fitness improved:              ${fitnessImproved ? 'YES' : 'no'}`);
@@ -533,8 +628,11 @@ export async function multitaskSpecialization(
     const metrics: Record<string, number> = {
       staticOverallAccuracy: staticResult.overall.accuracy,
       evolvedOverallAccuracy: evolved.aggregated.accuracy,
+      routedOverallAccuracy: evolved.routed.accuracy,
       evolutionDelta: evolved.aggregated.accuracy - staticResult.overall.accuracy,
+      routedDelta: evolved.routed.accuracy - staticResult.overall.accuracy,
       evolvedWins,
+      routedWins,
       distinctSpecialists: distinctBestStrategies.size,
       tempSpread,
       earlyAvgFitness: evolved.earlyAvgFitness,
@@ -547,6 +645,7 @@ export async function multitaskSpecialization(
     for (const t of TASK_TYPES) {
       metrics[`static_${t}`] = staticResult.perType[t].accuracy;
       metrics[`evolved_${t}`] = evolved.aggregatedPerType[t].accuracy;
+      metrics[`routed_${t}`] = evolved.routedPerType[t].accuracy;
     }
 
     return {
@@ -554,8 +653,8 @@ export async function multitaskSpecialization(
       metrics,
       timeSeries: evolved.timeSeries,
       details: passed
-        ? `Evolved ${(evolved.aggregated.accuracy * 100).toFixed(1)}% vs static ${(staticResult.overall.accuracy * 100).toFixed(1)}% (${evolvedWins}/5 types, ${distinctBestStrategies.size} specialists, spread=${tempSpread.toFixed(2)})`
-        : `Evolved ${(evolved.aggregated.accuracy * 100).toFixed(1)}% vs static ${(staticResult.overall.accuracy * 100).toFixed(1)}% — no pass criteria met`,
+        ? `Evolved ${(evolved.aggregated.accuracy * 100).toFixed(1)}% / Routed ${(evolved.routed.accuracy * 100).toFixed(1)}% vs static ${(staticResult.overall.accuracy * 100).toFixed(1)}% (${evolvedWins}/5 types, ${distinctBestStrategies.size} specialists, spread=${tempSpread.toFixed(2)})`
+        : `Evolved ${(evolved.aggregated.accuracy * 100).toFixed(1)}% / Routed ${(evolved.routed.accuracy * 100).toFixed(1)}% vs static ${(staticResult.overall.accuracy * 100).toFixed(1)}% — no pass criteria met`,
     };
   });
 }

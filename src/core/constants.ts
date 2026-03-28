@@ -22,8 +22,8 @@ export const TOKEN_COST_NORMALIZER = 4000;
 export const TOKEN_COST_WEIGHT = 0.5;
 
 /** Habitat bonus: if match > threshold, add bonus */
-export const HABITAT_MATCH_THRESHOLD = 0.6;
-export const HABITAT_BONUS = 0.3;
+export const HABITAT_MATCH_THRESHOLD = 0.7;
+export const HABITAT_BONUS = 0.1;
 
 /** Expertise bonus weight for task assignment */
 export const EXPERTISE_BONUS_WEIGHT = 0.2;
@@ -75,8 +75,8 @@ export const ELO_SPREAD = 400;
 
 // ── Reward Learning ─────────────────────────────────────────────
 
-/** Negative deltas hurt 1.5x more (Kahneman-Tversky loss aversion) */
-export const LOSS_AVERSION = 1.5;
+/** Negative deltas hurt 1.2x more (Kahneman-Tversky loss aversion, reduced for exploration) */
+export const LOSS_AVERSION = 1.2;
 
 /** Scale factor for fitness delta → reward signal */
 export const REWARD_DELTA_SCALE = 8;

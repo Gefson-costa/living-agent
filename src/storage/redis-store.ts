@@ -56,6 +56,9 @@ export class RedisStore implements StorageAdapter {
       ...obj,
       promptStyle: new Float32Array(obj.promptStyle),
       toolPreferences: new Float32Array(obj.toolPreferences),
+      fewShotCount: obj.fewShotCount ?? 0,
+      promptSegments: obj.promptSegments ?? [],
+      skillRefs: obj.skillRefs ?? [],
     };
   }
 

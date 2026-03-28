@@ -147,7 +147,7 @@ export class SkillLibrary {
   }
 
   /** Retrieve skills by semantic similarity to a task embedding.
-   *  Scores combine cosine similarity (70%) and fitness (30%). */
+   *  Scores combine: 50% relevance + 30% fitness + 20% recency. */
   async getSkillsBySimilarity(
     taskEmbedding: Float32Array,
     limit = 5,
@@ -156,14 +156,18 @@ export class SkillLibrary {
     const skills = await this.store.getSkills();
     if (skills.length === 0 || this.embeddings.size === 0) return [];
 
+    const now = Date.now();
     const scored: { skill: Skill; score: number }[] = [];
     for (const skill of skills) {
       const emb = this.embeddings.get(skill.id);
       if (!emb) continue;
       const sim = cosineSimilarity(taskEmbedding, emb);
       if (sim < threshold) continue;
-      // Blend: 70% similarity + 30% fitness
-      const score = sim * 0.7 + skill.fitness * 0.3;
+      // Recency: exponential decay — skills updated within last hour get ~1.0
+      const updatedMs = skill.updatedAt ? new Date(skill.updatedAt).getTime() : 0;
+      const ageHours = Math.max(0, (now - updatedMs) / 3_600_000);
+      const recency = Math.exp(-ageHours / 24); // half-life ~24h
+      const score = sim * 0.5 + skill.fitness * 0.3 + recency * 0.2;
       scored.push({ skill, score });
     }
 

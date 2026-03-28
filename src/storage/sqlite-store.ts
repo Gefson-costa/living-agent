@@ -112,6 +112,10 @@ export class SqliteStore implements StorageAdapter {
       ...obj,
       promptStyle: new Float32Array(obj.promptStyle),
       toolPreferences: new Float32Array(obj.toolPreferences),
+      // Backwards compatibility: defaults for genes added in Phase 4
+      fewShotCount: obj.fewShotCount ?? 0,
+      promptSegments: obj.promptSegments ?? [],
+      skillRefs: obj.skillRefs ?? [],
     };
   }
 

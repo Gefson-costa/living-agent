@@ -54,6 +54,16 @@ export function consolidate(
   const n = strategies.length;
   if (n <= 1) return { eliteCount: n, adaptedCount: 0, replacedCount: 0, totalLearningDelta: 0 };
 
+  // Compute fitness spread to adapt fractions
+  const fitnesses = strategies.map(s => s.fitness);
+  const mean = fitnesses.reduce((a, b) => a + b, 0) / fitnesses.length;
+  const variance = fitnesses.reduce((a, v) => a + (v - mean) ** 2, 0) / fitnesses.length;
+  const cv = mean !== 0 ? Math.sqrt(variance) / Math.abs(mean) : 1; // coefficient of variation
+
+  // High variance → replace more aggressively; low variance → preserve more
+  const adaptedEliteFraction = Math.max(0.1, Math.min(0.5, cfg.eliteFraction * (1.5 - cv)));
+  const adaptedReplaceFraction = Math.max(0.1, Math.min(0.5, cfg.replaceFraction * (0.5 + cv)));
+
   // Sort by fitness (descending), using Elo as tiebreaker
   strategies.sort((a, b) => {
     const diff = b.fitness - a.fitness;
@@ -61,8 +71,8 @@ export function consolidate(
     return eloTracker.getRating(b.genome.id) - eloTracker.getRating(a.genome.id);
   });
 
-  const eliteCount = Math.max(1, Math.floor(n * cfg.eliteFraction));
-  const replaceCount = Math.max(0, Math.floor(n * cfg.replaceFraction));
+  const eliteCount = Math.max(1, Math.floor(n * adaptedEliteFraction));
+  const replaceCount = Math.max(0, Math.floor(n * adaptedReplaceFraction));
   const adaptStart = eliteCount;
   const adaptEnd = n - replaceCount;
 
@@ -95,9 +105,9 @@ export function consolidate(
   const topStrategies = strategies.slice(0, Math.max(2, eliteCount));
 
   for (let i = n - replaceCount; i < n; i++) {
-    const { parent1, parent2 } = selectParents(topStrategies);
+    const { parent1, parent2 } = selectParents(topStrategies, eloTracker);
 
-    const childGenome = breedOffspring(parent1.genome, parent2.genome, agentConfig.mutationRate, agentConfig);
+    const childGenome = breedOffspring(parent1.genome, parent2.genome, agentConfig.mutationRate, agentConfig, parent1.fitness, parent2.fitness);
     lamarckianTransfer(parent1, childGenome);
 
     // Try to inject a MAP-Elites champion instead (50% chance)

@@ -19,24 +19,24 @@ describe('computeHybridFitness', () => {
   it('handles null completion', () => {
     const signal: FitnessSignal = { completion: null, selfEval: 0.7, userFeedback: 0.8, engagement: null };
     const fitness = computeHybridFitness(signal);
-    // Default weights: selfEval=0.1, userFeedback=0.2
-    const expected = (0.7 * 0.1 + 0.8 * 0.2) / (0.1 + 0.2);
+    // Default weights: selfEval=0.3, userFeedback=0.2
+    const expected = (0.7 * 0.3 + 0.8 * 0.2) / (0.3 + 0.2);
     expect(fitness).toBeCloseTo(expected, 5);
   });
 
   it('handles null selfEval', () => {
     const signal: FitnessSignal = { completion: 0.9, selfEval: null, userFeedback: 0.7, engagement: null };
     const fitness = computeHybridFitness(signal);
-    // Default weights: completion=0.5, userFeedback=0.2
-    const expected = (0.9 * 0.5 + 0.7 * 0.2) / (0.5 + 0.2);
+    // Default weights: completion=0.4, userFeedback=0.2
+    const expected = (0.9 * 0.4 + 0.7 * 0.2) / (0.4 + 0.2);
     expect(fitness).toBeCloseTo(expected, 5);
   });
 
   it('handles null userFeedback', () => {
     const signal: FitnessSignal = { completion: 0.8, selfEval: 0.6, userFeedback: null, engagement: null };
     const fitness = computeHybridFitness(signal);
-    // Default weights: completion=0.5, selfEval=0.1
-    const expected = (0.8 * 0.5 + 0.6 * 0.1) / (0.5 + 0.1);
+    // Default weights: completion=0.4, selfEval=0.3
+    const expected = (0.8 * 0.4 + 0.6 * 0.3) / (0.4 + 0.3);
     expect(fitness).toBeCloseTo(expected, 5);
   });
 
@@ -100,8 +100,8 @@ describe('computeHybridFitness', () => {
   it('selfEval + engagement (production case without user feedback)', () => {
     const signal: FitnessSignal = { completion: null, selfEval: 0.7, userFeedback: null, engagement: 0.8 };
     const fitness = computeHybridFitness(signal);
-    // Default weights: selfEval=0.1, engagement=0.2
-    const expected = (0.7 * 0.1 + 0.8 * 0.2) / (0.1 + 0.2);
+    // Default weights: selfEval=0.3, engagement=0.1
+    const expected = (0.7 * 0.3 + 0.8 * 0.1) / (0.3 + 0.1);
     expect(fitness).toBeCloseTo(expected, 5);
   });
 
@@ -121,7 +121,7 @@ describe('computeHybridFitness', () => {
 
   it('applies penalty when signals are discordant', () => {
     const signal: FitnessSignal = { completion: 0.9, selfEval: 0.2, userFeedback: null, engagement: null };
-    const noPenaltyScore = (0.9 * 0.5 + 0.2 * 0.1) / (0.5 + 0.1);
+    const noPenaltyScore = (0.9 * 0.4 + 0.2 * 0.3) / (0.4 + 0.3);
     const fitness = computeHybridFitness(signal);
     // stdev of [0.9, 0.2] = 0.35 → penalty = 1 - (0.35 - 0.3) = 0.95
     expect(fitness).toBeLessThan(noPenaltyScore);
@@ -146,10 +146,10 @@ describe('calibrateWeights', () => {
   it('returns defaults with insufficient data', async () => {
     const store = new MemoryStore();
     const weights = await calibrateWeights(store);
-    expect(weights.completionWeight).toBe(0.5);
-    expect(weights.selfEvalWeight).toBe(0.1);
+    expect(weights.completionWeight).toBe(0.4);
+    expect(weights.selfEvalWeight).toBe(0.3);
     expect(weights.userFeedbackWeight).toBe(0.2);
-    expect(weights.engagementWeight).toBe(0.2);
+    expect(weights.engagementWeight).toBe(0.1);
   });
 
   it('adjusts weights with correlated self-eval and feedback', async () => {
@@ -170,6 +170,6 @@ describe('calibrateWeights', () => {
     expect(weights.selfEvalWeight).toBeGreaterThan(0);
     expect(weights.completionWeight).toBeGreaterThan(0);
     expect(weights.userFeedbackWeight).toBeGreaterThan(0);
-    expect(weights.engagementWeight).toBe(0.2);
+    expect(weights.engagementWeight).toBe(0.1);
   });
 });

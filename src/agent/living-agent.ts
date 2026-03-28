@@ -16,6 +16,7 @@ import { MAX_TASK_HISTORY } from '../core/types.js';
 import { createGenome } from '../evolution/genome.js';
 import { NoveltyArchive } from '../evolution/novelty.js';
 import { MapElites } from '../evolution/map-elites.js';
+import { EloTracker } from '../evolution/elo-tracker.js';
 import {
   applyFitnessDecay,
   applyTaskMemoryDecay,
@@ -36,6 +37,7 @@ import { buildAutoMetrics, computeEngagementScore } from '../fitness/implicit-fi
 import { snapshotBirthWeights, rewardModulatedUpdate } from '../learning/reward-learning.js';
 import { updateTaskTypeMemory } from '../learning/task-memory.js';
 import { consolidate } from '../learning/consolidation.js';
+import { ExemplarStore } from '../learning/exemplar-store.js';
 
 import { SkillLibrary } from '../skills/skill-library.js';
 import { SkillExtractor } from '../skills/skill-extractor.js';
@@ -68,9 +70,11 @@ export class LivingAgent {
   private strategies: Strategy[] = [];
   private noveltyArchive = new NoveltyArchive();
   private mapElites = new MapElites();
+  private eloTracker = new EloTracker();
   private skillLibrary: SkillLibrary;
   private skillExtractor: SkillExtractor;
   private principleDistiller: PrincipleDistiller;
+  private exemplarStore = new ExemplarStore();
 
   private interactions: Interaction[] = [];
   private interactionCounter = 0;
@@ -239,12 +243,17 @@ export class LivingAgent {
       if (skills.length >= 5) break;
     }
 
-    // 4. Build LLM config with conversation history
+    // 4. Build LLM config with conversation history + few-shot exemplars
+    const exemplars = this.exemplarStore.retrieve(
+      taskType,
+      strategy.genome.fewShotCount ?? 0,
+      Math.floor(strategy.genome.maxTokenBudget * 0.20),
+    );
     const llmConfig = strategyToLLMConfig(
       strategy,
       this.config.systemPromptTemplate,
       this.config.toolNames,
-      skills,
+      { skills, exemplars },
     );
     if (this.conversationHistory.length > 0) {
       llmConfig.messages = [...this.conversationHistory];
@@ -336,8 +345,8 @@ export class LivingAgent {
     if (strategy.taskHistory.length > MAX_TASK_HISTORY) {
       strategy.taskHistory.shift();
     }
-    // Adaptive EMA: learn fast early (few interactions), stabilize later
-    const alpha = Math.max(0.15, 0.5 / (1 + this.interactionCounter * 0.05));
+    // Adaptive EMA: per-strategy age — offspring learn fast, veterans stabilize
+    const alpha = Math.max(0.15, 0.5 / (1 + strategy.taskHistory.length * 0.1));
     strategy.fitness = strategy.fitness * (1 - alpha) + hybridFitness * alpha;
     strategy.age++;
     updateTaskTypeMemory(strategy, taskType, hybridFitness);
@@ -359,6 +368,9 @@ export class LivingAgent {
       latencyMs: llmResponse.latencyMs,
       fitnessSignal: selfEvalScore,
     });
+
+    // Record as few-shot exemplar (only stores high-scoring examples)
+    this.exemplarStore.record(taskType, userMessage, llmResponse.content, hybridFitness);
 
     // Record response fingerprint (Point 2 — vector cognition)
     await this.responseHistory.record(taskType, strategy.genome.id, llmResponse.content, hybridFitness);
@@ -603,6 +615,7 @@ export class LivingAgent {
     await this.store.saveMetadata('conversationHistory', JSON.stringify(this.conversationHistory));
     await this.store.saveMetadata('sessionTurnCount', String(this.sessionTurnCount));
     await this.store.saveMetadata('classifierMemory', this.classifierMemory.serialize());
+    await this.store.saveMetadata('exemplarStore', this.exemplarStore.serialize());
   }
 
   /** Manually trigger consolidation */
@@ -627,7 +640,7 @@ export class LivingAgent {
       }
     }
 
-    consolidate(this.strategies, this.agentConfig, this.mapElites, {}, this.noveltyArchive);
+    consolidate(this.strategies, this.agentConfig, this.mapElites, {}, this.noveltyArchive, this.eloTracker);
     this.consolidationCount++;
 
     // Decay task type memory for all strategies
@@ -945,6 +958,11 @@ export class LivingAgent {
     const classifierData = await this.store.loadMetadata('classifierMemory');
     if (classifierData) {
       this.classifierMemory = ClassifierMemory.deserialize(classifierData);
+    }
+
+    const exemplarData = await this.store.loadMetadata('exemplarStore');
+    if (exemplarData) {
+      this.exemplarStore = ExemplarStore.deserialize(exemplarData);
     }
   }
 }

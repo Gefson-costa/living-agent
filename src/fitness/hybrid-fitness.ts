@@ -9,10 +9,10 @@ import type { FitnessSignal, FitnessWeights, StorageAdapter } from '../core/type
 import { DISCORDANCE_STDEV_THRESHOLD, MIN_CALIBRATION_SAMPLES } from '../core/constants.js';
 
 const DEFAULT_WEIGHTS: FitnessWeights = {
-  completionWeight: 0.5,
-  selfEvalWeight: 0.1,
+  completionWeight: 0.4,
+  selfEvalWeight: 0.3,
   userFeedbackWeight: 0.2,
-  engagementWeight: 0.2,
+  engagementWeight: 0.1,
   selfEvalAccuracy: 0.5,
 };
 
@@ -115,17 +115,17 @@ export async function calibrateWeights(
   const selfEvalAccuracy = Math.max(0, Math.min(1, (correlation + 1) / 2)); // map -1..1 → 0..1
 
   // Redistribute weights based on calibration
-  // Base self-eval weight is 0.1; when accuracy drops, redistribute proportionally
-  const baseSelfEval = 0.1 * selfEvalAccuracy;
-  const redistributed = 0.1 * (1 - selfEvalAccuracy);
-  const completionWeight = 0.6 + redistributed * (0.6 / 0.9);   // ~67% of surplus
-  const userFeedbackWeight = 0.3 + redistributed * (0.3 / 0.9); // ~33% of surplus
+  // Base self-eval weight is 0.3; when accuracy drops, redistribute proportionally
+  const baseSelfEval = 0.3 * selfEvalAccuracy;
+  const redistributed = 0.3 * (1 - selfEvalAccuracy);
+  const completionWeight = 0.4 + redistributed * (0.4 / 0.6);   // ~67% of surplus
+  const userFeedbackWeight = 0.2 + redistributed * (0.2 / 0.6); // ~33% of surplus
 
   return {
     completionWeight,
     selfEvalWeight: baseSelfEval,
     userFeedbackWeight,
-    engagementWeight: 0.2,
+    engagementWeight: 0.1,
     selfEvalAccuracy,
   };
 }

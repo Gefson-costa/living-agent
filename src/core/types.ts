@@ -28,6 +28,8 @@ export interface StrategyGenome {
   learningRate: number;            // 0..0.04, within-lifetime adaptation
   lamarckianRate: number;          // 0..0.15, learned→offspring transfer
   habitatPref: number;             // 0..1, task-type specialization
+  fewShotCount: number;            // 0..5, how many exemplars to inject as few-shot
+  promptSegments: string[];        // max 3 evolved prompt fragments (EvoPrompt-style)
   skillRefs: string[];             // IDs of skills this strategy activates
 }
 

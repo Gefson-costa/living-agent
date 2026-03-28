@@ -13,6 +13,7 @@ import { cloneGenome } from './genome.js';
 interface EliteCell {
   genome: StrategyGenome;
   fitness: number;
+  behavior: StrategyBehavior;
 }
 
 export class MapElites {
@@ -29,9 +30,15 @@ export class MapElites {
   }
 
   advanceCycle(): void {
+    // Save surviving entries before rotating axes
+    const survivors = this.grid.filter((cell): cell is EliteCell => cell !== null);
     this.cycleIndex++;
     this.grid.fill(null);
     this.coverage = 0;
+    // Re-insert survivors into the new axis projection
+    for (const cell of survivors) {
+      this.insert(cell.genome, cell.fitness, cell.behavior);
+    }
   }
 
   /** Map behavior metrics to niche coordinates */
@@ -64,6 +71,7 @@ export class MapElites {
       this.grid[idx] = {
         genome: cloneGenome(genome),
         fitness,
+        behavior,
       };
       if (!existing) this.coverage++;
       return true;
@@ -105,7 +113,7 @@ export class MapElites {
     return MAP_ELITES_SIZE * MAP_ELITES_SIZE;
   }
 
-  /** Get the full grid for persistence */
+  /** Get the full grid for persistence (behavior excluded — recomputed on load) */
   getGrid(): ({ genome: StrategyGenome; fitness: number } | null)[] {
     return this.grid.map(cell =>
       cell ? { genome: cloneGenome(cell.genome), fitness: cell.fitness } : null,

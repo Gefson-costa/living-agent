@@ -311,10 +311,14 @@ const PROVIDER_DEFAULTS: Record<string, { baseUrl: string; model: string; envKey
   ollama:   { baseUrl: 'http://localhost:11434/v1', model: 'llama3', envKey: '' },
 };
 
+const MAX_RETRIES = 3;
+const BASE_RETRY_DELAY_MS = 2000;
+
 export class OpenAICompatibleAdapter implements LLMAdapter {
   private baseUrl: string;
   private model: string;
   private apiKey: string;
+  private isLocal: boolean;
 
   constructor(config: OpenAIAdapterConfig = {}) {
     const providerName = config.provider ?? 'deepseek';
@@ -324,10 +328,11 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
     this.model = config.model ?? defaults.model;
     this.apiKey = config.apiKey
       ?? (defaults.envKey ? (process.env[defaults.envKey] ?? '') : '');
+    this.isLocal = this.baseUrl.includes('localhost') || this.baseUrl.includes('127.0.0.1');
   }
 
   async execute(prompt: string, config: LLMConfig): Promise<LLMResponse> {
-    if (!this.apiKey && !this.baseUrl.includes('localhost')) {
+    if (!this.apiKey && !this.isLocal) {
       return new MockAdapter().execute(prompt, config);
     }
 
@@ -352,40 +357,60 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
       headers['Authorization'] = `Bearer ${this.apiKey}`;
     }
 
-    try {
-      const res = await fetch(`${this.baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          model: this.model,
-          max_tokens: config.maxTokens,
-          temperature: Math.min(1, Math.max(0, config.temperature)),
-          messages,
-        }),
-      });
+    const body = JSON.stringify({
+      model: this.model,
+      max_tokens: config.maxTokens,
+      temperature: Math.min(1, Math.max(0, config.temperature)),
+      messages,
+    });
 
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`${res.status}: ${text.slice(0, 200)}`);
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const res = await fetch(`${this.baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers,
+          body,
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          // Retry on server errors (5xx) for local providers
+          if (res.status >= 500 && attempt < MAX_RETRIES) {
+            await delay(BASE_RETRY_DELAY_MS * 2 ** attempt);
+            continue;
+          }
+          throw new Error(`${res.status}: ${text.slice(0, 200)}`);
+        }
+
+        const data: ChatCompletionResponse = await res.json();
+        const content = data.choices?.[0]?.message?.content ?? '';
+        const usage = data.usage ?? {};
+
+        return {
+          content,
+          tokensUsed: (usage.prompt_tokens ?? 0) + (usage.completion_tokens ?? 0),
+          latencyMs: Date.now() - start,
+        };
+      } catch (err) {
+        if (attempt < MAX_RETRIES) {
+          await delay(BASE_RETRY_DELAY_MS * 2 ** attempt);
+          continue;
+        }
+        return {
+          content: `Error: ${errorMessage(err)}`,
+          tokensUsed: 0,
+          latencyMs: Date.now() - start,
+        };
       }
-
-      const data: ChatCompletionResponse = await res.json();
-      const content = data.choices?.[0]?.message?.content ?? '';
-      const usage = data.usage ?? {};
-
-      return {
-        content,
-        tokensUsed: (usage.prompt_tokens ?? 0) + (usage.completion_tokens ?? 0),
-        latencyMs: Date.now() - start,
-      };
-    } catch (err) {
-      return {
-        content: `Error: ${errorMessage(err)}`,
-        tokensUsed: 0,
-        latencyMs: Date.now() - start,
-      };
     }
+
+    // Unreachable, but TypeScript needs it
+    return { content: 'Error: max retries exceeded', tokensUsed: 0, latencyMs: Date.now() - start };
   }
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // ── Utility ─────────────────────────────────────────────────────

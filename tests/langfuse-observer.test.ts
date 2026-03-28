@@ -50,6 +50,8 @@ function fakeStrategy(id = 'strat_1'): Strategy {
       learningRate: 0.01,
       lamarckianRate: 0.05,
       habitatPref: 0.5,
+      fewShotCount: 0,
+      promptSegments: [],
       skillRefs: [],
     },
     fitness: 1.0,

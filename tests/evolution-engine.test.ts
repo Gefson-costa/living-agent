@@ -39,17 +39,19 @@ beforeEach(() => resetGenomeCounter());
 // ── applyFitnessDecay ──────────────────────────────────────────
 
 describe('applyFitnessDecay', () => {
-  it('decays fitness by default rate 0.95', () => {
+  it('decays fitness based on age (age=3 → 60% of full decay)', () => {
     const s = [makeStrategy(10), makeStrategy(20)];
+    // age=3, ageMultiplier=min(1,3/5)=0.6, effective decay=0.05*0.6=0.03
     applyFitnessDecay(s);
-    expect(s[0].fitness).toBeCloseTo(9.5);
-    expect(s[1].fitness).toBeCloseTo(19);
+    expect(s[0].fitness).toBeCloseTo(10 * (1 - 0.05 * 0.6));
+    expect(s[1].fitness).toBeCloseTo(20 * (1 - 0.05 * 0.6));
   });
 
-  it('accepts a custom rate', () => {
+  it('accepts a custom rate with age-dependent decay', () => {
     const s = [makeStrategy(10)];
+    // age=3, ageMultiplier=0.6, rate=0.5 → effective decay=0.5*0.6=0.3
     applyFitnessDecay(s, 0.5);
-    expect(s[0].fitness).toBeCloseTo(5);
+    expect(s[0].fitness).toBeCloseTo(10 * (1 - 0.5 * 0.6));
   });
 
   it('handles empty array', () => {

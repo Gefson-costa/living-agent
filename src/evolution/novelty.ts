@@ -58,9 +58,9 @@ export class NoveltyArchive {
 
   /** Euclidean distance between two descriptors */
   private dist(a: StrategyBehavior, b: StrategyBehavior): number {
-    const ds = (a.successRate - b.successRate) * 2;
-    const dt = (a.taskDiversity - b.taskDiversity) * 1.5;
-    const de = (a.toolEntropy - b.toolEntropy) * 1.5;
+    const ds = (a.successRate - b.successRate) * 1.2;
+    const dt = (a.taskDiversity - b.taskDiversity) * 1.8;
+    const de = (a.toolEntropy - b.toolEntropy) * 1.8;
     const da = (a.avgTokenEfficiency - b.avgTokenEfficiency) * 1.2;
     const dl = (a.learningMagnitude - b.learningMagnitude) * 1.3;
     return Math.sqrt(ds * ds + dt * dt + de * de + da * da + dl * dl);
