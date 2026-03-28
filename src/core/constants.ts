@@ -14,7 +14,7 @@ export const HASH_NORMALIZER = 0xFFFFFFFF;
 // ── Reward & Fitness ────────────────────────────────────────────
 
 /** Base reward: (score - center) * scale */
-export const BASE_REWARD_CENTER = 0.35;
+export const BASE_REWARD_CENTER = 0.9;
 export const BASE_REWARD_SCALE = 4;
 
 /** Token cost: budget / normalizer * weight */

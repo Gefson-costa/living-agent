@@ -4,6 +4,20 @@ import { SkillLibrary, resetSkillCounter } from '../src/skills/skill-library.js'
 import { MemoryStore } from '../src/storage/memory-store.js';
 import type { Task, TaskResult } from '../src/core/types.js';
 
+// Realistic response with extractable patterns (steps + reasoning)
+const GOOD_RESPONSE = `To solve this problem, I'll break it down step by step.
+
+1. First, identify the equation type
+2. Apply the quadratic formula
+3. Simplify the discriminant
+4. Calculate both roots
+
+Because the discriminant is positive, we get two real solutions.
+Therefore x = 3 and x = -1.`;
+
+// Short/conversational response — no extractable skill
+const BAD_RESPONSE = '4';
+
 describe('SkillExtractor', () => {
   let library: SkillLibrary;
   let extractor: SkillExtractor;
@@ -15,11 +29,11 @@ describe('SkillExtractor', () => {
     extractor = new SkillExtractor(library);
   });
 
-  it('extracts skill from high-scoring task', async () => {
-    const task: Task = { id: 't1', type: 'math', prompt: '2+2', difficulty: 0.3 };
+  it('extracts skill from high-scoring structured response', async () => {
+    const task: Task = { id: 't1', type: 'math', prompt: 'solve x^2-2x-3=0', difficulty: 0.5 };
     const result: TaskResult = {
       taskId: 't1', strategyId: 's1', score: 0.9,
-      tokensUsed: 50, latencyMs: 100, response: '4',
+      tokensUsed: 50, latencyMs: 100, response: GOOD_RESPONSE,
       success: true, taskType: 'math',
     };
 
@@ -33,8 +47,20 @@ describe('SkillExtractor', () => {
     const task: Task = { id: 't1', type: 'math', prompt: '2+2', difficulty: 0.3 };
     const result: TaskResult = {
       taskId: 't1', strategyId: 's1', score: 0.3,
-      tokensUsed: 50, latencyMs: 100, response: '5',
+      tokensUsed: 50, latencyMs: 100, response: GOOD_RESPONSE,
       success: false, taskType: 'math',
+    };
+
+    const skill = await extractor.tryExtract(task, result);
+    expect(skill).toBeNull();
+  });
+
+  it('skips short/conversational responses even with high score', async () => {
+    const task: Task = { id: 't1', type: 'math', prompt: '2+2', difficulty: 0.3 };
+    const result: TaskResult = {
+      taskId: 't1', strategyId: 's1', score: 0.9,
+      tokensUsed: 50, latencyMs: 100, response: BAD_RESPONSE,
+      success: true, taskType: 'math',
     };
 
     const skill = await extractor.tryExtract(task, result);
@@ -46,10 +72,10 @@ describe('SkillExtractor', () => {
     const lib = new SkillLibrary(store);
     const ext = new SkillExtractor(lib, undefined, { scoreThreshold: 0.95, llmExtraction: false });
 
-    const task: Task = { id: 't1', type: 'math', prompt: '2+2', difficulty: 0.3 };
+    const task: Task = { id: 't1', type: 'math', prompt: 'solve x^2-2x-3=0', difficulty: 0.5 };
     const result: TaskResult = {
       taskId: 't1', strategyId: 's1', score: 0.9,
-      tokensUsed: 50, latencyMs: 100, response: '4',
+      tokensUsed: 50, latencyMs: 100, response: GOOD_RESPONSE,
       success: true, taskType: 'math',
     };
 
@@ -58,10 +84,10 @@ describe('SkillExtractor', () => {
   });
 
   it('extracted skill appears in library', async () => {
-    const task: Task = { id: 't1', type: 'math', prompt: '2+2', difficulty: 0.3 };
+    const task: Task = { id: 't1', type: 'math', prompt: 'solve x^2-2x-3=0', difficulty: 0.5 };
     const result: TaskResult = {
       taskId: 't1', strategyId: 's1', score: 0.85,
-      tokensUsed: 50, latencyMs: 100, response: '4',
+      tokensUsed: 50, latencyMs: 100, response: GOOD_RESPONSE,
       success: true, taskType: 'math',
     };
 
@@ -71,14 +97,35 @@ describe('SkillExtractor', () => {
   });
 
   it('includes task type in extracted content', async () => {
+    const response = `First, understand that division distributes over addition.
+1. Split 10 into components
+2. Divide each by 2
+3. Sum the results
+Therefore the answer is 5.`;
+
     const task: Task = { id: 't1', type: 'division', prompt: '10/2', difficulty: 0.5 };
     const result: TaskResult = {
       taskId: 't1', strategyId: 's1', score: 0.95,
-      tokensUsed: 30, latencyMs: 80, response: '5',
+      tokensUsed: 30, latencyMs: 80, response,
       success: true, taskType: 'division',
     };
 
     const skill = await extractor.tryExtract(task, result);
+    expect(skill).not.toBeNull();
     expect(skill!.content).toContain('division');
+  });
+
+  it('extracts reasoning patterns from response', async () => {
+    const task: Task = { id: 't1', type: 'math', prompt: 'solve x^2-2x-3=0', difficulty: 0.5 };
+    const result: TaskResult = {
+      taskId: 't1', strategyId: 's1', score: 0.9,
+      tokensUsed: 50, latencyMs: 100, response: GOOD_RESPONSE,
+      success: true, taskType: 'math',
+    };
+
+    const skill = await extractor.tryExtract(task, result);
+    expect(skill).not.toBeNull();
+    // Should contain step-based approach, not raw response text
+    expect(skill!.content).toMatch(/Approach:|Reasoning:/);
   });
 });

@@ -117,16 +117,16 @@ describe('buildStrategyPrompt', () => {
     expect(prompt).not.toContain('Expertise: coding');
   });
 
-  it('includes promptStyle traits when values > 0.3', () => {
-    const style = new Float32Array([0.8, 0.1, 0.5, 0.2]);  // precise=0.8, creative=0.1, concise=0.5, thorough=0.2
+  it('includes promptStyle traits when values > 0.7', () => {
+    const style = new Float32Array([0.8, 0.1, 0.9, 0.2]);  // precise=0.8, creative=0.1, concise=0.9, thorough=0.2
     const strategy = makeStrategy({
       genome: makeGenome({ promptStyle: style }),
     });
     const prompt = buildStrategyPrompt(template, strategy, tools);
-    expect(prompt).toContain('Be precise.');
-    expect(prompt).toContain('Be concise.');
-    expect(prompt).not.toContain('Be creative.');
-    expect(prompt).not.toContain('Be thorough.');
+    expect(prompt).toContain('Be precise.');    // 0.8 > 0.7
+    expect(prompt).toContain('Be concise.');    // 0.9 > 0.7
+    expect(prompt).not.toContain('Be creative.');  // 0.1 < 0.7
+    expect(prompt).not.toContain('Be thorough.');  // 0.2 < 0.7
   });
 
   it('includes preferred tools when toolPreferences > 0.6', () => {

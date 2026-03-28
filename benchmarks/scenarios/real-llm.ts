@@ -22,7 +22,7 @@ import { SqliteStore } from '../../src/storage/sqlite-store.js';
 
 const verbose = process.argv.includes('--verbose');
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DB_PATH = resolve(__dirname, '..', '..', 'living-agent.sqlite');
+const DB_PATH = resolve(__dirname, '..', '..', 'benchmark.sqlite');
 
 // ── Logging helpers ──────────────────────────────────────────────
 

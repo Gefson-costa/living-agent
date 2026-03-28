@@ -7,7 +7,7 @@ import type { AgentConfig } from './types.js';
 export function createDefaultConfig(overrides: Partial<AgentConfig> = {}): AgentConfig {
   return {
     strategyCount: 16,
-    mutationRate: 1.0,
+    mutationRate: 0.15,
     promptStyleDim: 4,
     toolCount: 4,
     noveltyWeight: 0.8,

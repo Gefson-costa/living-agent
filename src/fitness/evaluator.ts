@@ -92,12 +92,11 @@ export class MathEvaluator implements TaskEvaluator {
 
     const relError = Math.abs((answer - expected) / expected);
 
-    if (relError < 0.001) return 1.0;
-    if (relError < 0.01) return 0.9;
-    if (relError < 0.05) return 0.7;
-    if (relError < 0.1) return 0.5;
-    if (relError < 0.3) return 0.2;
-    return 0;
+    if (relError < 0.001) return 1.0;   // exact → full reward
+    if (relError < 0.01)  return 0.3;   // very close → gradient signal
+    if (relError < 0.05)  return 0.1;   // close → tiny signal
+    if (relError < 0.1)   return 0.05;  // near → near-zero
+    return 0;                            // wrong → zero
   }
 }
 

@@ -47,12 +47,11 @@ function scoreFuzzy(predicted: number, expected: number): number {
     return Math.abs(predicted) < 0.01 ? 1.0 : Math.max(0, 1 - Math.abs(predicted));
   }
   const relError = Math.abs((predicted - expected) / expected);
-  if (relError < 0.001) return 1.0;
-  if (relError < 0.01)  return 0.9;
-  if (relError < 0.05)  return 0.7;
-  if (relError < 0.1)   return 0.5;
-  if (relError < 0.3)   return 0.2;
-  return 0;
+  if (relError < 0.001) return 1.0;   // exact match → full reward
+  if (relError < 0.01)  return 0.3;   // very close → small gradient signal
+  if (relError < 0.05)  return 0.1;   // close → tiny signal
+  if (relError < 0.1)   return 0.05;  // near → near-zero
+  return 0;                            // wrong → zero
 }
 
 export class Gsm8kEvaluator implements TaskEvaluator {

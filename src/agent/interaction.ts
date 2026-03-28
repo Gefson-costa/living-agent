@@ -86,7 +86,7 @@ export const DEFAULT_LIVING_AGENT_CONFIG: LivingAgentConfig = {
   toolCount: 4,
   toolNames: ['search', 'code', 'analyze', 'summarize'],
   systemPromptTemplate: 'You are a helpful AI assistant. Solve the given task.',
-  mutationRate: 1.0,
+  mutationRate: 0.15,
 
   epsilon: 0.15,
   consolidateEvery: 10,

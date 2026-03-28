@@ -34,7 +34,7 @@ export function buildSystemPrompt(
     'cautious', 'bold', 'analytical', 'intuitive',
   ];
   for (let i = 0; i < Math.min(style.length, traits.length); i++) {
-    if (style[i] > 0.3) emphases.push(`Be ${traits[i]}.`);
+    if (style[i] > 0.7) emphases.push(`Be ${traits[i]}.`);
   }
 
   // Tool preferences: highlight preferred tools

@@ -40,9 +40,41 @@ export class SkillExtractor {
     return this.extractSimple(task, result);
   }
 
-  /** Simple extraction: store the response pattern as a skill */
-  private async extractSimple(task: Task, result: TaskResult): Promise<Skill> {
-    const content = `For ${task.type} tasks: ${result.response.slice(0, 500)}`;
+  /** Simple extraction: extract structural patterns from high-scoring responses */
+  private async extractSimple(task: Task, result: TaskResult): Promise<Skill | null> {
+    const response = result.response.trim();
+
+    // Skip too-short or conversational responses (likely not real skills)
+    if (response.length < 50) return null;
+
+    // Extract structural signals: steps, code blocks, key reasoning patterns
+    const patterns: string[] = [];
+
+    // Look for numbered steps / bullet points
+    const stepLines = response.split('\n').filter(l => /^\s*(\d+[\.\):]|[-*•])/.test(l));
+    if (stepLines.length >= 2) {
+      patterns.push('Approach: ' + stepLines.slice(0, 5).map(l => l.trim()).join(' → '));
+    }
+
+    // Look for code blocks
+    const codeBlocks = response.match(/```[\s\S]*?```/g);
+    if (codeBlocks && codeBlocks.length > 0) {
+      const firstBlock = codeBlocks[0].slice(0, 300);
+      patterns.push('Code pattern: ' + firstBlock);
+    }
+
+    // Look for reasoning markers ("because", "therefore", "step", "first")
+    const reasoningLines = response.split('\n').filter(l =>
+      /\b(because|therefore|first|then|finally|key insight|the trick|approach)\b/i.test(l)
+    );
+    if (reasoningLines.length > 0) {
+      patterns.push('Reasoning: ' + reasoningLines.slice(0, 3).map(l => l.trim()).join(' | '));
+    }
+
+    // If no structural patterns found, skip — raw text is not a useful skill
+    if (patterns.length === 0) return null;
+
+    const content = `[${task.type}] ${patterns.join('\n')}`.slice(0, 500);
     return this.library.addSkill('code', [task.type], content, result.score);
   }
 

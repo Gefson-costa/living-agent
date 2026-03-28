@@ -9,6 +9,7 @@ import type {
 import { MAX_TASK_HISTORY } from '../src/core/types.js';
 import { createGenome } from '../src/evolution/genome.js';
 import { buildSystemPrompt } from '../src/llm/adapter.js';
+import { BASE_REWARD_CENTER, BASE_REWARD_SCALE, TOKEN_COST_NORMALIZER, TOKEN_COST_WEIGHT } from '../src/core/constants.js';
 import { updateTaskTypeMemory, decayTaskTypeMemory } from '../src/learning/task-memory.js';
 import type { createSeededRng } from './harness.js';
 
@@ -114,8 +115,8 @@ export class StaticBaseline {
   }
 
   private reward(strategy: Strategy, result: TaskResult): void {
-    const baseReward = (result.score - 0.35) * 4;
-    const tokenCost = strategy.genome.maxTokenBudget / 4000 * 0.5;
+    const baseReward = (result.score - BASE_REWARD_CENTER) * BASE_REWARD_SCALE;
+    const tokenCost = strategy.genome.maxTokenBudget / TOKEN_COST_NORMALIZER * TOKEN_COST_WEIGHT;
     strategy.fitness += baseReward - tokenCost;
 
     strategy.taskHistory.push(result);
@@ -257,8 +258,8 @@ export class RandomBaseline {
   }
 
   private reward(strategy: Strategy, result: TaskResult): void {
-    const baseReward = (result.score - 0.35) * 4;
-    const tokenCost = strategy.genome.maxTokenBudget / 4000 * 0.5;
+    const baseReward = (result.score - BASE_REWARD_CENTER) * BASE_REWARD_SCALE;
+    const tokenCost = strategy.genome.maxTokenBudget / TOKEN_COST_NORMALIZER * TOKEN_COST_WEIGHT;
     strategy.fitness += baseReward - tokenCost;
 
     strategy.taskHistory.push(result);

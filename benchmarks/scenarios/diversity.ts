@@ -33,11 +33,16 @@ export async function diversity(
     const rng2 = createSeededRng(s);
 
     // With novelty (default: noveltyWeight 0.8)
+    // Uses higher mutation rate and lenient culling because this test measures
+    // diversity preservation, not fitness. MockAdapter + strict reward center
+    // produces uniformly negative fitness — lenient culling keeps the population alive.
     resetGenomeCounter();
     const config1 = createDefaultConfig({
       strategyCount: 12,
       taskBatchSize: 12,
       noveltyWeight: 0.8,
+      mutationRate: 0.6,
+      cullThreshold: -20,
     });
     const ecology1 = new Ecology(config1, new MockAdapter(), new MathEvaluator(rng1));
     const stats1 = await ecology1.run(cycles);
@@ -48,6 +53,8 @@ export async function diversity(
       strategyCount: 12,
       taskBatchSize: 12,
       noveltyWeight: 0,
+      mutationRate: 0.6,
+      cullThreshold: -20,
     });
     const ecology2 = new Ecology(config2, new MockAdapter(), new MathEvaluator(rng2));
     const stats2 = await ecology2.run(cycles);
