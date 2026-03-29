@@ -22,11 +22,10 @@ import { Ecology } from '../../src/evolution/ecology.js';
 import { buildSystemPrompt } from '../../src/llm/adapter.js';
 import { createDefaultConfig } from '../../src/core/config.js';
 import { resetGenomeCounter } from '../../src/evolution/genome.js';
-import { LogiQAEvaluator } from '../evaluators/logiqa-evaluator.js';
+import { LogiQAEvaluator, extractAnswer, buildFewShotPrefix } from '../evaluators/logiqa-evaluator.js';
 import { createBenchmarkAdapter } from '../create-adapter.js';
 import { runBenchmark } from '../harness.js';
 import { BenchLogger } from '../bench-logger.js';
-import { extractAnswer } from '../evaluators/logiqa-evaluator.js';
 import type { BenchmarkResult, TimeSeriesPoint } from '../harness.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -54,6 +53,9 @@ interface StaticResult {
   totalTokens: number;
 }
 
+const FEW_SHOT_COUNT = 3;
+const VOTE_COUNT = 5; // self-consistency: sample N times, majority vote
+
 async function runStaticBaseline(
   adapter: LLMAdapter,
   evalEvaluator: LogiQAEvaluator,
@@ -62,6 +64,7 @@ async function runStaticBaseline(
   const items = evalEvaluator.getAllItems();
   const CONCURRENCY = 4;
   const LETTERS = ['A', 'B', 'C', 'D'];
+  const fewShotPrefix = buildFewShotPrefix(FEW_SHOT_COUNT);
 
   let correct = 0;
   let totalTokens = 0;
@@ -74,7 +77,7 @@ async function runStaticBaseline(
         .map((opt, idx) => `${LETTERS[idx]}. ${opt}`)
         .join('\n');
 
-      const prompt = `${item.context}\n\nQuestion: ${item.query}\n\n${optionsText}\n\nChoose the best answer (A, B, C, or D). Think step by step, then end with "The answer is X".`;
+      const prompt = `${fewShotPrefix}${item.context}\n\nQuestion: ${item.query}\n\n${optionsText}\n\nChoose the best answer (A, B, C, or D). Think step by step, then end with "The answer is X".`;
 
       try {
         const start = Date.now();
@@ -160,7 +163,7 @@ async function runLivingAgent(
   if (preflight.tokensUsed === 0) return null;
 
   // ── Evolve on train split ─────────────────────────────────────
-  const trainEvaluator = new LogiQAEvaluator('train');
+  const trainEvaluator = new LogiQAEvaluator('train', FEW_SHOT_COUNT);
   let totalTokens = 0;
 
   let trainTaskIndex = 0;
@@ -231,6 +234,7 @@ async function runLivingAgent(
 
   const evalEvaluator = new LogiQAEvaluator('eval');
   const evalItems = evalEvaluator.getAllItems();
+  const fewShotPrefix = buildFewShotPrefix(FEW_SHOT_COUNT);
 
   const systemPrompt = buildSystemPrompt(
     config.systemPromptTemplate,
@@ -243,6 +247,9 @@ async function runLivingAgent(
   const total = evalItems.length;
   const CONCURRENCY = 4;
   const LETTERS = ['A', 'B', 'C', 'D'];
+  const evolvedTemp = Math.min(1, Math.max(0, best.genome.temperature));
+
+  console.log(`    self-consistency: ${VOTE_COUNT} votes per question`);
 
   for (let batchStart = 0; batchStart < evalItems.length; batchStart += CONCURRENCY) {
     const batch = evalItems.slice(batchStart, batchStart + CONCURRENCY);
@@ -251,48 +258,63 @@ async function runLivingAgent(
         .map((opt, idx) => `${LETTERS[idx]}. ${opt}`)
         .join('\n');
 
-      const prompt = `${item.context}\n\nQuestion: ${item.query}\n\n${optionsText}\n\nChoose the best answer (A, B, C, or D). Think step by step, then end with "The answer is X".`;
+      const prompt = `${fewShotPrefix}${item.context}\n\nQuestion: ${item.query}\n\n${optionsText}\n\nChoose the best answer (A, B, C, or D). Think step by step, then end with "The answer is X".`;
 
-      try {
-        const start = Date.now();
-        const response = await adapter.execute(prompt, {
-          temperature: Math.min(1, Math.max(0, best.genome.temperature)),
-          maxTokens: evalTokenBudget,
-          systemPrompt,
-          toolNames: [],
-        });
-        const score = evalEvaluator.scoreById(item.id, response.content);
-        const predicted = extractAnswer(response.content);
+      // Self-consistency: sample VOTE_COUNT times, majority vote
+      const votes = [0, 0, 0, 0]; // A, B, C, D counts
+      let itemTokens = 0;
+      const start = Date.now();
+      let lastResponse = '';
 
-        logger.log({
-          phase: 'evolution-eval',
-          itemIndex: batchStart + batchIdx,
-          itemTotal: total,
-          itemId: item.id,
-          taskType: 'logiqa',
-          strategyId: best.genome.id,
-          genome: {
-            temperature: best.genome.temperature,
-            reasoningDepth: best.genome.reasoningDepth,
-            maxTokenBudget: best.genome.maxTokenBudget,
-            habitatPref: best.genome.habitatPref,
-            mutability: best.genome.mutability,
-          },
-          score,
-          tokensUsed: response.tokensUsed,
-          inferenceMs: Date.now() - start,
-          responseLength: response.content.length,
-          prompt: prompt.slice(0, 500),
-          responsePreview: response.content.slice(-200),
-          goldAnswer: LETTERS[item.correct_option],
-          predictedAnswer: predicted !== null ? LETTERS[predicted] : 'NONE',
-          systemPrompt: systemPrompt.slice(0, 300),
-        } as any);
-
-        return { tokens: response.tokensUsed, score };
-      } catch {
-        return { tokens: 0, score: 0 };
+      for (let v = 0; v < VOTE_COUNT; v++) {
+        try {
+          const response = await adapter.execute(prompt, {
+            temperature: evolvedTemp,
+            maxTokens: evalTokenBudget,
+            systemPrompt,
+            toolNames: [],
+          });
+          itemTokens += response.tokensUsed;
+          lastResponse = response.content;
+          const predicted = extractAnswer(response.content);
+          if (predicted !== null) votes[predicted]++;
+        } catch {
+          // skip failed vote
+        }
       }
+
+      // Majority vote
+      const maxVotes = Math.max(...votes);
+      const winner = votes.indexOf(maxVotes);
+      const gold = item.correct_option;
+      const score = winner === gold ? 1 : 0;
+
+      logger.log({
+        phase: 'evolution-eval',
+        itemIndex: batchStart + batchIdx,
+        itemTotal: total,
+        itemId: item.id,
+        taskType: 'logiqa',
+        strategyId: best.genome.id,
+        genome: {
+          temperature: best.genome.temperature,
+          reasoningDepth: best.genome.reasoningDepth,
+          maxTokenBudget: best.genome.maxTokenBudget,
+          habitatPref: best.genome.habitatPref,
+          mutability: best.genome.mutability,
+        },
+        score,
+        tokensUsed: itemTokens,
+        inferenceMs: Date.now() - start,
+        responseLength: lastResponse.length,
+        responsePreview: lastResponse.slice(-200),
+        goldAnswer: LETTERS[gold],
+        predictedAnswer: LETTERS[winner],
+        votes: `A=${votes[0]} B=${votes[1]} C=${votes[2]} D=${votes[3]}`,
+        systemPrompt: systemPrompt.slice(0, 300),
+      } as any);
+
+      return { tokens: itemTokens, score };
     }));
 
     for (const r of results) {
@@ -376,8 +398,8 @@ export async function logiqa(
     console.log('------------------------------------------------------------');
     console.log('Method                    Accuracy   Tokens   Description');
     console.log('------------------------------------------------------------');
-    console.log(`Static baseline           ${(staticResult.accuracy * 100).toFixed(1).padStart(5)}%    ${String(staticResult.totalTokens).padStart(7)}   Fixed prompt, temp=0.3`);
-    console.log(`Living-Agent (evolved)    ${(la.accuracy * 100).toFixed(1).padStart(5)}%    ${String(la.totalTokens).padStart(7)}   ${cycles} evolution cycles`);
+    console.log(`Static baseline           ${(staticResult.accuracy * 100).toFixed(1).padStart(5)}%    ${String(staticResult.totalTokens).padStart(7)}   ${FEW_SHOT_COUNT}-shot, temp=0.3`);
+    console.log(`Living-Agent (evolved)    ${(la.accuracy * 100).toFixed(1).padStart(5)}%    ${String(la.totalTokens).padStart(7)}   ${FEW_SHOT_COUNT}-shot, ${VOTE_COUNT}-vote SC, ${cycles} evo cycles`);
     console.log(`                          ${sign}${(delta * 100).toFixed(1).padStart(4)}pp                  Evolution delta`);
     console.log('------------------------------------------------------------');
 
