@@ -17,7 +17,7 @@ import 'dotenv/config';
 import { writeFileSync, mkdirSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import type { LLMAdapter } from '../../src/core/types.js';
+import type { LLMAdapter, ConfidenceLevel } from '../../src/core/types.js';
 import { Ecology } from '../../src/evolution/ecology.js';
 import { buildSystemPrompt } from '../../src/llm/adapter.js';
 import { createDefaultConfig } from '../../src/core/config.js';
@@ -26,6 +26,10 @@ import { LogiQAEvaluator, extractAnswer, buildFewShotPrefix } from '../evaluator
 import { createBenchmarkAdapter } from '../create-adapter.js';
 import { runBenchmark } from '../harness.js';
 import { BenchLogger } from '../bench-logger.js';
+import {
+  evaluateConfidence, computeCalibrationMetrics, calibrationFitness,
+} from '../../src/confidence/entropy.js';
+import type { ConfidenceResultWithGold } from '../../src/confidence/entropy.js';
 import type { BenchmarkResult, TimeSeriesPoint } from '../harness.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -137,6 +141,15 @@ interface EvolvedResult {
   lateAvgFitness: number;
   totalTokens: number;
   timeSeries: TimeSeriesPoint[];
+  calibration: {
+    selectiveAccuracy: number;
+    coverage: number;
+    abstentionRate: number;
+    falseConfidenceRate: number;
+    ece: number;
+    calibrationFitness: number;
+    buckets: { confidence: ConfidenceLevel; count: number; correct: number; accuracy: number }[];
+  };
 }
 
 async function runLivingAgent(
@@ -229,8 +242,11 @@ async function runLivingAgent(
   // Clamp token budget: LogiQA needs at least 1200 tokens for complete CoT reasoning
   const evalTokenBudget = Math.max(1200, best.genome.maxTokenBudget);
 
+  const evolvedVoteCount = best.genome.voteCount ?? VOTE_COUNT;
+
   console.log('  [Living-Agent] Evaluating best strategy on eval split...');
   console.log(`    best genome: temp=${best.genome.temperature.toFixed(2)} reasoning=${best.genome.reasoningDepth.toFixed(2)} tokens=${best.genome.maxTokenBudget} (eval clamped to ${evalTokenBudget})`);
+  console.log(`    confidence: T1=${(best.genome.confidenceThresholdHigh ?? 0.3).toFixed(3)} T2=${(best.genome.confidenceThresholdLow ?? 0.8).toFixed(3)} votes=${evolvedVoteCount} policy=${best.genome.abstentionPolicy ?? 'refuse'}`);
 
   const evalEvaluator = new LogiQAEvaluator('eval');
   const evalItems = evalEvaluator.getAllItems();
@@ -249,7 +265,9 @@ async function runLivingAgent(
   const LETTERS = ['A', 'B', 'C', 'D'];
   const evolvedTemp = Math.min(1, Math.max(0, best.genome.temperature));
 
-  console.log(`    self-consistency: ${VOTE_COUNT} votes per question`);
+  console.log(`    self-consistency: ${evolvedVoteCount} votes per question (evolved)`);
+
+  const allConfidenceResults: ConfidenceResultWithGold[] = [];
 
   for (let batchStart = 0; batchStart < evalItems.length; batchStart += CONCURRENCY) {
     const batch = evalItems.slice(batchStart, batchStart + CONCURRENCY);
@@ -260,13 +278,13 @@ async function runLivingAgent(
 
       const prompt = `${fewShotPrefix}${item.context}\n\nQuestion: ${item.query}\n\n${optionsText}\n\nChoose the best answer (A, B, C, or D). Think step by step, then end with "The answer is X".`;
 
-      // Self-consistency: sample VOTE_COUNT times, majority vote
+      // Self-consistency: sample evolvedVoteCount times
       const votes = [0, 0, 0, 0]; // A, B, C, D counts
       let itemTokens = 0;
       const start = Date.now();
       let lastResponse = '';
 
-      for (let v = 0; v < VOTE_COUNT; v++) {
+      for (let v = 0; v < evolvedVoteCount; v++) {
         try {
           const response = await adapter.execute(prompt, {
             temperature: evolvedTemp,
@@ -283,11 +301,12 @@ async function runLivingAgent(
         }
       }
 
-      // Majority vote
-      const maxVotes = Math.max(...votes);
-      const winner = votes.indexOf(maxVotes);
+      // Evaluate confidence using genome thresholds
+      const confResult = evaluateConfidence(votes, best.genome);
       const gold = item.correct_option;
-      const score = winner === gold ? 1 : 0;
+      const score = confResult.answer === gold ? 1 : (confResult.abstained ? 0 : 0);
+
+      allConfidenceResults.push({ result: confResult, gold });
 
       logger.log({
         phase: 'evolution-eval',
@@ -300,8 +319,10 @@ async function runLivingAgent(
           temperature: best.genome.temperature,
           reasoningDepth: best.genome.reasoningDepth,
           maxTokenBudget: best.genome.maxTokenBudget,
-          habitatPref: best.genome.habitatPref,
-          mutability: best.genome.mutability,
+          voteCount: evolvedVoteCount,
+          confidenceThresholdHigh: best.genome.confidenceThresholdHigh,
+          confidenceThresholdLow: best.genome.confidenceThresholdLow,
+          abstentionPolicy: best.genome.abstentionPolicy,
         },
         score,
         tokensUsed: itemTokens,
@@ -309,7 +330,10 @@ async function runLivingAgent(
         responseLength: lastResponse.length,
         responsePreview: lastResponse.slice(-200),
         goldAnswer: LETTERS[gold],
-        predictedAnswer: LETTERS[winner],
+        predictedAnswer: confResult.answer !== null ? LETTERS[confResult.answer] : 'ABSTAINED',
+        confidence: confResult.confidence,
+        entropy: confResult.entropy.toFixed(4),
+        abstained: confResult.abstained,
         votes: `A=${votes[0]} B=${votes[1]} C=${votes[2]} D=${votes[3]}`,
         systemPrompt: systemPrompt.slice(0, 300),
       } as any);
@@ -328,6 +352,10 @@ async function runLivingAgent(
     }
   }
 
+  // Compute calibration metrics
+  const calMetrics = computeCalibrationMetrics(allConfidenceResults);
+  const calFitness = calibrationFitness(calMetrics);
+
   const window = Math.min(5, Math.floor(cycles / 2));
   const earlyPoints = timeSeries.slice(0, window);
   const latePoints = timeSeries.slice(cycles - window);
@@ -342,6 +370,15 @@ async function runLivingAgent(
     lateAvgFitness: avg(latePoints, 'avgFitness'),
     totalTokens,
     timeSeries,
+    calibration: {
+      selectiveAccuracy: calMetrics.selectiveAccuracy,
+      coverage: calMetrics.coverage,
+      abstentionRate: calMetrics.abstentionRate,
+      falseConfidenceRate: calMetrics.falseConfidenceRate,
+      ece: calMetrics.expectedCalibrationError,
+      calibrationFitness: calFitness,
+      buckets: calMetrics.buckets,
+    },
   };
 }
 
@@ -399,9 +436,28 @@ export async function logiqa(
     console.log('Method                    Accuracy   Tokens   Description');
     console.log('------------------------------------------------------------');
     console.log(`Static baseline           ${(staticResult.accuracy * 100).toFixed(1).padStart(5)}%    ${String(staticResult.totalTokens).padStart(7)}   ${FEW_SHOT_COUNT}-shot, temp=0.3`);
-    console.log(`Living-Agent (evolved)    ${(la.accuracy * 100).toFixed(1).padStart(5)}%    ${String(la.totalTokens).padStart(7)}   ${FEW_SHOT_COUNT}-shot, ${VOTE_COUNT}-vote SC, ${cycles} evo cycles`);
+    console.log(`Living-Agent (evolved)    ${(la.accuracy * 100).toFixed(1).padStart(5)}%    ${String(la.totalTokens).padStart(7)}   ${FEW_SHOT_COUNT}-shot, evolved SC, ${cycles} evo cycles`);
     console.log(`                          ${sign}${(delta * 100).toFixed(1).padStart(4)}pp                  Evolution delta`);
     console.log('------------------------------------------------------------');
+
+    // ── Calibration Report ──────────────────────────────────────
+    const cal = la.calibration;
+    console.log('\n============================================================');
+    console.log('Calibrated Confidence Report');
+    console.log('============================================================');
+    console.log(`  Selective Accuracy:   ${(cal.selectiveAccuracy * 100).toFixed(1)}% (accuracy on accepted answers)`);
+    console.log(`  Coverage:             ${(cal.coverage * 100).toFixed(1)}% (questions answered)`);
+    console.log(`  Abstention Rate:      ${(cal.abstentionRate * 100).toFixed(1)}% (questions refused)`);
+    console.log(`  False Confidence:     ${(cal.falseConfidenceRate * 100).toFixed(1)}% (wrong with HIGH confidence)`);
+    console.log(`  ECE:                  ${cal.ece.toFixed(4)} (expected calibration error)`);
+    console.log(`  Calibration Fitness:  ${cal.calibrationFitness.toFixed(4)}`);
+    console.log('');
+    console.log('  Confidence Buckets:');
+    console.log('  Level     Count   Correct  Accuracy');
+    for (const b of cal.buckets) {
+      console.log(`  ${b.confidence.padEnd(8)}  ${String(b.count).padStart(5)}   ${String(b.correct).padStart(7)}   ${(b.accuracy * 100).toFixed(1)}%`);
+    }
+    console.log('============================================================');
 
     // Save comparison JSON
     mkdirSync(RESULTS_DIR, { recursive: true });
@@ -416,6 +472,7 @@ export async function logiqa(
       evolutionDelta: delta,
       earlyAvgFitness: la.earlyAvgFitness,
       lateAvgFitness: la.lateAvgFitness,
+      calibration: cal,
     }, null, 2));
     console.log(`\nResults saved to ${COMPARISON_PATH}`);
 
@@ -445,6 +502,12 @@ export async function logiqa(
       earlyAvgFitness: la.earlyAvgFitness,
       lateAvgFitness: la.lateAvgFitness,
       totalTokensUsed: la.totalTokens + staticResult.totalTokens,
+      selectiveAccuracy: cal.selectiveAccuracy,
+      coverage: cal.coverage,
+      abstentionRate: cal.abstentionRate,
+      falseConfidenceRate: cal.falseConfidenceRate,
+      calibrationError: cal.ece,
+      calibrationFitness: cal.calibrationFitness,
     };
 
     return {

@@ -65,6 +65,11 @@ export function createGenome(
     fewShotCount: (rng() * 4) | 0,               // 0..3 initially
     promptSegments: [],                           // start empty, accumulate through learning
     skillRefs: [],
+    // Calibrated Confidence genes (Phase 2)
+    voteCount: 3 + ((rng() * 5) | 0),            // 3..7
+    confidenceThresholdHigh: 0.1 + rng() * 0.4,  // 0.1..0.5 (low entropy = high confidence)
+    confidenceThresholdLow: 0.5 + rng() * 0.6,   // 0.5..1.1 (high entropy = abstain)
+    abstentionPolicy: (['refuse', 'caveat', 'decompose'] as const)[(rng() * 3) | 0],
   };
 }
 
@@ -143,6 +148,33 @@ export function mutateGenome(
   // Mutate skillRefs: small chance to drop a skill (pruning dead weight)
   const skillRefs = parent.skillRefs.filter(() => rng() > 0.05 * rate);
 
+  // Mutate confidence genes
+  let voteCount = parent.voteCount;
+  if (rng() < 0.10 * rate) voteCount = clamp(voteCount + ((rng() < 0.5) ? -2 : 2), 3, 7);
+
+  let confidenceThresholdHigh = parent.confidenceThresholdHigh;
+  if (rng() < 0.12 * rate) confidenceThresholdHigh = clamp(
+    confidenceThresholdHigh + (rng() - 0.5) * 0.15, 0.0, 1.5,
+  );
+
+  let confidenceThresholdLow = parent.confidenceThresholdLow;
+  if (rng() < 0.12 * rate) confidenceThresholdLow = clamp(
+    confidenceThresholdLow + (rng() - 0.5) * 0.15, 0.0, 1.5,
+  );
+
+  // Ensure T1 < T2 (high threshold must be below low threshold)
+  if (confidenceThresholdHigh >= confidenceThresholdLow) {
+    const mid = (confidenceThresholdHigh + confidenceThresholdLow) / 2;
+    confidenceThresholdHigh = mid - 0.05;
+    confidenceThresholdLow = mid + 0.05;
+  }
+
+  const policies = ['refuse', 'caveat', 'decompose'] as const;
+  let abstentionPolicy = parent.abstentionPolicy;
+  if (rng() < 0.05 * rate) {
+    abstentionPolicy = policies[(rng() * 3) | 0];
+  }
+
   return {
     id: nextId(),
     promptStyle,
@@ -157,6 +189,10 @@ export function mutateGenome(
     fewShotCount,
     promptSegments,
     skillRefs,
+    voteCount,
+    confidenceThresholdHigh,
+    confidenceThresholdLow,
+    abstentionPolicy,
   };
 }
 
@@ -210,6 +246,17 @@ export function crossoverGenomes(
     skillRefs = skillRefs.slice(0, MAX_SKILL_REFS);
   }
 
+  // Crossover confidence genes
+  const voteCount = Math.round(primary.voteCount * w + mate.voteCount * (1 - w));
+  let confidenceThresholdHigh = primary.confidenceThresholdHigh * w + mate.confidenceThresholdHigh * (1 - w);
+  let confidenceThresholdLow = primary.confidenceThresholdLow * w + mate.confidenceThresholdLow * (1 - w);
+  if (confidenceThresholdHigh >= confidenceThresholdLow) {
+    const mid = (confidenceThresholdHigh + confidenceThresholdLow) / 2;
+    confidenceThresholdHigh = mid - 0.05;
+    confidenceThresholdLow = mid + 0.05;
+  }
+  const abstentionPolicy = rng() < w ? primary.abstentionPolicy : mate.abstentionPolicy;
+
   return {
     id: nextId(),
     promptStyle,
@@ -224,6 +271,10 @@ export function crossoverGenomes(
     fewShotCount,
     promptSegments,
     skillRefs,
+    voteCount,
+    confidenceThresholdHigh,
+    confidenceThresholdLow,
+    abstentionPolicy,
   };
 }
 
@@ -267,15 +318,25 @@ export function geneticDistance(a: StrategyGenome, b: StrategyGenome): number {
   const intersection = [...aSkills].filter(s => bSkills.has(s)).length;
   const skillDist = union.size > 0 ? 1 - intersection / union.size : 0;
 
+  // Confidence gene distances
+  const voteDist = Math.abs((a.voteCount ?? 5) - (b.voteCount ?? 5)) / 4; // range 3..7 → /4
+  const confHighDist = Math.abs((a.confidenceThresholdHigh ?? 0.3) - (b.confidenceThresholdHigh ?? 0.3)) / 1.5;
+  const confLowDist = Math.abs((a.confidenceThresholdLow ?? 0.8) - (b.confidenceThresholdLow ?? 0.8)) / 1.5;
+  const policyDist = (a.abstentionPolicy ?? 'refuse') === (b.abstentionPolicy ?? 'refuse') ? 0 : 1;
+
   return clamp(
-    styleDist * 0.22 +
-    toolDist * 0.16 +
-    tempDist * 0.12 +
-    tokenDist * 0.07 +
-    habDist * 0.09 +
-    reasonDist * 0.12 +
-    fewShotDist * 0.08 +
-    skillDist * 0.14,
+    styleDist * 0.18 +
+    toolDist * 0.13 +
+    tempDist * 0.10 +
+    tokenDist * 0.06 +
+    habDist * 0.07 +
+    reasonDist * 0.10 +
+    fewShotDist * 0.06 +
+    skillDist * 0.10 +
+    voteDist * 0.06 +
+    confHighDist * 0.06 +
+    confLowDist * 0.04 +
+    policyDist * 0.04,
     0, 1,
   );
 }
@@ -297,5 +358,9 @@ export function cloneGenome(g: StrategyGenome): StrategyGenome {
     fewShotCount: g.fewShotCount ?? 0,
     promptSegments: [...(g.promptSegments ?? [])],
     skillRefs: [...g.skillRefs],
+    voteCount: g.voteCount ?? 5,
+    confidenceThresholdHigh: g.confidenceThresholdHigh ?? 0.3,
+    confidenceThresholdLow: g.confidenceThresholdLow ?? 0.8,
+    abstentionPolicy: g.abstentionPolicy ?? 'refuse',
   };
 }

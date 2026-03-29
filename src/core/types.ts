@@ -31,6 +31,11 @@ export interface StrategyGenome {
   fewShotCount: number;            // 0..5, how many exemplars to inject as few-shot
   promptSegments: string[];        // max 3 evolved prompt fragments (EvoPrompt-style)
   skillRefs: string[];             // IDs of skills this strategy activates
+  // ── Calibrated Confidence genes (Phase 2) ──
+  voteCount: number;               // 3..7, how many votes for self-consistency
+  confidenceThresholdHigh: number; // 0..1.5, entropy below which → HIGH confidence
+  confidenceThresholdLow: number;  // 0..1.5, entropy above which → LOW (abstain)
+  abstentionPolicy: 'refuse' | 'caveat' | 'decompose';  // how to handle LOW confidence
 }
 
 // ── Strategy — runtime state of a strategy ───────────────────────
@@ -296,4 +301,34 @@ export interface SafetyConfig {
   protectedPaths?: string[];
   enableAudit?: boolean;
   snapshotRetention?: number;   // max snapshots to keep (default 20)
+}
+
+// ── Calibrated Confidence (Phase 2) ─────────────────────────────
+
+export type ConfidenceLevel = 'HIGH' | 'MEDIUM' | 'LOW';
+
+export interface ConfidenceResult {
+  answer: number | null;           // predicted answer index (0-3 for ABCD), null if abstained
+  confidence: ConfidenceLevel;
+  entropy: number;                 // vote entropy H (0 = unanimous, ~1.39 = uniform over 4)
+  voteDistribution: number[];      // raw vote counts per option
+  totalVotes: number;
+  abstained: boolean;              // true if confidence too low to answer
+}
+
+export interface CalibrationBucket {
+  confidence: ConfidenceLevel;
+  count: number;
+  correct: number;
+  accuracy: number;                // correct / count
+}
+
+export interface CalibrationMetrics {
+  selectiveAccuracy: number;       // accuracy on accepted (non-abstained) answers
+  coverage: number;                // fraction of questions answered (0..1)
+  abstentionRate: number;          // fraction abstained (0..1)
+  falseConfidenceRate: number;     // wrong answers marked HIGH confidence / total HIGH
+  expectedCalibrationError: number; // ECE across confidence buckets
+  buckets: CalibrationBucket[];
+  totalQuestions: number;
 }
