@@ -58,14 +58,15 @@ interface StaticResult {
 }
 
 const FEW_SHOT_COUNT = 3;
-const VOTE_COUNT = 5; // self-consistency: sample N times, majority vote
+const VOTE_COUNT = 3; // self-consistency: reduced from 5 to fit free-tier token limits
+const EVAL_SIZE = 100; // eval items (reduce for free-tier token budgets)
 
 async function runStaticBaseline(
   adapter: LLMAdapter,
   evalEvaluator: LogiQAEvaluator,
   logger: BenchLogger,
 ): Promise<StaticResult> {
-  const items = evalEvaluator.getAllItems();
+  const items = evalEvaluator.getAllItems().slice(0, EVAL_SIZE);
   const CONCURRENCY = 4;
   const LETTERS = ['A', 'B', 'C', 'D'];
   const fewShotPrefix = buildFewShotPrefix(FEW_SHOT_COUNT);
@@ -166,6 +167,7 @@ async function runLivingAgent(
     cullThreshold: -5,
     systemPromptTemplate: LOGIQA_SYSTEM_PROMPT,
     minTokenBudget: 1200, // LogiQA needs room for CoT reasoning
+    enableCalibrationFitness: true, // Phase 2: penalize false confidence during evolution
   });
 
   // Preflight check
@@ -235,21 +237,72 @@ async function runLivingAgent(
     }
   }
 
-  // ── Evaluate best strategy on eval split ──────────────────────
-  const best = ecology.getBestStrategy();
-  if (!best) throw new Error('No strategies survived evolution');
+  // ── Select best strategy by calibration fitness ────────────────
+  // Instead of picking the best by raw accuracy fitness, evaluate
+  // top candidates on a small calibration sample (20 train items with votes)
+  // and pick the one with best calibration fitness.
+  const allStrategies = [...ecology.getStrategies()].sort((a, b) => b.fitness - a.fitness);
+  if (allStrategies.length === 0) throw new Error('No strategies survived evolution');
+
+  const TOP_N = Math.min(2, allStrategies.length);
+  const CALIBRATION_SAMPLE_SIZE = 15;
+  const trainEvalItems = new LogiQAEvaluator('train').getAllItems().slice(0, CALIBRATION_SAMPLE_SIZE);
+  const LETTERS = ['A', 'B', 'C', 'D'];
+
+  console.log(`  [Living-Agent] Calibration selection: evaluating top ${TOP_N} strategies on ${CALIBRATION_SAMPLE_SIZE} train items...`);
+
+  let best = allStrategies[0];
+  let bestCalFitness = -Infinity;
+
+  for (let si = 0; si < TOP_N; si++) {
+    const candidate = allStrategies[si];
+    const genome = candidate.genome;
+    const voteN = genome.voteCount ?? VOTE_COUNT;
+    const candidateTemp = Math.min(1, Math.max(0, genome.temperature));
+    const candidateTokens = Math.max(1200, genome.maxTokenBudget);
+    const candidatePrompt = buildSystemPrompt(config.systemPromptTemplate, genome, config.toolNames, candidate.taskTypeMemory);
+    const calPrefix = buildFewShotPrefix(FEW_SHOT_COUNT);
+
+    const calResults: ConfidenceResultWithGold[] = [];
+    for (const item of trainEvalItems) {
+      const optionsText = item.options.map((opt, idx) => `${LETTERS[idx]}. ${opt}`).join('\n');
+      const prompt = `${calPrefix}${item.context}\n\nQuestion: ${item.query}\n\n${optionsText}\n\nChoose the best answer (A, B, C, or D). Think step by step, then end with "The answer is X".`;
+      const votes = [0, 0, 0, 0];
+      for (let v = 0; v < voteN; v++) {
+        try {
+          const resp = await adapter.execute(prompt, { temperature: candidateTemp, maxTokens: candidateTokens, systemPrompt: candidatePrompt, toolNames: [] });
+          totalTokens += resp.tokensUsed;
+          const pred = extractAnswer(resp.content);
+          if (pred !== null) votes[pred]++;
+        } catch { /* skip */ }
+      }
+      const confResult = evaluateConfidence(votes, genome);
+      calResults.push({ result: confResult, gold: item.correct_option });
+    }
+
+    const calMetrics = computeCalibrationMetrics(calResults);
+    const calFit = calibrationFitness(calMetrics);
+    console.log(`    strategy ${si + 1}/${TOP_N} (${genome.id}): temp=${genome.temperature.toFixed(2)} T1=${(genome.confidenceThresholdHigh ?? 0.3).toFixed(3)} T2=${(genome.confidenceThresholdLow ?? 0.8).toFixed(3)} policy=${genome.abstentionPolicy ?? 'refuse'} → calFitness=${calFit.toFixed(4)} selAcc=${(calMetrics.selectiveAccuracy * 100).toFixed(1)}% cov=${(calMetrics.coverage * 100).toFixed(1)}%`);
+
+    if (calFit > bestCalFitness) {
+      bestCalFitness = calFit;
+      best = candidate;
+    }
+  }
+
+  console.log(`    selected: ${best.genome.id} (calFitness=${bestCalFitness.toFixed(4)})`);
 
   // Clamp token budget: LogiQA needs at least 1200 tokens for complete CoT reasoning
   const evalTokenBudget = Math.max(1200, best.genome.maxTokenBudget);
 
   const evolvedVoteCount = best.genome.voteCount ?? VOTE_COUNT;
 
-  console.log('  [Living-Agent] Evaluating best strategy on eval split...');
-  console.log(`    best genome: temp=${best.genome.temperature.toFixed(2)} reasoning=${best.genome.reasoningDepth.toFixed(2)} tokens=${best.genome.maxTokenBudget} (eval clamped to ${evalTokenBudget})`);
+  console.log('  [Living-Agent] Evaluating selected strategy on eval split...');
+  console.log(`    genome: temp=${best.genome.temperature.toFixed(2)} reasoning=${best.genome.reasoningDepth.toFixed(2)} tokens=${best.genome.maxTokenBudget} (eval clamped to ${evalTokenBudget})`);
   console.log(`    confidence: T1=${(best.genome.confidenceThresholdHigh ?? 0.3).toFixed(3)} T2=${(best.genome.confidenceThresholdLow ?? 0.8).toFixed(3)} votes=${evolvedVoteCount} policy=${best.genome.abstentionPolicy ?? 'refuse'}`);
 
   const evalEvaluator = new LogiQAEvaluator('eval');
-  const evalItems = evalEvaluator.getAllItems();
+  const evalItems = evalEvaluator.getAllItems().slice(0, EVAL_SIZE);
   const fewShotPrefix = buildFewShotPrefix(FEW_SHOT_COUNT);
 
   const systemPrompt = buildSystemPrompt(
@@ -262,7 +315,6 @@ async function runLivingAgent(
   let correct = 0;
   const total = evalItems.length;
   const CONCURRENCY = 4;
-  const LETTERS = ['A', 'B', 'C', 'D'];
   const evolvedTemp = Math.min(1, Math.max(0, best.genome.temperature));
 
   console.log(`    self-consistency: ${evolvedVoteCount} votes per question (evolved)`);
@@ -403,7 +455,7 @@ export async function logiqa(
     console.log(`  [Logs] ${logger.getLogPath()}`);
 
     console.log('\n============================================================');
-    console.log('LogiQA Benchmark — Evolution vs Static (n=200 eval problems)');
+    console.log(`LogiQA Benchmark — Evolution vs Static (n=${EVAL_SIZE} eval problems)`);
     console.log(`LLM Provider: ${adapterInfo.name} (${adapterInfo.model})`);
     console.log('============================================================\n');
 

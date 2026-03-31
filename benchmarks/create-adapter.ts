@@ -115,6 +115,7 @@ export function hasAnyApiKey(): boolean {
     process.argv.includes('--ollama') ||
     process.env.ANTHROPIC_API_KEY ||
     process.env.DEEPSEEK_API_KEY ||
+    process.env.CEREBRAS_API_KEY ||
     process.env.OPENROUTER_API_KEY ||
     process.env.TOGETHER_API_KEY ||
     process.env.GROQ_API_KEY

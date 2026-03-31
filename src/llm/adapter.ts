@@ -306,6 +306,7 @@ export interface OpenAIAdapterConfig {
 
 const PROVIDER_DEFAULTS: Record<string, { baseUrl: string; model: string; envKey: string }> = {
   deepseek: { baseUrl: 'https://api.deepseek.com', model: 'deepseek-chat', envKey: 'DEEPSEEK_API_KEY' },
+  cerebras: { baseUrl: 'https://api.cerebras.ai/v1', model: 'llama3.1-8b', envKey: 'CEREBRAS_API_KEY' },
   together: { baseUrl: 'https://api.together.xyz/v1', model: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo', envKey: 'TOGETHER_API_KEY' },
   groq:     { baseUrl: 'https://api.groq.com/openai/v1', model: 'llama-3.1-8b-instant', envKey: 'GROQ_API_KEY' },
   ollama:   { baseUrl: 'http://localhost:11434/v1', model: 'llama3', envKey: '' },

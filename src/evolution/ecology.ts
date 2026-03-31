@@ -157,7 +157,27 @@ export class Ecology {
     const habitatMatch = 1 - Math.abs(strategy.genome.habitatPref - taskHash);
     const habitatBonus = habitatMatch > HABITAT_MATCH_THRESHOLD ? HABITAT_BONUS : 0;
 
-    strategy.fitness += baseReward + habitatBonus - tokenCost;
+    // Calibration penalty: penalize genomes that would claim HIGH confidence
+    // when their rolling accuracy doesn't support it.
+    // T1 controls how permissive HIGH confidence is (higher T1 = more things called HIGH).
+    // If accuracy is low but T1 is permissive → false confidence → penalty.
+    let calibrationPenalty = 0;
+    if (this.config.enableCalibrationFitness) {
+      const history = strategy.taskHistory;
+      if (history.length >= 5) {
+        const recentAccuracy = history.slice(-10).reduce((s, r) => s + (r.score >= 0.5 ? 1 : 0), 0)
+          / Math.min(10, history.length);
+        const t1 = strategy.genome.confidenceThresholdHigh ?? 0.3;
+        // Permissiveness: higher T1 means more answers classified as HIGH
+        // Normalized: t1 / ln(4) gives 0..1 range of how much is classified HIGH
+        const permissiveness = t1 / 1.386;
+        // Penalty: if permissive (claims HIGH often) but inaccurate
+        const falseConfidenceGap = Math.max(0, permissiveness - recentAccuracy);
+        calibrationPenalty = falseConfidenceGap * 2.0; // weight=2.0
+      }
+    }
+
+    strategy.fitness += baseReward + habitatBonus - tokenCost - calibrationPenalty;
 
     // Add to task history (ring buffer)
     strategy.taskHistory.push(result);

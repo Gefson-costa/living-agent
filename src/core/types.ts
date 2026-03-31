@@ -130,6 +130,8 @@ export interface AgentConfig {
   maxTokenCeiling?: number;        // cap maxTokenBudget range (default 4096)
   minTokenBudget?: number;         // floor for maxTokenBudget mutation (default 500)
   concurrency?: number;            // max parallel LLM calls (default 4, use 1-2 for local)
+  // Calibrated confidence
+  enableCalibrationFitness?: boolean;  // when true, reward() penalizes false confidence
 }
 
 // ── LLM Integration ──────────────────────────────────────────────

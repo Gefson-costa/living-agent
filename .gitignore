@@ -18,6 +18,8 @@ examples/node_modules/
 # Documents (not for public repo)
 *.docx
 business.md
+docs/
+CLAUDE.md
 pitch-deck.md
 plan.md
 future.md
