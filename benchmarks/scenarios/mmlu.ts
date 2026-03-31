@@ -40,9 +40,10 @@ import type { BenchmarkResult, TimeSeriesPoint } from '../harness.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const RESULTS_DIR = resolve(__dirname, '..', 'results');
 
-const VOTE_COUNT = 3;
+const VOTE_COUNT = 6;       // minimum votes for reliable entropy signal
 const EVAL_SIZE = 100;
 const CONCURRENCY = 4;
+const CAL_PENALTY = 2.0;    // lower than ecology's 5.0 — small calibration samples are noisy
 const LETTERS = ['A', 'B', 'C', 'D'];
 
 const DOMAIN_PROMPTS: Record<MMLUSubject, string> = {
@@ -279,11 +280,12 @@ async function runEvolved(
 
   let best = allStrategies[0];
   let bestCalFit = -Infinity;
+  let bestSelAcc = -Infinity;
 
   for (let si = 0; si < TOP_N; si++) {
     const candidate = allStrategies[si];
     const genome = candidate.genome;
-    const voteN = genome.voteCount ?? VOTE_COUNT;
+    const voteN = Math.max(VOTE_COUNT, genome.voteCount ?? VOTE_COUNT);
     const temp = Math.min(1, Math.max(0, genome.temperature));
     const tokens = Math.max(1200, genome.maxTokenBudget);
     const sysPrompt = buildSystemPrompt(config.systemPromptTemplate, genome, config.toolNames, candidate.taskTypeMemory);
@@ -305,11 +307,14 @@ async function runEvolved(
     }
 
     const calMetrics = computeCalibrationMetrics(calResults);
-    const calFit = calibrationFitness(calMetrics);
-    console.log(`    strat ${si + 1}/${TOP_N} (${genome.id}): calFitness=${calFit.toFixed(4)} selAcc=${(calMetrics.selectiveAccuracy * 100).toFixed(1)}%`);
+    const calFit = calibrationFitness(calMetrics, CAL_PENALTY);
+    const selAcc = calMetrics.selectiveAccuracy;
+    console.log(`    strat ${si + 1}/${TOP_N} (${genome.id}): calFitness=${calFit.toFixed(4)} selAcc=${(selAcc * 100).toFixed(1)}%`);
 
-    if (calFit > bestCalFit) {
+    // Prefer higher calFitness; break ties with selective accuracy
+    if (calFit > bestCalFit || (calFit === bestCalFit && selAcc > bestSelAcc)) {
       bestCalFit = calFit;
+      bestSelAcc = selAcc;
       best = candidate;
     }
   }
@@ -318,7 +323,8 @@ async function runEvolved(
 
   // Eval
   const evalTokenBudget = Math.max(1200, best.genome.maxTokenBudget);
-  const evolvedVoteCount = best.genome.voteCount ?? VOTE_COUNT;
+  // Force minimum VOTE_COUNT for eval — evolution may pick fewer but entropy needs ≥5-6 votes
+  const evolvedVoteCount = Math.max(VOTE_COUNT, best.genome.voteCount ?? VOTE_COUNT);
   const evolvedTemp = Math.min(1, Math.max(0, best.genome.temperature));
   const systemPrompt = buildSystemPrompt(config.systemPromptTemplate, best.genome, config.toolNames, best.taskTypeMemory);
 
