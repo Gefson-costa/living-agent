@@ -22,6 +22,7 @@ import { swebench } from './scenarios/swebench.js';
 import { ablationMath500 } from './scenarios/ablation-math500.js';
 import { headtohead } from './scenarios/headtohead.js';
 import { logiqa } from './scenarios/logiqa.js';
+import { mmlu } from './scenarios/mmlu.js';
 import type { BenchmarkResult } from './harness.js';
 
 // ── Parse CLI args ──────────────────────────────────────────────
@@ -68,6 +69,7 @@ const REAL_SCENARIOS: Record<string, (seed: number, cycles: number) => Promise<B
   'ablation-math500': ablationMath500,
   'headtohead': headtohead,
   'logiqa': logiqa,
+  'mmlu': mmlu,
 };
 
 // ── Runner ──────────────────────────────────────────────────────
@@ -174,6 +176,8 @@ function getKeyMetric(result: BenchmarkResult): string {
       return `LA: ${((m.livingAgentAccuracy ?? 0) * 100).toFixed(1)}%, tokens: ${m.totalTokensUsed ?? 0}`;
     case 'logiqa':
       return `evolved: ${((m.livingAgentAccuracy ?? 0) * 100).toFixed(1)}% vs static: ${((m.staticAccuracy ?? 0) * 100).toFixed(1)}%, tokens: ${m.totalTokensUsed ?? 0}`;
+    case 'mmlu':
+      return `${m.domainsRun ?? 0} domains, avg selAcc: ${((m.avgSelectiveAccuracy ?? 0) * 100).toFixed(1)}%, tokens: ${m.totalTokensUsed ?? 0}`;
     default:
       return result.details.slice(0, 40);
   }

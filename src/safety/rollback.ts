@@ -214,6 +214,10 @@ function deserializeGenome(g: SerializedGenome): StrategyGenome {
     fewShotCount: g.fewShotCount ?? 0,
     promptSegments: [...(g.promptSegments ?? [])],
     skillRefs: [...g.skillRefs],
+    voteCount: (g as any).voteCount ?? 5,
+    confidenceThresholdHigh: (g as any).confidenceThresholdHigh ?? 0.3,
+    confidenceThresholdLow: (g as any).confidenceThresholdLow ?? 0.8,
+    abstentionPolicy: (g as any).abstentionPolicy ?? 'refuse',
   };
 }
 
